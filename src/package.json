@@ -1,0 +1,15 @@
+{
+  "name": "jabbascribb",
+  "version": "1.0.0",
+  "description": "Some webdev things maybe.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^9.3.4"
+  },
+  "keywords": []
+}

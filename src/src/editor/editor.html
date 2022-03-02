@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html class="no-overflow">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="Content-Security-Policy" preload="./preload.js" content="default-src 'self' 'unsafe-inline'; script-src 'self' * devtools://*;"/>
+		<!-- default codemirror edit theme -->
+		<link rel="stylesheet" type="text/css" href="../shared/libs/code-mirror/codemirror.css"/>
+
+		<!-- library sources -->
+		<script type="application/javascript" src="../shared/libs/code-mirror/codemirror.js"></script>
+		<script type="application/javascript" src="../shared/libs/code-mirror/mode/javascript/javascript.js"></script>
+		<script type="application/javascript" src="../shared/libs/code-mirror/mode/xml/xml.js"></script>
+		<script type="application/javascript" src="../shared/libs/code-mirror/mode/css/css.js"></script>
+		<script type="application/javascript" src="../shared/libs/code-mirror/mode/clike/clike.js"></script>
+		<script type="application/javascript" src="../shared/libs/code-mirror/mode/php/php.js"></script>
+		<script type="application/javascript" src="../shared/libs/code-mirror/mode/shell/shell.js"></script>
+		<script type="application/javascript" src="../shared/modetest.js"></script>
+		
+
+		<!-- app libs -->
+		<script type="application/javascript" src="../shared/config.js"></script>
+		<script type="application/javascript" src="../shared/profiler.js"></script>
+		<script type="application/javascript" src="../shared/common.js"></script>
+		<script type="application/javascript" src="../shared/hotkey.js"></script>
+		<script type="application/javascript" src="../shared/events.js"></script>
+		<script type="application/javascript" src="../shared/builder.js"></script>
+		<script type="application/javascript" src="../shared/codemirror.js"></script>
+
+		<!-- app -->
+		<script type="application/javascript" src="editor.js"></script>
+		<script type="application/javascript" src="editor.builder.js"></script>
+		<script type="application/javascript" src="editor.window.js"></script>
+
+		<!-- default editor theme -->
+		<link rel="stylesheet" type="text/css" href="editor.css"/>
+		<link rel="stylesheet" type="text/css" href="editor.animations.css"/>
+
+	</head>
+	<body class="absolute fill-width fill-height no-padding no-margin"></body>
+</html>

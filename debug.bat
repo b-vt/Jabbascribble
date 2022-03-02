@@ -1,0 +1,1 @@
+start powershell -noexit -c "./bin/debug/win64/electron.exe ./src/main.js --js-flags='--max_old_space_size=0 --expose-gc' -debug"
