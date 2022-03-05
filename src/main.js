@@ -11,7 +11,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 	//electron.shell.openPath("E:\\dev\\");
 	var APP_VERSION_MAJOR = 0;
 	var APP_VERSION_MINOR = 0;
-	var APP_VERSION_PATCH = 0x022422; // the date of modification
+	var APP_VERSION_PATCH = 0x030522; // the date of modification
 	var DEBUG = false;
 	
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');

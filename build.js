@@ -1,31 +1,19 @@
-/*todo: this thing is supposed to do a number of things related to electron setting up this project
-	- it can create a copy of the project source files into a usable form for electron but not asar
-	- for windows binaries it can change the executable icon to -icon='icon.ico'
-	- download electron binaries/packages from https://github.com/electron/electron/releases/
-	- setup an exact copy of the development environment
-
-maintenance:
-	PLATFORM_BUILD_URL should match a TARGET_PLATFORM, the url was taken from electron build page
-	RESOURCE_EDITOR binary path on windows is 
-
-*/
-
+// todo: this is very broken and was supposed to download electron and the editor
 var child = require("child_process");
 var proc = require("process");
 var fs = require("fs");
 var path = require("path");
 var https = require("https");
-// my stuff
-//var Common = require("E:\\Development\\Projects\\NodeJS\\shared\\common.js");
 
 (()=> {
-	var VERION = [ 0, 0, 1, 0x12112021].join(".");
+	var VERSION = [ 0, 0, 1, 0x12112021].join(".");
 	// github downloads for electron distributions
 	var PLATFORM_BUILD_URL = {	"win64": "https://github.com/electron/electron/releases/download/v13.6.3/electron-v13.6.3-win32-x64.zip",
 								"linux": "https://github.com/electron/electron/releases/download/v13.6.3/electron-v13.6.3-linux-x64.zip",
 								// apparently 32 bit is no longer supported?
 								"win32": "https://github.com/electron/electron/releases/download/v13.6.3/chromedriver-v13.6.3-win32-ia32.zip",
 								"linux-32": "https://github.com/electron/electron/releases/download/v13.6.3/electron-v13.6.3-linux-ia32.zip"};
+	var SOURCE_URL = "https://github.com/";
 	// rcedit location for editing icons on windows
 	var RESOURCE_EDITOR = {"win32": "E:\\Development\\Tools\\rcedit\\win32\\rcedit.exe",
 							"win64": "E:\\Development\\Tools\\rcedit\\win64\\rcedit.exe"};

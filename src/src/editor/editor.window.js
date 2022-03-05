@@ -35,7 +35,7 @@ function EditorWindow(opts) {
 		var editor = self.columns.active().editor;
 		if (editor) {
 			var tab = editor.tabs.getActive();
-			if (tab) { /*&& tab.datum) { // todo: column resize doesn't activate mode */
+			if (tab && tab.datum !== undefined && tab.datum !== null) { // todo: column resize doesn't activate mode */
 				//console.log(tab.datum.codemirror.getOption("mode"));
 				setEditorModeSelector(activeFileExtension, tab.datum.codemirror.getOption("mode").name);
 			}
@@ -83,10 +83,10 @@ function EditorWindow(opts) {
 				var tab = tabs.pop();
 				if (tab !== undefined && tab !== null) {
 					tab.refresh();
-					var cmPath = tab.datum.path.toString();
+					var cmPath = tab.datum.path;
 					var cmValue = tab.datum.codemirror.getValue().toString();
 					tab.destroy();
-					self.columns.get()[0].editor.addTab(cmPath.toLowerCase() === Config.InvalidPath ? Lang.NewTab : cmPath, cmValue);					
+					self.columns.get()[0].editor.addTab(cmPath!==undefined?cmPath: Lang.NewTab, cmValue);					
 				}
 			};
 			column.editor.destroy();

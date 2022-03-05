@@ -1,7 +1,8 @@
 /* todo: this is here because someone is a lazy bum */
 .CodeMirror {
 	background: #272822 !important;
-	color: #f8f8f2 !important;
+	/*color: #f8f8f2 !important;*/
+	color: #8ddaff !important;
 	position: absolute !important;
 	width: unset !important;
 	/*height: unset !important;*/
@@ -15,7 +16,8 @@
 	height: 100% !important;
 	text-shadow: 1px 1px 1px #000 !important;
 	font-size: 1.2em !important;
-	font-family: "Georgia", serif;
+	/*font-family: "Georgia", serif;*/
+	font-family: monospace;
 }
 .CodeMirror-focused {
 
@@ -35,9 +37,13 @@
 	/*background-color: #fff !important;*/
 }
 .CodeMirror-cursor {
-	color: #fff !important;
-	background-color: #fff !important;
-	width: 10px !important;
+	/*color: #fff !important;*/
+	background-color: rgba(255, 255, 255) !important;
+	width: 9px !important;
+}
+.CodeMirror-cursors {
+	z-index: 2 !important;
+	background-color: #ff0000;
 }
 .CodeMirror-selected {
 	background-color: #475284 !important;
