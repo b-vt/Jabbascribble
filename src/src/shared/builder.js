@@ -1,3 +1,5 @@
+/* todo: this file is monolithic. classes should eventually seperated into their own source files */
+
 /* on instance it adds a new div to DOM to be container of containers/elements 
 provides some probably bad UI utility
  todo:

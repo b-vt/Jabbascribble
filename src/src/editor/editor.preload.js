@@ -15,14 +15,14 @@ var API_Blob = { // do not modify, contains persistent data to exchange between 
 };
 
 contextBridge.exposeInMainWorld('api', {
-	persist:			() 			=> { return API_Blob; },
-	save: 				(data) 		=> ApiSaveFile(data),
-	plugin:				(data) 		=> ApiPlugin(data),
-	open: 				(data) 		=> ApiOpenFile(data),
-	toggleConsole:		() 			=> ApiToggleConsole(),
-	openFileLocation: 	(data) 		=> ApiOpenFileLocation(data),
-	gc: 				()			=> ApiGC(),
-	quit: () => ApiQuit()
+	persist:			() => { return API_Blob; },
+	save: 				ApiSaveFile,//(data) 		=> ApiSaveFile(data),
+	plugin:				ApiPlugin,//(data) 		=> ApiPlugin(data),
+	open: 				ApiOpenFile,//(data) 		=> ApiOpenFile(data),
+	toggleConsole:		ApiToggleConsole,//() 			=> ApiToggleConsole(),
+	openFileLocation: 	ApiOpenFileLocation,//(data) 		=> ApiOpenFileLocation(data),
+	gc: 				ApiGC,//()			=> ApiGC(),
+	quit:				ApiQuit
 });
 
 

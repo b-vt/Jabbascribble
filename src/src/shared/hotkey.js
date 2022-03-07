@@ -56,7 +56,7 @@ function Hotkey(modifiers, keys, callback) {
 	this.callback = callback;
 	this.modifiers = modifiers;
 }
-/* takes an InputEventDto
+/* takes an InputEventDto and tests if a hotkey event can trigger
 	*/
 Hotkey.prototype.check = function(dto, event) {
 	var sets = 0;

@@ -63,7 +63,7 @@
 	color: #9d89c5 !important;
 }
 .cm-atom {
-	color: #9d89c5;
+	color: #f390ff;
 }
 .cm-this {
 	color: #fff000;
@@ -126,6 +126,7 @@
 	color: #fff;
 }
 .cm-bracket {
+	/*color: #8ddaff !important;*/
 	color: #fff !important;
 }
 .cm-tag {
@@ -156,7 +157,10 @@
 .cm-operator {
 	color: #f924a4;
 }
-
+.cm-highlight1 {
+	color: #ff0000;
+	background-color: #00ff00;
+}
 /* app data */
 body {
 	background-color: rgb(0, 0, 0);

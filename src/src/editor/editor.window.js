@@ -131,7 +131,7 @@ function EditorWindow(opts) {
 	var rowTools = UI.make("tr", "", this.head);
 	this.rowTools = UI.make("td", "zero-height ui-row-toolbar no-padding no-margin", rowTools);
 
-	var footerContents = UI.make("div", "", this.rowFooter, "{fileName} - {lastSaveDate}");
+	var footerContents = UI.make("div", "", this.rowFooter, "");
 	// mode change drop down
 	var activeFileExtension = this.activeFileExtension = UI.make("select", "right", footerContents);
 	activeFileExtension.name = "activeFileExtension";
@@ -251,15 +251,19 @@ function EditorWindow(opts) {
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [83], saveCurrent);// ctrl + s
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [78], newFile); // ctrl + n
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [79], openFile); // ctrl + o
-	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [68], function(dto, event) {
-		console.log("1")
+	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [68], function(dto, event) { // ctrl shift d
+		
 	});
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [68], function(dto, event) {
-		console.log("2")
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [68], function(dto, event) { // ctrl d
+		
 	});
-	globalHotkeys.add(InputEventDto.prototype.SHIFT, [68], function(dto, event) {
-		console.log("3")
+	globalHotkeys.add(InputEventDto.prototype.SHIFT, [68], function(dto, event) { // shift d
+		
 	});
+	globalHotkeys.add(InputEventDto.prototype.SHIFT, [70], function(dto, event) { // ctrl + f
+		
+	});
+	
 	/*globalHotkeys.add(InputEventDto.prototype.CTRL, [32], function(e) { // ctrl + space
 		var edit = self.columns.active().editor;
 		if (edit.tabs.get().length > 0) {

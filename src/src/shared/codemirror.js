@@ -29,6 +29,7 @@ function CodeMirrorFactory(element, extension, data) {
 			"Ctrl-N": function(cm) { return; },
 			"Ctrl-S": function(cm) { return; },
 			"Ctrl-O": function(cm) { return; },
+			/*"Ctrl-F": function(cm) { return; },*/
 			"Alt-[": function(cm) { return; },
 			"Alt-]": function(cm) { return; },
 			"Alt-K": function(cm) { return; },
@@ -40,16 +41,15 @@ function CodeMirrorFactory(element, extension, data) {
 			"Alt-O": function(cm) { return; },
 			//"Ctrl-": function(cm) { return; },
 			//"Alt-": function(cm) { return; },
-
 		}
 	});
 	cm.parentRef = element;
 	cm.setValue(data);
 	return cm;
 }
-
-function CallbackAutocomplete(a, b, c) {
-	console.log(a, b, c, window);
+/* extra key callbacks only have one argument */
+function CallbackAutocomplete(cm) {
+	console.log(cm);
 }
 
 function GetModeFromExtension(extension) {
@@ -57,7 +57,7 @@ function GetModeFromExtension(extension) {
 	var name = null;
 	var json = false;
 
-	ext = extension.split(".").pop();//ext.join("");
+	ext = extension.split(".").pop();
 	if (ext==="html") {
 		return {name: "xml"}
 	}

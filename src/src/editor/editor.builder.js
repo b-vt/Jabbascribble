@@ -3,11 +3,11 @@ function ElementEditorColumn(column) {
 	this.column = column;
 	this.container = UI.make("div", "full-width full-height", this.parent);
 	this.table = UI.make("table", "collapsed full-width full-height", this.container);
-	this.tbody = 	UI.make("tbody", "", this.table);
-	this.tr1 =			UI.make("tr", "", this.tbody);
-	this.header =			UI.make("td", "collapsed ui-columns-tabs", this.tr1);
-//	this.resizer =			UI.make("td", "ui-columns-resizer", tr1, undefined, true);
-	this.tr2 = 			UI.make("tr", "", this.tbody);
+	this.tbody = UI.make("tbody", "", this.table);
+	this.tr1 =	UI.make("tr", "", this.tbody);
+	this.header = UI.make("td", "collapsed ui-columns-tabs", this.tr1);
+//	this.resizer = UI.make("td", "ui-columns-resizer", tr1, undefined, true);
+	this.tr2 = UI.make("tr", "", this.tbody);
 	this.content2 =			UI.make("td", "ui-columns-column", this.tr2);
 	this.content =			UI.make("div", " full-height full-width relative", this.content2);
 
