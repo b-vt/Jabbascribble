@@ -14,10 +14,11 @@ function CodeMirrorFactory(element, extension, data) {
 		tabSize: Config.editor.TabSize,
 		indentUnit: Config.editor.IndentUnit,
 		indentWithTabs: Config.editor.IndentWithTabs,
+		lineWrapping: Config.editor.LineWrapping,
 		continuousScanning: true,
 		extraKeys: {
-			"Shift-Tab": "indentLess",
-			"Tab": "indentMore",
+			"Shift-Tab": IndentLess,
+			"Tab": IndentMore,
 			// unmap codemirror stuff that i don't like because i'm a weirdo who doesn't adapt
 			"Alt-Backspace": function(cm) { return; },
 			"Ctrl-[": function(cm) { return; },
@@ -39,6 +40,7 @@ function CodeMirrorFactory(element, extension, data) {
 			"Alt-N": function(cm) { return; },
 			"Alt-S": function(cm) { return; },
 			"Alt-O": function(cm) { return; },
+			"Insert": function(cm) { return; }
 			//"Ctrl-": function(cm) { return; },
 			//"Alt-": function(cm) { return; },
 		}
@@ -46,6 +48,13 @@ function CodeMirrorFactory(element, extension, data) {
 	cm.parentRef = element;
 	cm.setValue(data);
 	return cm;
+};
+
+function IndentMore(cm) {
+	cm.execCommand("indentMore");
+}
+function IndentLess(cm) {
+	cm.execCommand("indentLess");
 }
 /* extra key callbacks only have one argument */
 function CallbackAutocomplete(cm) {

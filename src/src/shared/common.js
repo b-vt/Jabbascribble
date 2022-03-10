@@ -247,6 +247,8 @@ function BlockCallback(fnRoutine) {
 			init = true;
 			if (typeof fnRoutine === "function")
 				fnRoutine(result);
+			else
+				return null;
 		}
 	return result;
 };

@@ -157,9 +157,21 @@
 .cm-operator {
 	color: #f924a4;
 }
-.cm-highlight1 {
-	color: #ff0000;
-	background-color: #00ff00;
+.cm-highlight {
+	color: #ffff00;
+	/*background-color: #00ff00;*/
+	font-weight: 900;
+}
+[data-highlighted="1"] {
+	box-shadow: 2px 0px 0px 0px #8500ff, 
+				-2px 0px 0px 0px #8500ff, 
+				0px 0px 0px 0px #8500ff, 
+				0px 0px 0px 0px #8500ff;
+	border: 0;
+	border-radius: 25px;
+	padding: 5px;
+	z-index: 10;
+	font-style: italic;
 }
 /* app data */
 body {
@@ -530,7 +542,26 @@ details > .ui-context-menu {
 .ui-columns-column {
 	height: 100%;
 }
-
+.ui-input {
+	background-color: #383933;
+	color: #f0f0f0;
+	
+	padding: 1px 5px 1px 5px;
+	margin: 0px 2px 0px 0px;
+	outline: none;
+	caret-color: #dfdfdf;
+	border-radius: 0px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+}
+.ui-checkbox {
+	width: 15px;
+	height: 15px;
+	min-width: 15px;
+	min-height: 15px;
+	background-color: #ff0000;
+}
 .collapsed {
 	border-collapse: collapse;
 	padding: 0px;

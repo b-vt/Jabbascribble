@@ -27,8 +27,6 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 			}).add("-v -version", function() {
 				console.log("Jabbascribble version:", [APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH].join("."));
-			}).add("-f", function(fn) {
-				
 			});
 			var app = new ApplicationClass().init();
 		}
@@ -167,8 +165,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 		var appWindow = CreateWindow(this, "./src/editor/editor.html", {
 			preload: './src/editor/editor.preload.js',
 			icon: "./data/icon-32.ico",
-			width: Config.editor.Width,
-			height: Config.editor.Height,
+			width: Config.window.Width,
+			height: Config.window.Height,
 			openTools: Config.EnableDevTools
 		});
 		appWindow.webContents.send('main-init', { uuid: appWindow.id });

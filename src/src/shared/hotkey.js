@@ -41,7 +41,6 @@ Hotkeys.prototype.destroy = function() {
 };
 /* same as Hotkey constructor */
 Hotkeys.prototype.add = function(modifiers, keys, fnCallback) {
-	
 	var hotkey = new Hotkey(modifiers, keys, fnCallback);
 	this.list.push(hotkey);
 	return this;//hotkey;

@@ -1,4 +1,4 @@
-/* transfer input event from a listener into less
+/* normalize various forms of input from listener events
 		todo: multitouch, keyboard, mouse, controller support?
 	*/
 function InputEventDto(event, keymap, noDefaultPropagation) {
@@ -7,12 +7,8 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 	this.key = -1; // key press keyCode
 	this.isModified = false; // input has a modifier key
 	this.modifiers = 0; // bitfield for modifier keys
-	/*this.ctrl = false;
-	this.shift = false;
-	this.alt = false;
-	this.meta = false;*/
 	this.map = ""; // poorly implemented string name of button, ie "A KEY" when A is pressed
-	this.keymap = keymap || []; // 
+	this.keymap = keymap || []; // a map, all keys are formated " keyCodeValue" because pressing just A results in array [empty x 94, 95]
 	this.wheelDelta = 0;
 	this.wheelDeltaX = 0;
 	this.wheelDeltaY = 0;
@@ -65,8 +61,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 			break;
 		}
 	}
-}
-
+};
 InputEventDto.prototype.consumeMouseEvent = function(event) {
 	this.isModified = this.hasModifier(event);
 

@@ -233,21 +233,6 @@ function ElementIconButton(parentElement, classNames, hint, labelFor, noAppend, 
 	var icon = UI.make("div", "ui-icon " + classNames, this.container);
 	if (hint !== undefined && hint !== null) {
 		icon.title = hint;
-		/*icon.addEventListener("mouseover", function(e) {
-			var evt = new InputEventDto(e);
-			var timer = setTimeout(function() {
-				
-				clearTimer(timer);
-			}, 1000);
-		});
-		icon.addEventListener("mouseleave", function(e) {
-			var evt = new InputEventDto(e);
-			var timer = setTimeout(function() {
-				
-				clearTimer(timer);
-			}, 1000);
-		});*/
-		//icon.setAttribute("alt", hint);
 	}
 	if (labelFor !== undefined && labelFor !== null) {
 		this.container.htmlFor = labelFor;

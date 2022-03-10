@@ -3,18 +3,21 @@ var Config = {
 	SrcDir: "/src",
 	Lang: "en",
 	Langs: ["en"],
-	EnableDevTools: false,
+	EnableDevTools: true,
 	TabsScrollDelta: 10,
 	Debug: false,
+	window: {
+		Width: 1100,
+		Height: 600
+	},
 	editor: {
 		LineNumbers: true,
 		IndentWithTabs: true,
+		LineWrapping: true,
 		TabSize: 4,
 		IndentUnit: 4,
 		Columns: 1,
-		MaxColumns: 4,
-		Width: 1000,
-		Height: 500
+		MaxColumns: 4
 	},
 	plugins: [
 		{

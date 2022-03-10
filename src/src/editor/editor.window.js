@@ -8,6 +8,113 @@ function EditorWindow(opts) {
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
 	// private method declarations
+	var findList = [];
+	var findListIterator = 0;
+	var lastTxt = undefined;
+	var highlights = [];
+	function clearFinds(cm) {
+		cm.doc.getAllMarks(function(mark) {
+			mark.clear();
+		});
+		lastTxt = undefined;
+		findList = [];
+		highlights = [];
+	}
+	function fnFindMatches(txt, caseSensitive, noHighlight) { // ctrl + f
+		var edit = GetActiveTabEditor();
+		var cm = edit.datum.codemirror;
+		var from = cm.doc.getValue();
+		if (edit && from.length >= txt.length) {
+			var matches = 0; // highlight id
+			var length = 0;// txt index made by accumulating character matches
+			var startLine = 0;
+			var startCh = 0;
+			var endLine = 0; // persistent line count, does not get reset
+			var endCh = 0; // persistent ch count, on reset to 0 on line breaks
+			var highlight = null;
+			var reset = false;
+			
+			if (txt !== lastTxt || txt == "") { // this is a new search
+				clearFinds(cm);
+			}
+			
+			// locate highlight span element here because codemirror doesn't seem to do this
+			if (findList.length > 0) {
+				if (highlights.length == 0) {
+					highlights = document.getElementsByClassName("cm-highlight");
+					for(var h = 0; h < highlights.length; h++) {
+						var id = parseInt(highlights[h].getAttribute("data-id"));
+						findList[id].element = highlights[h];
+						//findList[0].element.setAttribute("data-highlighted", "1"); // highlight the first match
+					}
+				}
+				//console.log(findListIterator, findList, findList[findListIterator].element);
+				//cm.doc.setCursor({line: findList[findListIterator].startLine, ch: 0});
+				findList[findListIterator].element.setAttribute("data-highlighted", "0"); // unfocus current highlight				
+				findListIterator = (findListIterator+1) % (findList.length);//findListIterator < findList.length - 1 ? findListIterator+1 : 0; // step iterator forward 
+				findList[findListIterator].element.setAttribute("data-highlighted", "1"); // focus next highlight
+				//console.log(findListIterator, findList[findListIterator].element);
+				// now scroll to the highlight
+				//var y1 = findList[findListIterator].element.getClientRects()[0].top;
+				//var y2 = cm.doc.height;
+				//cm.scrollTo(0, y2 - y1);
+				return;
+			};
+			
+			for(var i = 0; i < from.length; i++) {
+				if (length == txt.length || reset) {
+					if (!reset) {
+						if (!noHighlight)
+							highlight = cm.doc.markText({line: startLine, ch: startCh}, 
+													{line: endLine, ch: endCh}, 
+													{className: "cm-highlight", attributes: {"data-id": matches}});
+						findList.push({
+							length: length,
+							startLine: startLine,
+							startCh: startCh,
+							endLine: endLine,
+							endCh: endCh,
+							highlight: highlight
+						});
+						matches++;
+					}
+					length = 0;
+					startLine = 0;
+					startCh = 0;
+					highlight = null;
+					reset = false;
+				}
+				
+				if (from[i] == '\n') {
+					// step index & line forward because new line
+					endLine++;
+					endCh = 0;
+					continue;
+				}
+				var m = (from[i] == txt[length])
+				if (m) {
+					if (length == 0) { // this is the first match
+						if (matches == 0) cm.scrollTo(0, endLine * 15);
+						startLine = endLine;
+						startCh = endCh;
+					}
+					length++;
+					//endCh++; // step ch index forward
+					
+				}
+				endCh++; // step ch index forward
+				if (!m){
+					reset = true;
+				}
+			}
+		}
+		else {
+			clearFinds(cm);
+		}
+	};
+	function fnReplace(from, oldTxt, newTxt, replaceAll) {
+		console.log(oldTxt, newTxt, replaceAll);
+	}
 	function fnSetIdentationMode() {
 		var activeEditor = self.columns.active().editor;
 		if (activeEditor !== null && activeEditor.tabs.getActive() !== null) {
@@ -111,6 +218,15 @@ function EditorWindow(opts) {
 			tmpGetColumn.editor.appendResizer();
 		}
 	};
+	function GetActiveTabEditor() {
+		if (self.columns !== undefined || self.columns !== null) {
+			var column = self.columns.active();
+			if ((column !== undefined || column !== null) && 
+					(column.editor !== undefined || column.editor !== null)) {
+						return column.editor.tabs.getActive();
+			}
+		}
+	};
 
 	//var table1 = UI.make("table", "a full-height full-width", table1);
 	this.head = UI.make("thead", "");//, "", table1);
@@ -130,8 +246,26 @@ function EditorWindow(opts) {
 	this.rowFooter = UI.make("td", "zero-height ui-row-footer no-padding no-margin", rowFooter);
 	var rowTools = UI.make("tr", "", this.head);
 	this.rowTools = UI.make("td", "zero-height ui-row-toolbar no-padding no-margin", rowTools);
-
 	var footerContents = UI.make("div", "", this.rowFooter, "");
+	
+	var searchInput = UI.make("input", "ui-input", footerContents);
+	searchInput.placeholder = Lang.EditSearchPlaceholder;
+	searchInput.title = Lang.EditSearchHint;
+	searchInput.onkeyup = function(event) {
+		if (new InputEventDto(event).key == InputEventDto.prototype.KEY_RETURN)
+			fnFindMatches(this.value);
+	};
+	var searchReplace = UI.make("input", "ui-input", footerContents);
+	searchReplace.placeholder = Lang.EditSearchReplacePlaceholder;
+	searchReplace.title = Lang.EditSearchReplaceHint;
+	searchReplace.onkeyup = function(event) {
+		if (new InputEventDto(event).key == InputEventDto.prototype.KEY_RETURN)
+			fnReplace(searchInput.value, this.value);
+	}
+	var searchReplaceAll = UI.make("span", "ui-checkbox", footerContents, "");
+	UI.make("span", "absolute", searchReplaceAll, " ");
+	var searchReplaceAll2 = UI.make("span", "ui-checkbox", footerContents, "");
+	UI.make("span", "absolute", searchReplaceAll2, " ");
 	// mode change drop down
 	var activeFileExtension = this.activeFileExtension = UI.make("select", "right", footerContents);
 	activeFileExtension.name = "activeFileExtension";
@@ -188,15 +322,15 @@ function EditorWindow(opts) {
 	};*/
 	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = newFile
 	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = saveCurrent;
-	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint/*"If using --expose-gc then manually run Garbage Collection"*/, undefined, undefined, function() {
+	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint, undefined, undefined, function() {
 		window.api.gc();
 	});
 
 	
 
 	// event listeners from preload script
-	window.addEventListener('app-tab-save', function(event) {
-		self.columns.columns.forEach(function(column) {
+	window.addEventListener('app-tab-save', function(event) { // remove * from title and update tab datum
+		self.columns.columns.forEach(function(column) { // todo: tab id is already included so column id should be too to save time
 			column.editor.tabs.tabs.forEach(function(tab) {
 				if (event.detail.id == tab.datum.id) {
 					tab.datum.modifier = "";
@@ -205,7 +339,7 @@ function EditorWindow(opts) {
 			});
 		});
 	});
-	window.addEventListener("app-open", function(event) {
+	window.addEventListener("app-open", function(event) { // file open event
 		self.columns.active().editor.addTab(event.detail.path, event.detail.value);
 	});
 	/*window.addEventListener("app-plugin", function(event) {
@@ -248,9 +382,9 @@ function EditorWindow(opts) {
 		window.api.plugin(pluginMsg);*/
 		console.log(inputDto);
 	};
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [83], saveCurrent);// ctrl + s
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [78], newFile); // ctrl + n
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [79], openFile); // ctrl + o
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_S], saveCurrent);// ctrl + s
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_N], newFile); // ctrl + n
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_O], openFile); // ctrl + o
 	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [68], function(dto, event) { // ctrl shift d
 		
 	});
@@ -260,9 +394,9 @@ function EditorWindow(opts) {
 	globalHotkeys.add(InputEventDto.prototype.SHIFT, [68], function(dto, event) { // shift d
 		
 	});
-	globalHotkeys.add(InputEventDto.prototype.SHIFT, [70], function(dto, event) { // ctrl + f
-		
-	});
+	
+	var highlights = null;
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_F], fnFindMatches);	
 	
 	/*globalHotkeys.add(InputEventDto.prototype.CTRL, [32], function(e) { // ctrl + space
 		var edit = self.columns.active().editor;
@@ -303,9 +437,9 @@ function EditorWindow(opts) {
 	window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
 		
-		if (popup != null) {// if the popup is set
+		if (popup != null) {
 			// if the click was NOT on the popup OR the popups children
-			console.log(e.target);
+			//console.log(e.target);
 			if (e.target != popup.container && !e.target.isPopup ) { // todo: ?
 				popup.destroy(); // die BART die
 				popup = null;

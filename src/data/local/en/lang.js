@@ -1,5 +1,9 @@
 var Lang = {
 	NewTab: "<New>",
+	EditSearchPlaceholder: "Search",
+	EditSearchHint: "Find and highlight search text.",
+	EditSearchReplacePlaceholder: "Replace",
+	EditSearchReplaceHint: "Replace search text with whatever jank is in this box.",
 	Menu: {
 		// file menu
 		File: "File",
