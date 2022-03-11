@@ -52,7 +52,7 @@ Hotkeys.prototype.add = function(modifiers, keys, fnCallback) {
 */
 function Hotkey(modifiers, keys, callback) {
 	this.keys = keys;
-	this.callback = callback;
+	this.callback = callback || (() => {});
 	this.modifiers = modifiers;
 }
 /* takes an InputEventDto and tests if a hotkey event can trigger
@@ -61,7 +61,7 @@ Hotkey.prototype.check = function(dto, event) {
 	var sets = 0;
 	if (this.modifiers != dto.modifiers) return false;
 	this.keys.forEach(function(keyCode) {
-		if (dto.keymap[" "+(keyCode)] == true) { // " " + 10 because "10" results in array => [empty x 9, 10: true]
+		if (dto.keymap[" "+(keyCode)] == true) { // " " + 10 because "10" results in array => [empty x 9, 10: true] instead
 			sets++;
 		}
 	});

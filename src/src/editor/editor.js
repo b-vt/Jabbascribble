@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	/* document logic entry point */
 	script.onload = function() {
+		InjectCSS(".CodeMirror", "font-size", Config.editor.FontSize, "px");
 		UI = new WindowBuilder("table");
 		var win = new EditorWindow();
 	};

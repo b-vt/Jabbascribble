@@ -17,7 +17,8 @@ var Config = {
 		TabSize: 4,
 		IndentUnit: 4,
 		Columns: 1,
-		MaxColumns: 4
+		MaxColumns: 4,
+		FontSize: 15 // css px
 	},
 	plugins: [
 		{

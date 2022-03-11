@@ -162,9 +162,12 @@
 	/*background-color: #00ff00;*/
 	font-weight: 900;
 }
-[data-highlighted="1"] {
-	box-shadow: 2px 0px 0px 0px #8500ff, 
-				-2px 0px 0px 0px #8500ff, 
+.cm-highlight-focused {
+	color: #ffff00;
+	/*background-color: #00ff00;*/
+	font-weight: 900;
+	box-shadow: 5px 0px 0px 0px #9510ff, 
+				-5px 0px 0px 0px #9510ff, 
 				0px 0px 0px 0px #8500ff, 
 				0px 0px 0px 0px #8500ff;
 	border: 0;

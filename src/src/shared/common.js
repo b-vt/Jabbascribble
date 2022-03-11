@@ -1,4 +1,7 @@
 // vanilla javascript
+/* dynamically modifier css per selector with
+	for example, InjectCSS(".CodeMirror", "font-size", 25, "px");
+*/
 function InjectCSS(selector, rule, value, extra, delimiter) {
 	var style = document.createElement("style");
 	document.head.appendChild(style);
