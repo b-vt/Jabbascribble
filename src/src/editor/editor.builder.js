@@ -125,8 +125,13 @@ ElementEditorColumn.prototype.addTab = function(name, value) {
 					tab.activate();
 				};
 			}
-			else { // is not a tab
-
+			else { // todo: this is not a tab, get select data maybe?
+				var selections = datum.codemirror.doc.getSelection();
+				if (selections > 0) {
+					context.add(FormatString("search for\"%s\"", selections), "ui-icon-save", "").onclick = function() {
+						console.log("selected junko: %s", selections);
+					};
+				}
 			}
 			if (datum.path !== undefined && datum.path !== null && datum.path.length > 1)
 				context.add(Lang.Menu.OpenFileLocation, "ui-icon-folder-explore", Lang.Menu.OpenFileLocationHint).onclick = function() {
@@ -135,7 +140,9 @@ ElementEditorColumn.prototype.addTab = function(name, value) {
 					splits.pop();
 					window.api.openFileLocation({path: splits.join("/")});
 				};
-			context.show(event.clientX, event.clientY);
+
+			if (context.items.length > 0) // destroy the tiny little square of resistence
+				context.show(event.clientX, event.clientY);
 		}
 
 		pane.oncontextmenu = function(event) { onContextMenu(event, false); }
@@ -168,7 +175,7 @@ ElementTabEditorData.prototype.update = function(data) {
 	
 	if (data !== undefined && data !== null)
 		if (data.name !== undefined) {
-			this.name = data.name.split("\\").pop().split("/").pop();
+			this.name = data.name.split("\\").pop().split("/").pop(); // todo: this is gross
 			this.path = data.name === Lang.NewTab ? 0 : data.name;
 			//element.nodeValue = this.name;
 		}

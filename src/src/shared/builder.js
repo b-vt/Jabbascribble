@@ -114,12 +114,13 @@ function ElementContextMenu(parentElement, name) {
 	this.container = UI.make("div", "absolute top-level-most ui-context-menu ui-hide ui-bubble no-padding", parent);
 	this.container.setAttribute("data-bubble", "1");
 	this.container.contextMenu = this; // give the container a reference to the context menu object
-
+	this.index = 0;
 }
 ElementContextMenu.prototype.add = function(name, iconButton, hint, noSeparator) {
 	if (name !== undefined && name !== null) {
-		if (this.items[name] === undefined || this.items[name] === null) {
-			this.items[name] = new ElementMenuItem(this.container, name, "", hint);		
+		this.index++;
+		if (this.items[this.index] === undefined || this.items[this.index] === null) {
+			this.items[this.index] = new ElementMenuItem(this.container, name, "", hint);		
 			if (iconButton !== undefined && iconButton !== null) {
 				var icon = UI.make("div", "inline ui-icon ui-icon-empty no-padding " + iconButton, null, null, true);
 			}
@@ -127,12 +128,12 @@ ElementContextMenu.prototype.add = function(name, iconButton, hint, noSeparator)
 				var icon = UI.make("div", "inline ui-icon ui-icon-empty no-padding", null, null, true);
 			}
 			if (noSeparator !== true)
-				this.items[name].container.prepend(UI.make("span", "ui-menu-item-separator-side", null, '\xa0', true));
-			this.items[name].container.prepend(icon);
+				this.items[this.index].container.prepend(UI.make("span", "ui-menu-item-separator-side", null, '\xa0', true));
+			this.items[this.index].container.prepend(icon);
 			if (hint !== undefined && hint !== null) {
 				icon.title = hint;
 			}
-
+			icon.contextMenu = this;
 		}
 	}
 	else 
@@ -141,7 +142,7 @@ ElementContextMenu.prototype.add = function(name, iconButton, hint, noSeparator)
 	/*if (onclick !== undefined && onclick !== null) {
 		this.items[name].onclick = onclick;
 	}*/
-	return this.items[name];
+	return this.items[this.index];
 	//return this;
 };
 ElementContextMenu.prototype.show = function(x, y) {
@@ -165,6 +166,7 @@ ElementContextMenu.prototype.hide = function() {
 	}
 	else
 		this.container.remove();
+	console.trace();
 };
 
 //
@@ -179,8 +181,7 @@ ElementContextMenu.prototype.setPosition = function(x, y) {
 	/* oddwarg magic
 		but also matches css attribute selectors to the container rect
 		top left = 1, top right = 2
-		bottom left = 3, bottom right = 4
-	*/
+		bottom left = 3, bottom right = 4 */
 	var flag = 0;
 	if (x > window.innerWidth - rect.width) {
 		x = x - rect.width;
@@ -206,7 +207,7 @@ ElementContextMenu.prototype.destroy = function() {
 function ElementMenuItem(parentElement, name, classNames, hint ) {
 	var self = this;
 	this.classNames = "ui-menu-item"
-	this.container = UI.make("div", classNames || this.classNames, parentElement, name);;
+	this.container = UI.make("div", classNames || this.classNames, parentElement, name);
 	this.name = name;
 	this.onclick = null; 
 	//var element = UI.make("div", classNames || this.classNames, parentElement, name);
@@ -221,6 +222,7 @@ function ElementMenuItem(parentElement, name, classNames, hint ) {
 			self.onclick(event, this, self);
 		// not sure where else to hide the context menu when an item has been clicked
 		parentElement.contextMenu.hide();
+		console.log("??");
 	}
 }
 
@@ -243,6 +245,7 @@ function ElementIconButton(parentElement, classNames, hint, labelFor, noAppend, 
 	this.container.onclick = function(event) {
 		if (self.onclick !== undefined && self.onclick !== null)
 			self.onclick(event);
+		console.log("?>?!?");
 	}	
 }
 
