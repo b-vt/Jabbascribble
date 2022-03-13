@@ -51,7 +51,12 @@ function CodeMirrorFactory(element, extension, data) {
 };
 
 function IndentMore(cm) {
-	cm.execCommand("indentMore");
+	var selection = cm.doc.getSelection().trim();
+	if (selection.length > 0)
+		cm.execCommand("indentMore");
+	else
+		cm.replaceSelection("\t");
+	
 }
 function IndentLess(cm) {
 	cm.execCommand("indentLess");
@@ -67,26 +72,26 @@ function GetModeFromExtension(extension) {
 	var json = false;
 
 	ext = extension.split(".").pop();
-	if (ext==="html") {
+	if (ext=="html") {
 		return {name: "xml"}
 	}
-	else if (ext==="js") {
+	else if (ext=="js") {
 		return {name: "javascript"}
 	}
-	else if (ext==="css") {
+	else if (ext=="css") {
 		return {name: "css"}
 	}
-	else if (ext==="json") {
+	else if (ext=="json") {
 		return {name: "javascript",
 				json: true}
 	}
-	else if (ext==="java") {
+	else if (ext=="java") {
 		return {name: "java"}
 	}
-	else if (ext==="c" || ext==="cpp" || ext==="h" || ext==="hpp" || ext==="cs") {
+	else if (ext=="c" || ext=="cpp" || ext=="h" || ext=="hpp" || ext=="cs") {
 		return { name: "text/x-c++src"};
 	}
-	/*else if (ext==="") {
+	/*else if (ext=="") {
 		name = "";
 	}*/
 	return { name: null };
