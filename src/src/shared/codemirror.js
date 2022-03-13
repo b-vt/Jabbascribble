@@ -52,7 +52,7 @@ function CodeMirrorFactory(element, extension, data) {
 
 function IndentMore(cm) {
 	var selection = cm.doc.getSelection().trim();
-	if (selection.length > 0)
+	if (selection.length > 0) // indent lines if any text is selected instead of inserting tabs?
 		cm.execCommand("indentMore");
 	else
 		cm.replaceSelection("\t");

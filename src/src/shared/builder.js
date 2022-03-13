@@ -166,7 +166,6 @@ ElementContextMenu.prototype.hide = function() {
 	}
 	else
 		this.container.remove();
-	console.trace();
 };
 
 //
@@ -222,7 +221,6 @@ function ElementMenuItem(parentElement, name, classNames, hint ) {
 			self.onclick(event, this, self);
 		// not sure where else to hide the context menu when an item has been clicked
 		parentElement.contextMenu.hide();
-		console.log("??");
 	}
 }
 
@@ -245,7 +243,6 @@ function ElementIconButton(parentElement, classNames, hint, labelFor, noAppend, 
 	this.container.onclick = function(event) {
 		if (self.onclick !== undefined && self.onclick !== null)
 			self.onclick(event);
-		console.log("?>?!?");
 	}	
 }
 
@@ -308,20 +305,19 @@ function ElementColumn(columns, parentElement) {
 	this.container = UI.make("td", "ui-column", parentElement);
 	this.id = null;// array index location
 
-	var table = UI.make("table", "collapsed full-width full-height", this.container);
-	var tableBody = UI.make("tbody", "", table);
+	this.table = UI.make("table", "collapsed full-width full-height", this.container);
+	var tableBody = UI.make("tbody", "", this.table);
 	var tableRow = UI.make("tr", "", tableBody);
 	this.content = UI.make("td", "collapsed full-height", tableRow);
-	this.content.self = this; // expose this column class to the DOM object
+	this.content.self = this; // expose this column class to the DOM
 	
 	var self = this;
 	this.container.onmousedown = function(e) {
 		self.columns.active(self);
-		//self.columns.active().
 	}
 }
 ElementColumn.prototype.destroy = function() {
-	if (this.columns.active() === this) {
+	if (this.columns && this.columns.active() == this) {
 		this.columns.active(this.columns.get(0));
 	}
 	this.content.self = null;

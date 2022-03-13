@@ -34,7 +34,7 @@
 	text-shadow: none !important;
 }
 .CodeMirror-lines {
-	/*background-color: #fff !important;*/
+	/*background-color: #2e2f29 !important;*/
 }
 .CodeMirror-cursor {
 	/*color: #fff !important;*/
@@ -217,8 +217,11 @@ body {
 	margin-right: 2px;
 }
 .ui-select-multi {
-	background-color: rgb(225, 230, 240);
-	outline: 0;
+	background-color: rgb(85, 85, 80);
+	outline: none;
+}
+.ui-select-multi > option {
+	color: rgb(120, 200, 240);
 }
 .top-level-most {
 	z-index: 1100;
@@ -561,19 +564,13 @@ details > .ui-context-menu {
 	padding: 0px;
 	margin: 0px;
 }
-
 [data-show="0"] {
 	visibility: hidden !important;
+	display: none;
 }
-
 [data-show="1"] {
 	visibility: visible !important;
 }
-
-.s1 {
-	
-}
-
 .nudge-left {
 	padding-left: 5px;
 }

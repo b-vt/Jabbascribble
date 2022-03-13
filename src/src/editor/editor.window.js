@@ -10,7 +10,6 @@ function EditorWindow(opts) {
 	// 
 	var find = new Finder();
 	find.fnOnFind = function(f, item) { // fnOnFind callback, used on new searches only
-		console.log("onFind");
 		var edit = GetActiveTabEditor();
 		if (edit) {	
 			var cm = edit.datum.codemirror;
@@ -18,7 +17,7 @@ function EditorWindow(opts) {
 			var className = "cm-highlight";
 			if (item.id == 0) {
 				className = "cm-highlight-focused";
-				cm.scrollIntoView({line: item.startLine, ch: 0});
+				//cm.scrollIntoView({line: item.startLine, ch: 0});
 			}
 			cm.doc.markText({line: item.startLine, ch: item.startCh},
 											{line: item.endLine, ch: item.endCh},
@@ -29,7 +28,6 @@ function EditorWindow(opts) {
 		console.log("onRepeat");
 		var edit = GetActiveTabEditor();
 		if (edit) {	
-			console.log(next, prev);
 			var cm = edit.datum.codemirror;
 			cm.scrollIntoView({line: next.startLine, ch: 0});//0, item.startLine * 15);
 			var mark1 = cm.doc.findMarksAt({line: next.startLine, ch: next.startCh})[0];
@@ -46,7 +44,6 @@ function EditorWindow(opts) {
 		}
 	}
 	find.fnOnReset = function(f) { // fnReset
-		console.log("onReset");
 		var edit = GetActiveTabEditor();
 		if (edit) {	
 			var cm = edit.datum.codemirror;
@@ -55,61 +52,15 @@ function EditorWindow(opts) {
 			});
 		}
 	}
-	//function fnFindMatches()
-	// private method declarations
-	/*function fnFindMatches(txt, ascending) {
-		var edit = GetActiveTabEditor();
-		if (edit) {			
-			var cm = edit.datum.codemirror;
-			var from = cm.doc.getValue();
-			var lineHeight = cm.display.lineDiv.children[0].getClientRects()[0].height;
-			find.search(from, txt,
-			function(f, item) { // fnOnFind callback, used on new searches only
-				var className = "cm-highlight";
-				if (item.id == 0) {
-					className = "cm-highlight-focused";
-					cm.scrollTo(0, item.startLine * 15);
-				}
-				cm.doc.markText({line: item.startLine, ch: item.startCh},
-								{line: item.endLine, ch: item.endCh},
-								{className: className});
-			},
-			function(f) { // fnNext callback, used on duplicate search
-				cm.doc.getAllMarks().forEach(function(mark) {
-					mark.clear();
-				});
-				var index = 0;
-				if (ascending) {
-					var it = f.reverse();
-					index = f.findList.length - 1;
-				}
-				else
-					var it = f.forward();
-				for(var i = 0; i < f.findList.length; i++) {
-					var item = f.findList[index];
-					var className = "cm-highlight";
-					if (item.id == it) {
-						className = "cm-highlight-focused";
-						cm.scrollIntoView({line: item.startLine, ch: 0});//0, item.startLine * 15);
-					}
-					cm.doc.markText({line: item.startLine, ch: item.startCh},
-									{line: item.endLine, ch: item.endCh},
-									{className: className});
-					if (ascending)
-						index--;
-					else
-						index++;
-				}
-			},
-			function(f) { // fnReset
-				cm.doc.getAllMarks().forEach(function(mark) {
-					mark.clear();
-				});
-			});
+	function fnToggleFileExplorer() {
+		if (self.project.visible) {
+			self.project.visible = false;
+			self.project.setAttribute("data-show", "0");
 		}
-	};*/
-	function fnReplace() {
-		
+		else {
+			self.project.visible = true;
+			self.project.setAttribute("data-show", "1");
+		}
 	};
 	function fnSetIdentationMode() {
 		var activeEditor = self.columns.active().editor;
@@ -270,17 +221,13 @@ function EditorWindow(opts) {
 	searchReplace.onkeyup = function(event) {
 		var dto = new InputEventDto(event);
 		if (dto.key == InputEventDto.prototype.KEY_RETURN) {
-			/*var from = "";
 			var edit = GetActiveTabEditor();
 			if (edit) {
 				var cm = edit.datum.codemirror;
 				var selection = cm.doc.getSelection();
-				from = cm.doc.getValue();
+				var from = cm.doc.getValue();
+				cm.doc.setValue(from.replace(searchInput.value, this.value));
 			}
-			if (dto.modifiers & InputEventDto.prototype.SHIFT)
-				find.search(searchInput.value, this.value, true);
-			else
-				find.search(searchInput.value, this.value);*/
 		}
 	};
 	var searchReplaceAll = UI.make("span", "ui-checkbox", footerContents, "");
@@ -330,14 +277,32 @@ function EditorWindow(opts) {
 	columnsSlider.max = 4;
 	columnsSlider.value = Config.editor.Columns;
 	columnsSlider.oninput = resizeEditorColumns;
-
-	this.columns = new ElementColumns(columnsTableBody);//
-
+	view.add("Toggle File Explorer", "", "", true).onclick = fnToggleFileExplorer;
+	
+	
+	// initialize the editor
+	this.columns = new ElementColumns(columnsTableBody);
+	//this.project = new ElementColumn(this.columns, this.columns.container);
+	//this.project.table.classList.remove("full-width");
+	//this.project.container.style.width = "1px";
+	this.project = UI.make("td", "ui-column-folders", this.columns.container);
+	this.project.setAttribute("data-show", "0");
+	var projectContents = new UI.make("div", "full-height", this.project);
+	var projectFilesList = new UI.make("select", "ui-select-multi full-width full-height", projectContents);
+	projectFilesList.setAttribute("multiple", true);
+	UI.make("option", "", projectFilesList, ".");
+	UI.make("option", "", projectFilesList, "..");
+	UI.make("option", "", projectFilesList, "/Jabbascribble");
+	UI.make("option", "", projectFilesList, "\teditor.window.js");
+	
+	//var bleh = new ElementColumn(null, this.project.content);
+	//var label = new UI.make("div", "ui-column-folders", bleh.content, "blah");
+	
 	for(var i =0; i < Config.editor.Columns; i ++) {
 		var col = self.columns.add();
 		col.editor = new ElementEditorColumn(col).init(Config.editor.Columns-1>i?1:0, fnEditorTabActivate);
 	};
-
+	
 	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = openFile;/*() => {
 		window.api.open();
 	};*/
@@ -359,7 +324,17 @@ function EditorWindow(opts) {
 		});
 	});
 	window.addEventListener("app-open", function(event) { // file open event
-		self.columns.active().editor.addTab(event.detail.path, event.detail.value);
+		self.columns.active().editor.addTab(event.detail.path, event.detail.value, function(context, isTab) {
+			var mod = Config.editor.LineWrapping ? "✓" : " ";
+			context.add(mod + " Toggle line wrapping ", "ui-icon-close", "").onclick = function() {
+				Config.editor.LineWrapping = !Config.editor.LineWrapping;
+				var edit = GetActiveTabEditor();
+				if (edit) {
+					var cm = edit.datum.codemirror;
+					cm.setOption("lineWrapping", Config.editor.LineWrapping);
+				}
+			};
+		});
 	});
 	/*window.addEventListener("app-plugin", function(event) {
 		try {
@@ -393,20 +368,18 @@ function EditorWindow(opts) {
 	//var popup = null;
 	// these are global hotkeys i guess idk
 	var globalHotkeys = new Hotkeys();
-	globalHotkeys.onKeyDown = function(inputDto) {
-		/*var pluginMsg = {
+	/*globalHotkeys.onKeyDown = function(inputDto) {
+		var pluginMsg = {
 			event: "hotkey",
 			msg: inputDto
 		};
-		window.api.plugin(pluginMsg);*/
+		window.api.plugin(pluginMsg);
 		console.log(inputDto);
-	};
+	};*/
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_S], saveCurrent);// ctrl + s
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_N], newFile); // ctrl + n
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_O], openFile); // ctrl + o
-	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [68], function(dto, event) { // ctrl shift d
-		
-	});
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleFileExplorer);// ctrl h
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [68], function(dto, event) { // ctrl d
 		
 	});
@@ -423,6 +396,7 @@ function EditorWindow(opts) {
 		}
 		searchInput.value = selection || searchInput.value;
 		searchInput.focus();
+		searchInput.select();
 		find.search(from, searchInput.value);
 	});
 	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [InputEventDto.prototype.KEY_F], function() {
@@ -435,6 +409,7 @@ function EditorWindow(opts) {
 		}
 		searchInput.value = selection || searchInput.value;
 		searchInput.focus();
+		searchInput.select();
 		find.search(from, searchInput.value, true);
 	});
 	
@@ -469,22 +444,14 @@ function EditorWindow(opts) {
 	// cleanup temporary elements on escape and mouse clicks
 	window.addEventListener('keyup', function(event) {
 		var dto = new InputEventDto(event);
-		//if (event.key === "Escape" || event.keyCode === 27)
 		if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
 			find.reset();
-			console.log("here");
+			searchInput.value = "";
+			searchReplace.value = "";
 		}
 	});
-	/*window.addEventListener('mouseup', function(event) {
+	window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
-		
-		if (popup != null) {*/
-			// if the click was NOT on the popup OR the popups children
-			//console.log(e.target);
-			/*if (e.target != popup.container && !e.target.isPopup ) { // todo: ?
-				popup.destroy(); // die BART die
-				popup = null;
-			}*/
-		/*}
-	});*/
+		//find.reset();
+	});
 };
