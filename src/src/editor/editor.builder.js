@@ -125,15 +125,16 @@ ElementEditorColumn.prototype.addTab = function(name, value) {
 					tab.activate();
 				};
 			}
-			else { // todo: this is not a tab, get select data maybe?
+			else { // 
 				var selections = datum.codemirror.doc.getSelection();
 				if (selections > 0) {
+					console.log(selections);
 					context.add(FormatString("search for\"%s\"", selections), "ui-icon-save", "").onclick = function() {
 						console.log("selected junko: %s", selections);
 					};
 				}
 			}
-			if (datum.path !== undefined && datum.path !== null && datum.path.length > 1)
+			if (datum.path && datum.path.length > 1)
 				context.add(Lang.Menu.OpenFileLocation, "ui-icon-folder-explore", Lang.Menu.OpenFileLocationHint).onclick = function() {
 					if (datum.path == undefined) return;
 					var splits = datum.path.split(/[\\/]/g);
