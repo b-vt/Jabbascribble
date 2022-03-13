@@ -7,69 +7,111 @@
 function EditorWindow(opts) {
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
-	// private method declarations
+	// 
 	var find = new Finder();
-	function fnFindMatches(txt, ascending) {
+	find.fnOnFind = function(f, item) { // fnOnFind callback, used on new searches only
+		console.log("onFind");
+		var edit = GetActiveTabEditor();
+		if (edit) {	
+			var cm = edit.datum.codemirror;
+			var from = cm.doc.getValue();
+			var className = "cm-highlight";
+			if (item.id == 0) {
+				className = "cm-highlight-focused";
+				cm.scrollIntoView({line: item.startLine, ch: 0});
+			}
+			cm.doc.markText({line: item.startLine, ch: item.startCh},
+											{line: item.endLine, ch: item.endCh},
+											{className: className});
+		}
+	}
+	find.fnOnRepeat = function(f, next, prev) { // fnNext callback, used on duplicate search
+		console.log("onRepeat");
+		var edit = GetActiveTabEditor();
+		if (edit) {	
+			console.log(next, prev);
+			var cm = edit.datum.codemirror;
+			cm.scrollIntoView({line: next.startLine, ch: 0});//0, item.startLine * 15);
+			var mark1 = cm.doc.findMarksAt({line: next.startLine, ch: next.startCh})[0];
+			var mark2 = cm.doc.findMarksAt({line: prev.startLine, ch: prev.startCh})[0];
+			if (mark1) mark1.clear();
+			if (mark2) mark2.clear();
+
+			cm.doc.markText({line: prev.startLine, ch: prev.startCh},
+											{line: prev.endLine, ch: prev.endCh},
+											{className: "cm-highlight"});
+			cm.doc.markText({line: next.startLine, ch: next.startCh},
+											{line: next.endLine, ch: next.endCh},
+											{className: "cm-highlight-focused"});
+		}
+	}
+	find.fnOnReset = function(f) { // fnReset
+		console.log("onReset");
+		var edit = GetActiveTabEditor();
+		if (edit) {	
+			var cm = edit.datum.codemirror;
+			cm.doc.getAllMarks().forEach(function(mark) {
+				mark.clear();
+			});
+		}
+	}
+	//function fnFindMatches()
+	// private method declarations
+	/*function fnFindMatches(txt, ascending) {
 		var edit = GetActiveTabEditor();
 		if (edit) {			
-			((_txt, _edit, _ascending) => {
-				var cm = _edit.datum.codemirror;
-				var from = cm.doc.getValue();
-				
-				find.search(from, _txt,
-				function(f, item) {
-					console.log("ascending? %o", _ascending);
+			var cm = edit.datum.codemirror;
+			var from = cm.doc.getValue();
+			var lineHeight = cm.display.lineDiv.children[0].getClientRects()[0].height;
+			find.search(from, txt,
+			function(f, item) { // fnOnFind callback, used on new searches only
+				var className = "cm-highlight";
+				if (item.id == 0) {
+					className = "cm-highlight-focused";
+					cm.scrollTo(0, item.startLine * 15);
+				}
+				cm.doc.markText({line: item.startLine, ch: item.startCh},
+								{line: item.endLine, ch: item.endCh},
+								{className: className});
+			},
+			function(f) { // fnNext callback, used on duplicate search
+				cm.doc.getAllMarks().forEach(function(mark) {
+					mark.clear();
+				});
+				var index = 0;
+				if (ascending) {
+					var it = f.reverse();
+					index = f.findList.length - 1;
+				}
+				else
+					var it = f.forward();
+				for(var i = 0; i < f.findList.length; i++) {
+					var item = f.findList[index];
 					var className = "cm-highlight";
-					var index = _ascending == true ? f.findList.length - 1 : 0;
-					if (item.id == index) {
+					if (item.id == it) {
 						className = "cm-highlight-focused";
-						cm.scrollTo(0, item.startLine * 15);
+						cm.scrollIntoView({line: item.startLine, ch: 0});//0, item.startLine * 15);
 					}
 					cm.doc.markText({line: item.startLine, ch: item.startCh},
 									{line: item.endLine, ch: item.endCh},
 									{className: className});
-				},
-				function(f, reset) {
-					cm.doc.getAllMarks().forEach(function(mark) {
-						mark.clear();
-					});
-					var index = _ascending==true ? f.findList.length - 1 : 0;
-					var indexCount = 0;
-					
-					if (_ascending)
-						var it = f.reverse();
+					if (ascending)
+						index--;
 					else
-						var it = f.forward();
-					
-					console.log(it);
-					
-					while(f.findList.length>indexCount) {
-						var item = f.findList[index];
-						var className = "cm-highlight";
-						if (item.id == it) {
-							className = "cm-highlight-focused";
-							cm.scrollTo(0, item.startLine * 15);
-						}
-						cm.doc.markText({line: item.startLine, ch: item.startCh},
-										{line: item.endLine, ch: item.endCh},
-										{className: className});
-						indexCount++
-						if (_ascending) {
-							index--;
-						}
-						else {
-							index++;
-						}
-					}
+						index++;
+				}
+			},
+			function(f) { // fnReset
+				cm.doc.getAllMarks().forEach(function(mark) {
+					mark.clear();
 				});
-			})(txt, edit, ascending);
+			});
 		}
-	};
+	};*/
 	function fnReplace() {
 		
 	};
 	function fnSetIdentationMode() {
-		find.reset();
 		var activeEditor = self.columns.active().editor;
 		if (activeEditor !== null && activeEditor.tabs.getActive() !== null) {
 			var tab = activeEditor.tabs.getActive();
@@ -99,6 +141,7 @@ function EditorWindow(opts) {
 			if (tab && tab.datum !== undefined && tab.datum !== null) { // todo: column resize doesn't activate mode */
 				//console.log(tab.datum.codemirror.getOption("mode"));
 				setEditorModeSelector(activeFileExtension, tab.datum.codemirror.getOption("mode").name);
+				find.reset();
 			}
 		}
 	};
@@ -208,16 +251,17 @@ function EditorWindow(opts) {
 	searchInput.onkeyup = function(event) {
 		var dto = new InputEventDto(event);
 		if (dto.key == InputEventDto.prototype.KEY_RETURN) {
-			console.log(dto.modifiers, dto.modifiers | InputEventDto.prototype.SHIFT, dto.modifiers & InputEventDto.prototype.SHIFT);
-			if (dto.modifiers & InputEventDto.prototype.SHIFT) {
-				console.log("shift enter");
-				fnFindMatches(this.value, true);
+			var from = "";
+			var edit = GetActiveTabEditor();
+			if (edit) {
+				var cm = edit.datum.codemirror;
+				var selection = cm.doc.getSelection();
+				from = cm.doc.getValue();
 			}
-			else {
-				console.log("regular enter");
-				fnFindMatches(this.value);
-			}
-				//
+			if (dto.modifiers & InputEventDto.prototype.SHIFT)
+				find.search(from, this.value, true);
+			else
+				find.search(from, this.value);
 		}
 	};
 	var searchReplace = UI.make("input", "ui-input", footerContents);
@@ -226,10 +270,17 @@ function EditorWindow(opts) {
 	searchReplace.onkeyup = function(event) {
 		var dto = new InputEventDto(event);
 		if (dto.key == InputEventDto.prototype.KEY_RETURN) {
+			/*var from = "";
+			var edit = GetActiveTabEditor();
+			if (edit) {
+				var cm = edit.datum.codemirror;
+				var selection = cm.doc.getSelection();
+				from = cm.doc.getValue();
+			}
 			if (dto.modifiers & InputEventDto.prototype.SHIFT)
-				fnReplace(searchInput.value, this.value);
+				find.search(searchInput.value, this.value, true);
 			else
-				fnReplace(searchInput.value, this.value);
+				find.search(searchInput.value, this.value);*/
 		}
 	};
 	var searchReplaceAll = UI.make("span", "ui-checkbox", footerContents, "");
@@ -295,9 +346,7 @@ function EditorWindow(opts) {
 	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint, undefined, undefined, function() {
 		window.api.gc();
 	});
-
 	
-
 	// event listeners from preload script
 	window.addEventListener('app-tab-save', function(event) { // remove * from title and update tab datum
 		self.columns.columns.forEach(function(column) { // todo: tab id is already included so column id should be too to save time
@@ -364,8 +413,30 @@ function EditorWindow(opts) {
 	globalHotkeys.add(InputEventDto.prototype.SHIFT, [68], function(dto, event) { // shift d
 		
 	});
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_F], undefined);
-	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [InputEventDto.prototype.KEY_F], undefined);
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_F], function() {
+		var from = "";
+		var edit = GetActiveTabEditor();
+		if (edit) {
+			var cm = edit.datum.codemirror;
+			var selection = cm.doc.getSelection();
+			from = cm.doc.getValue();
+		}
+		searchInput.value = selection || searchInput.value;
+		searchInput.focus();
+		find.search(from, searchInput.value);
+	});
+	globalHotkeys.add(InputEventDto.prototype.CTRL | InputEventDto.prototype.SHIFT, [InputEventDto.prototype.KEY_F], function() {
+		var from = "";
+		var edit = GetActiveTabEditor();
+		if (edit) {
+			var cm = edit.datum.codemirror;
+			var selection = cm.doc.getSelection();
+			from = cm.doc.getValue();
+		}
+		searchInput.value = selection || searchInput.value;
+		searchInput.focus();
+		find.search(from, searchInput.value, true);
+	});
 	
 	/*globalHotkeys.add(InputEventDto.prototype.CTRL, [32], function(e) { // ctrl + space
 		var edit = self.columns.active().editor;
@@ -396,13 +467,14 @@ function EditorWindow(opts) {
 	});*/
 
 	// cleanup temporary elements on escape and mouse clicks
-	/*window.addEventListener('keyup', function(event) {
-		if (event.key === "Escape" || event.keyCode === 27)
-			if (popup != null) {
-				popup.destroy();
-				popup = null;
-			}
-	});*/
+	window.addEventListener('keyup', function(event) {
+		var dto = new InputEventDto(event);
+		//if (event.key === "Escape" || event.keyCode === 27)
+		if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
+			find.reset();
+			console.log("here");
+		}
+	});
 	/*window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
 		
