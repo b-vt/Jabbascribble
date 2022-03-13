@@ -64,7 +64,7 @@ ElementEditorColumn.prototype.destroyResizer = function() {
 	this.resizerElement.remove();
 	this.resizer = null;
 };
-ElementEditorColumn.prototype.addTab = function(name, value) {
+ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 	var self = this;
 	if (this.tabs !== undefined && this.tabs !== null) {
 		
@@ -89,6 +89,8 @@ ElementEditorColumn.prototype.addTab = function(name, value) {
 
 		function onContextMenu(event, isTab) {
 			var context = new ElementContextMenu();
+			if (typeof fnOnContextMenu === "function")
+				fnOnContextMenu(context, isTab);
 			if (isTab) {
 				context.add(Lang.Menu.Close, "ui-icon-close", Lang.Menu.CloseHint).onclick = function() {
 					if (self.tabs.activeTab.datum.id == tab.datum.id) { // if the active tab is being closed then activate another tab
