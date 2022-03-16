@@ -13,12 +13,11 @@ var Config = {
 	editor: {
 		LineNumbers: true,
 		IndentWithTabs: true,
-		LineWrapping: true,
+		LineWrapping: false, // todo: resizing columns with this enabled breaks cursor position for some raisin
 		TabSize: 4,
 		IndentUnit: 4,
 		Columns: 1,
-		MaxColumns: 4,
-		FontSize: 15 // css px
+		MaxColumns: 4
 	},
 	plugins: [
 		{

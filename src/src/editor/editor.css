@@ -254,7 +254,7 @@ details > .ui-context-menu {
 }
 .ui-menu-item {
 	min-width: 200px;
-	padding: 3px;
+	padding: 2px 15px 2px 0px;
 	
 }
 .ui-menu-item:hover {
@@ -283,6 +283,7 @@ details > .ui-context-menu {
 	color: #0a0a0a;
 	box-shadow: 0 0 0 1px #000;
 	animation: fadein 0.2s;
+	
 }
 
 .ui-bubble {
@@ -544,13 +545,18 @@ details > .ui-context-menu {
 	color: #f0f0f0;
 	
 	padding: 1px 5px 1px 5px;
-	margin: 0px 2px 0px 0px;
+	margin: 0px 3px 0px 0px;
 	outline: none;
 	caret-color: #dfdfdf;
 	border-radius: 0px;
     border-width: 1px;
     border-style: solid;
     border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+}
+.ui-input-fuller {
+	padding: 2px;
+	margin: 0px 0px 0px 0px;
+	color: rgb(145, 170, 220);
 }
 .ui-checkbox {
 	width: 15px;

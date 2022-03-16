@@ -52,7 +52,18 @@ function EditorWindow(opts) {
 			});
 		}
 	}
-	function fnToggleFileExplorer() {
+	function fnToggleLineWrap() {
+		Config.editor.LineWrapping = !Config.editor.LineWrapping;
+		var edit = GetActiveTabEditor();
+		if (edit) {
+			var cm = edit.datum.codemirror;
+			cm.setOption("lineWrapping", Config.editor.LineWrapping);
+		}
+	};
+	function fnTabContextMenus(context, isTab) {
+		context.add("Toggle line wrapping ", "ui-icon-close", "").onclick = fnToggleLineWrap;
+	};
+	function fnToggleProjectViewer() {
 		if (self.project.visible) {
 			self.project.visible = false;
 			self.project.setAttribute("data-show", "0");
@@ -60,6 +71,7 @@ function EditorWindow(opts) {
 		else {
 			self.project.visible = true;
 			self.project.setAttribute("data-show", "1");
+			window.api.getCurrentProject({path: projectFileInput.value});
 		}
 	};
 	function fnSetIdentationMode() {
@@ -107,7 +119,7 @@ function EditorWindow(opts) {
 			}
 		}
 	};
-	function saveCurrent() {
+	function fnSaveCurrent() {
 		var column = self.columns.active();
 		if (column !== null) {
 			var tab = column.editor.tabs.getActive();
@@ -116,12 +128,12 @@ function EditorWindow(opts) {
 			}
 		}
 	};
-	function newFile() {
+	function fnNewFile() {
 		var column = self.columns.active();
 		if (column !== null)
-			column.editor.addTab(Lang.NewTab);
+			column.editor.addTab(Lang.NewTab, "", fnTabContextMenus);
 	};
-	function openFile() {
+	function fnOpenFile() {
 		window.api.open();
 	};
 	// todo: this is garbage
@@ -141,7 +153,7 @@ function EditorWindow(opts) {
 					var cmPath = tab.datum.path;
 					var cmValue = tab.datum.codemirror.getValue().toString();
 					tab.destroy();
-					self.columns.get()[0].editor.addTab(cmPath!==undefined?cmPath: Lang.NewTab, cmValue);					
+					self.columns.get()[0].editor.addTab(cmPath!==undefined?cmPath: Lang.NewTab, cmValue, fnTabContextMenus);					
 				}
 			};
 			column.editor.destroy();
@@ -260,9 +272,9 @@ function EditorWindow(opts) {
 	var menu = new ElementMenu(this.rowMenu);
 	
 	var file = menu.add(Lang.Menu.File);
-	file.add(Lang.Menu.Open, "ui-icon-open", Lang.Menu.OpenHint).onclick = openFile;
-	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = newFile;
-	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = saveCurrent;
+	file.add(Lang.Menu.Open, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
+	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile;
+	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
 	file.add(Lang.Menu.Quit, "ui-icon-save", Lang.Menu.QuitHint).onclick = function() {
 		window.api.quit();
 	};
@@ -277,7 +289,7 @@ function EditorWindow(opts) {
 	columnsSlider.max = 4;
 	columnsSlider.value = Config.editor.Columns;
 	columnsSlider.oninput = resizeEditorColumns;
-	view.add("Toggle File Explorer", "", "", true).onclick = fnToggleFileExplorer;
+	view.add("Toggle Project Viewer", "", "", true).onclick = fnToggleProjectViewer
 	
 	
 	// initialize the editor
@@ -287,13 +299,23 @@ function EditorWindow(opts) {
 	//this.project.container.style.width = "1px";
 	this.project = UI.make("td", "ui-column-folders", this.columns.container);
 	this.project.setAttribute("data-show", "0");
-	var projectContents = new UI.make("div", "full-height", this.project);
-	var projectFilesList = new UI.make("select", "ui-select-multi full-width full-height", projectContents);
-	projectFilesList.setAttribute("multiple", true);
-	UI.make("option", "", projectFilesList, ".");
-	UI.make("option", "", projectFilesList, "..");
-	UI.make("option", "", projectFilesList, "/Jabbascribble");
-	UI.make("option", "", projectFilesList, "\teditor.window.js");
+	var projectTable = new UI.make("table", "full-height full-width", this.project);
+	var projectTableHead = new UI.make("thead", "", projectTable);
+	var projectTableBody = new UI.make("tbody", "full-height", projectTable);
+	var projectTableFoot = new UI.make("tfoot", "", projectTable);
+	var projectTableHeadRow = new UI.make("tr", "", projectTableHead);
+	var projectTableBodyRow = new UI.make("tr", "full-height", projectTableBody);
+	var projectTableFootRow = new UI.make("tr", "", projectTableFoot);
+	var projectTableHeadRowContent = new UI.make("td", "", projectTableHeadRow);
+	var projectTableBodyRowContent = new UI.make("td", "", projectTableBodyRow);
+	var projectTableFootRowContent = new UI.make("td", "", projectTableFootRow);
+	var projectFileInput = UI.make("input", "ui-input ui-input-fuller", projectTableHeadRowContent);
+	
+	var fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
+	fileExplorerList.setAttribute("multiple", true);
+	/*var projectContents = new UI.make("div", "full-height", this.project);
+	this.fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectContents);
+	this.fileExplorerList.setAttribute("multiple", true);*/
 	
 	//var bleh = new ElementColumn(null, this.project.content);
 	//var label = new UI.make("div", "ui-column-folders", bleh.content, "blah");
@@ -303,39 +325,16 @@ function EditorWindow(opts) {
 		col.editor = new ElementEditorColumn(col).init(Config.editor.Columns-1>i?1:0, fnEditorTabActivate);
 	};
 	
-	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = openFile;/*() => {
+	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;/*() => {
 		window.api.open();
 	};*/
-	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = newFile
-	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = saveCurrent;
+	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile
+	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
 	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint, undefined, undefined, function() {
 		window.api.gc();
 	});
 	
-	// event listeners from preload script
-	window.addEventListener('app-tab-save', function(event) { // remove * from title and update tab datum
-		self.columns.columns.forEach(function(column) { // todo: tab id is already included so column id should be too to save time
-			column.editor.tabs.tabs.forEach(function(tab) {
-				if (event.detail.id == tab.datum.id) {
-					tab.datum.modifier = "";
-					tab.refresh(event.detail);
-				}
-			});
-		});
-	});
-	window.addEventListener("app-open", function(event) { // file open event
-		self.columns.active().editor.addTab(event.detail.path, event.detail.value, function(context, isTab) {
-			var mod = Config.editor.LineWrapping ? "✓" : " ";
-			context.add(mod + " Toggle line wrapping ", "ui-icon-close", "").onclick = function() {
-				Config.editor.LineWrapping = !Config.editor.LineWrapping;
-				var edit = GetActiveTabEditor();
-				if (edit) {
-					var cm = edit.datum.codemirror;
-					cm.setOption("lineWrapping", Config.editor.LineWrapping);
-				}
-			};
-		});
-	});
+	
 	/*window.addEventListener("app-plugin", function(event) {
 		try {
 
@@ -376,10 +375,10 @@ function EditorWindow(opts) {
 		window.api.plugin(pluginMsg);
 		console.log(inputDto);
 	};*/
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_S], saveCurrent);// ctrl + s
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_N], newFile); // ctrl + n
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_O], openFile); // ctrl + o
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleFileExplorer);// ctrl h
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_S], fnSaveCurrent);// ctrl + s
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_N], fnNewFile); // ctrl + n
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_O], fnOpenFile); // ctrl + o
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [68], function(dto, event) { // ctrl d
 		
 	});
@@ -453,5 +452,34 @@ function EditorWindow(opts) {
 	window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
 		//find.reset();
+	});
+	
+	// event listeners from preload script
+	window.addEventListener('app-tab-save', function(event) {
+		self.columns.columns.forEach(function(column) { // todo: tab id is already included so column id should be too to save time
+			column.editor.tabs.tabs.forEach(function(tab) {
+				if (event.detail.id == tab.datum.id) {
+					tab.datum.modifier = ""; // remove * from title and update tab datum
+					tab.refresh(event.detail);
+				}
+			});
+		});
+	});
+	window.addEventListener("app-open", function(event) { // file open event
+		self.columns.active().editor.addTab(event.detail.path, event.detail.value, fnTabContextMenus);
+		
+	});
+	window.addEventListener('app-getproject', function(event) {
+		fileExplorerList.remove();
+		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
+		fileExplorerList.setAttribute("multiple", true);
+		try {
+			var projectFile = JSON.parse(event.detail.value);
+			console.log(projectFile);
+			
+		}
+		catch(e) {
+			console.trace(e);
+		}
 	});
 };

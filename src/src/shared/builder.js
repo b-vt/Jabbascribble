@@ -127,8 +127,11 @@ ElementContextMenu.prototype.add = function(name, iconButton, hint, noSeparator)
 			else {
 				var icon = UI.make("div", "inline ui-icon ui-icon-empty no-padding", null, null, true);
 			}
-			if (noSeparator !== true)
-				this.items[this.index].container.prepend(UI.make("span", "ui-menu-item-separator-side", null, '\xa0', true));
+			if (noSeparator !== true) {
+				var span = UI.make("span", "ui-menu-item-separator-side", null, '\xa0', true)
+				span.contextMenu = this;
+				this.items[this.index].container.prepend(span);
+			}
 			this.items[this.index].container.prepend(icon);
 			if (hint !== undefined && hint !== null) {
 				icon.title = hint;

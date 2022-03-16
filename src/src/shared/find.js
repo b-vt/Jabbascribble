@@ -1,7 +1,7 @@
 function Finder() {
 	// persistent states
 	this.findList = []; // 
-	this.findListIterator = 0; // which findList item is being viewed
+	this.findListIterator = 0; // which findList item is currently being looked up
 	this.lastTxt = undefined; // if the same as search txt then search will look through findList instead
 	this.matches = 0;
 	// search cursor state
@@ -14,8 +14,7 @@ function Finder() {
 	this.fnOnRepeat = () => {};
 	this.fnOnReset = () => {};
 };
-Finder.prototype.reset = function() {
-	this.findListIterator = 0;
+Finder.prototype.reset = function(resetIterator) {
 	this.lastTxt = undefined;
 	this.matches = 0;
 	this.length = 0;
@@ -26,6 +25,7 @@ Finder.prototype.reset = function() {
 	this.findList = [];
 	if (typeof this.fnOnReset === "function")
 		this.fnOnReset(this);
+	if (resetIterator) this.findListIterator = 0;
 };
 Finder.prototype.clear = function() {
 	this.length = 0;
@@ -55,7 +55,7 @@ Finder.prototype.repeat = function(ascending) {
 };
 Finder.prototype.search = function(from, txt, ascending) {
 	if (txt!=this.lastTxt && txt.length > 0) {
-		this.reset();
+		this.reset(true);
 		this.lastTxt = txt;
 		for(var i = 0; i < from.length; i++) {
 			if (from[i] == '\n') {
@@ -97,12 +97,10 @@ Finder.prototype.replace = function(txt, to) {
 
 };
 Finder.prototype.forward = function() {
-	//this.findListIterator = 
 	this.findListIterator = (this.findListIterator+1) % (this.findList.length);
-	return this.findListIterator; //this.findList[this.findListIterator];
+	return this.findListIterator;
 };
 Finder.prototype.reverse = function() {
-	//this.findListIterator = 
 	this.findListIterator = (this.findListIterator-1+this.findList.length) % this.findList.length;
-	return this.findListIterator; //this.findList[this.findListIterator];
+	return this.findListIterator;
 };
