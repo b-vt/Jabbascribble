@@ -140,7 +140,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 				return console.log(`- renderer-save request was canceled`);
 			//var encoding = data.encoding || 'utf8'; // default to utf8
 			console.log(file);
-			((_file, _data, _id, _uuid) => {
+			SaveFile(file, data.encoding, data.value, data.id, data.uuid);
+			/*((_file, _data, _id, _uuid) => {
 				var web = electron.BrowserWindow.fromId(_uuid);
 				var encoding = data.encoding || 'utf8'; 
 				var pathSplit = _file.split(/[\\\/]/g);
@@ -165,7 +166,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 						});
 					});
 				});
-			})(file, data.value, data.id, data.uuid);
+			})(file, data.value, data.id, data.uuid);*/
 		});
 
 		// open files
@@ -179,7 +180,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 			//var encoding = data.encoding || 'utf8'; // default to utf8
 			console.log(files);
 			for(var i = 0; i < files.length; i++) {
-				((_file, _uuid) => {
+				OpenFile(files[i], data.encoding, data.uuid);
+				/*((_file, _uuid) => {
 					var encoding = data.encoding || 'utf8'; 
 					var web = electron.BrowserWindow.fromId(_uuid);
 					fs.open(_file, 'r', function(err1, fd) {
@@ -197,31 +199,11 @@ var {Plugins} = require("./src/shared/plugins.js");
 							});
 						});
 					});
-				})(files[i], data.uuid);
+				})(files[i], data.uuid);*/
 			}
 		});
 	};
-	function OpenFile(file, uuid) {
-		((_file, _uuid) => {
-					var encoding = data.encoding || 'utf8'; 
-					var web = electron.BrowserWindow.fromId(_uuid);
-					fs.open(_file, 'r', function(err1, fd) {
-						if(err1 !== null) new Common.Exit(`- renderer-open request failed to open file -\n\t${_file}\n`);
-						fs.fstat(fd, function(serr, stats) {
-							if (serr !== null) console.trace(`- renderer-open fstat failed -\n\t${_file}`);
-							var fileSize = stats.size + 1;
-							fs.read(fd, {buffer: Buffer.alloc(fileSize)}, function(err2, bytes, buffer) {
-								if(err2 !== null) new Common.Exit(`- renderer-open request failed to read file -\n\t${_file}\n`);
-								var content = buffer.toString(encoding, 0, bytes);
-								if (web) web.webContents.send('main-open', { path: _file, value: content });
-								fs.close(fd, function(err3) {
-									if(err3 !== null) return console.trace(`- renderer-open request failed to close file -\n\t${_file}\n`);
-								});
-							});
-						});
-					});
-				})(files[i], data.uuid);}
-}
+	
 	ApplicationClass.prototype.init = function() {
 		// create the default/previous environment here I guess
 		var appWindow = CreateWindow(this, "./src/editor/editor.html", {
@@ -278,5 +260,54 @@ var {Plugins} = require("./src/shared/plugins.js");
 			console.log("bye");
 		});
 		return appWindow;
+	}
+	function OpenFile(file, encoding, uuid) {
+		((_file, _encoding, _uuid) => {
+			var encoding = _encoding || 'utf8'; 
+			var web = electron.BrowserWindow.fromId(_uuid);
+			fs.open(_file, 'r', function(err1, fd) {
+				if(err1 !== null) new Common.Exit(`- renderer-open request failed to open file -\n\t${_file}\n`);
+				fs.fstat(fd, function(serr, stats) {
+					if (serr !== null) console.trace(`- renderer-open fstat failed -\n\t${_file}`);
+					var fileSize = stats.size + 1;
+					fs.read(fd, {buffer: Buffer.alloc(fileSize)}, function(err2, bytes, buffer) {
+						if(err2 !== null) new Common.Exit(`- renderer-open request failed to read file -\n\t${_file}\n`);
+						var content = buffer.toString(encoding, 0, bytes);
+						if (web) web.webContents.send('main-open', { path: _file, value: content });
+						fs.close(fd, function(err3) {
+							if(err3 !== null) return console.trace(`- renderer-open request failed to close file -\n\t${_file}\n`);
+						});
+					});
+				});
+			});
+		})(file, encoding ,uuid);
+	};
+	function SaveFile(file, encoding, data, id, uuid) {
+		((_file, _encoding, _data, _id, _uuid) => {
+			var web = electron.BrowserWindow.fromId(_uuid);
+			var encoding = _encoding || 'utf8'; 
+			var pathSplit = _file.split(/[\\\/]/g);
+			var fileName = pathSplit[pathSplit.length - 1];
+			var tempDir = path.normalize(path.join(__dirname, Config.TempDir));
+			//var tempFile = [fileName, "_tmp.sav"].join("");
+			fs.mkdir(tempDir, {recursive: true}, function(err) { // make a temporary directory
+				if (err!==null) return new Common.Error("- renderer-save could not create temp folder -\n\t" + tempDir);
+				//var tempFilePath = path.normalize(path.join(tempDir, tempFile));
+				var backupFilePath = path.normalize(path.join(tempDir, [fileName, ".0"].join("")));
+				fs.copyFile(_file, backupFilePath, function(err) { // make a backup of the original file
+					if (err!==null) console.trace(`- renderer-save could not copy original file to backup -\n\t${_file} to ${backupFilePath}`);
+					fs.open(_file, 'w+', function(err, fd) { // truncate/create file
+						if (err!==null) return new Common.Error(`- renderer-save could not open file -\n\t${_file}`);	
+						fs.write(fd, _data, function(err, bytesWritten, buffer) { // write data to final file
+							if (err!==null) return new Common.Error(`- renderer-save could not write file -\n\t${_file}`);
+							fs.close(fd, function(err) { // done
+								if (err!==null) return new Common.Error(`- renderer-save could not close file -\n\t${_file}`);
+								if (web) web.webContents.send("main-tab-save", {name: _file, id: _id});
+							});
+						});
+					});
+				});
+			});
+		})(file, encoding, data, id, uuid);
 	}
 })();

@@ -25,7 +25,8 @@ Finder.prototype.reset = function(resetIterator) {
 	this.findList = [];
 	if (typeof this.fnOnReset === "function")
 		this.fnOnReset(this);
-	if (resetIterator) this.findListIterator = 0;
+	//if (resetIterator) 
+		this.findListIterator = 0;
 };
 Finder.prototype.clear = function() {
 	this.length = 0;
