@@ -317,6 +317,7 @@ if (typeof module!=="undefined") {
 	function Configure() {
 		this.argMap = [];
 		var length = process.argv.length;
+		console.log(process.argv);
 		for(var i = 0; i < length; i++) {
 			if (i+1 < length)
 				this.argMap[process.argv[i]] = process.argv[i+1];
@@ -329,7 +330,7 @@ if (typeof module!=="undefined") {
 		var arr = str.split(/[ ]/g);
 		for(var i = 0; i < arr.length; i++) {
 			if (this.argMap[arr[i]] !== undefined && typeof fnConfigure == "function") {
-				fnConfigure(this.argMap[i]); // give the callback the cli value from configure
+				fnConfigure(this.argMap[arr[i]]); // give the callback the cli value from configure
 			}
 		}
 		return this;

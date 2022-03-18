@@ -8,8 +8,8 @@ function ElementEditorColumn(column) {
 	this.header = UI.make("td", "collapsed ui-columns-tabs", this.tr1);
 //	this.resizer = UI.make("td", "ui-columns-resizer", tr1, undefined, true);
 	this.tr2 = UI.make("tr", "", this.tbody);
-	this.content2 =			UI.make("td", "ui-columns-column", this.tr2);
-	this.content =			UI.make("div", " full-height full-width relative", this.content2);
+	this.content2 =	UI.make("td", "ui-columns-column", this.tr2);
+	this.content = UI.make("div", " full-height full-width relative", this.content2);
 
 	this.header.setAttribute("colspan", "0");
 	
@@ -127,11 +127,13 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 					tab.activate();
 				};
 			}
+			/*
 			else { // 
 				var selections = datum.codemirror.doc.getSelection();
 				if (selections > 0) {
 					console.log(selections);
-					context.add(FormatString("search for\"%s\"", selections), "ui-icon-save", "").onclick = function() {
+					
+					context.add(`search for \"${selections}\"`, "ui-icon-save", "").onclick = function() {
 						console.log("selected junko: %s", selections);
 					};
 				}
@@ -143,7 +145,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 					splits.pop();
 					window.api.openFileLocation({path: splits.join("/")});
 				};
-
+			*/
 			if (context.items.length > 0) // destroy the tiny little square of resistence
 				context.show(event.clientX, event.clientY);
 		}
@@ -176,7 +178,7 @@ ElementTabEditorData.prototype.destroy = function() {
 };
 ElementTabEditorData.prototype.update = function(data) {
 	
-	if (data !== undefined && data !== null)
+	if (data)
 		if (data.name !== undefined) {
 			this.name = data.name.split("\\").pop().split("/").pop(); // todo: this is gross
 			this.path = data.name === Lang.NewTab ? 0 : data.name;
@@ -207,54 +209,3 @@ function ElementPopup(x, y, completions) {
 ElementPopup.prototype.destroy = function() {
 	this.container.remove();
 };
-
-
-/*
-
-unction ElementEditorColumn(column) {
-	this.parent = column.content;
-	this.column = column;
-	this.container = UI.make("div", "full-width full-height", this.parent);
-	this.table = UI.make("table", "collapsed full-width full-height", this.container);
-	this.tbody = 	UI.make("tbody", "", this.table);
-	this.tr1 =			UI.make("tr", "", this.tbody);
-	this.header =			UI.make("td", "collapsed ui-columns-tabs", this.tr1);
-//	this.resizer =			UI.make("td", "ui-columns-resizer", tr1, undefined, true);
-	this.tr2 = 			UI.make("tr", "", this.tbody);
-	this.content2 =			UI.make("td", "ui-columns-column", this.tr2);
-	this.content =			UI.make("div", " full-height full-width relative", this.content2);
-
-	this.header.setAttribute("colspan", "0");
-	
-	this.tabs = null;
-	this.resizer = null;
-
-	column.fnActivateCallback = null;
-	console.log(column);
-	column.container.ondrop = function(data1, data2, data3) {
-		console.log(data1, data2, data3);
-	}
-}
-ElementEditorColumn.prototype.destroy = function() {
-
-	this.destroyResizer();
-	this.header.remove();
-	this.table.remove();
-	this.tbody.remove();
-	this.tr1.remove();
-	this.tr2.remove();
-	this.content2.remove();
-	this.content.remove();
-	this.container.remove();
-
-	this.tabs.destroy();
-	this.tabs = null;
-
-	this.column.destroy();
-	this.column = null;
-
-	this.resizer = null;
-	this.fnTabActivateCallback = null;
-};
-
-*/

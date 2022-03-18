@@ -64,14 +64,14 @@ function EditorWindow(opts) {
 		context.add("Toggle line wrapping ", "ui-icon-close", "").onclick = fnToggleLineWrap;
 	};
 	function fnToggleProjectViewer() {
-		if (self.project.visible) {
-			self.project.visible = false;
-			self.project.setAttribute("data-show", "0");
+		if (project.visible) {
+			project.visible = false;
+			project.setAttribute("data-show", "0");
 		}
 		else {
-			self.project.visible = true;
-			self.project.setAttribute("data-show", "1");
-			window.api.getCurrentProject({path: projectFileInput.value});
+			project.visible = true;
+			project.setAttribute("data-show", "1");
+			//window.api.getCurrentProject({path: projectFileInput.value});
 		}
 	};
 	function fnSetIdentationMode() {
@@ -297,9 +297,9 @@ function EditorWindow(opts) {
 	//this.project = new ElementColumn(this.columns, this.columns.container);
 	//this.project.table.classList.remove("full-width");
 	//this.project.container.style.width = "1px";
-	this.project = UI.make("td", "ui-column-folders", this.columns.container);
-	this.project.setAttribute("data-show", "0");
-	var projectTable = new UI.make("table", "full-height full-width", this.project);
+	var project = UI.make("td", "ui-column-folders", this.columns.container);
+	project.setAttribute("data-show", "0");
+	var projectTable = new UI.make("table", "full-height full-width", project);
 	var projectTableHead = new UI.make("thead", "", projectTable);
 	var projectTableBody = new UI.make("tbody", "full-height", projectTable);
 	var projectTableFoot = new UI.make("tfoot", "", projectTable);
@@ -476,7 +476,9 @@ function EditorWindow(opts) {
 		try {
 			var projectFile = JSON.parse(event.detail.value);
 			console.log(projectFile);
-			
+			for(var i = 0; i < projectFile.files.length; i++) {
+				new UI.make("option", "", fileExplorerList, projectFile.files[i]);
+			}
 		}
 		catch(e) {
 			console.trace(e);

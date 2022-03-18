@@ -1,3 +1,4 @@
+// todo: something
 function Finder() {
 	// persistent states
 	this.findList = []; // 
@@ -13,6 +14,7 @@ function Finder() {
 	this.fnOnFind = () => {};
 	this.fnOnRepeat = () => {};
 	this.fnOnReset = () => {};
+	this.searchByteOffset = 0; // last search location in from array
 };
 Finder.prototype.reset = function(resetIterator) {
 	this.lastTxt = undefined;
@@ -54,6 +56,8 @@ Finder.prototype.repeat = function(ascending) {
 								endCh: item1.endCh, 
 								id: item1.id});
 };
+/* todo: this will take forever for very large files
+	*/
 Finder.prototype.search = function(from, txt, ascending) {
 	if (txt!=this.lastTxt && txt.length > 0) {
 		this.reset(true);
@@ -68,7 +72,7 @@ Finder.prototype.search = function(from, txt, ascending) {
 			if (from[i] == txt[this.length]) {
 				if (this.length == 0) { // this is the first match
 					this.startLine = this.endLine;
-					this.startCh = this.endCh; // endCh - 1 because endCh has already increased
+					this.startCh = this.endCh;
 				}
 				this.length++;					
 			}

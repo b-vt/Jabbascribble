@@ -9,10 +9,9 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 (() => {
 
-	//electron.shell.openPath("E:\\dev\\");
 	var APP_VERSION_MAJOR = 0;
 	var APP_VERSION_MINOR = 0;
-	var APP_VERSION_PATCH = 0x030522; // the date of modification
+	var APP_VERSION_PATCH = 0x031622; // the date of modification
 	var DEBUG = false;
 	
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
@@ -28,6 +27,17 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 			}).add("-v -version", function() {
 				console.log("Jabbascribble version:", [APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH].join("."));
+			}).add("-f -file", function(arg) {
+				var filename = path.normalize(path.join(process.cwd(), arg));
+				console.log("opening with file: %s", filename);
+				setTimeout(() => {
+					OpenFile(filename, undefined, 1, function(file, content, windowId) {
+						var web = electron.BrowserWindow.fromId(windowId);
+						if (web) web.webContents.send('main-open', { path: file, value: content });
+					}, function(msg) {
+						console.trace(msg);
+					});
+				}, 1000);
 			});
 			var app = new ApplicationClass().init();
 		}
@@ -53,7 +63,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");
 				//self.plugins.pushPluginEvent(web, data);
 				//console.log(data.name, data.msg);
-				/*if (self.plugins == null) return;
+				/*if (self.plugins == null) return;javascript:void(0)
 				var p = self.plugins.get(data.name);
 				if (p != null) {
 					p.doTask(data.msg, web);
@@ -64,28 +74,16 @@ var {Plugins} = require("./src/shared/plugins.js");
 		// get explorer directory from path
 		electron.ipcMain.on('renderer-getproject', function(event, data) {
 			console.log("received getproject: ", data);
-			//if (data.uuid == undefined) return console.trace("- renderer-getproject request by unknown window -");
+			if (data.uuid == undefined) return console.trace("- renderer-getproject request by unknown window -");
 			var mypath = data.path.replace("~", os.homedir());
 			var dir = path.normalize(mypath);
 			console.log("project file: %s", dir);			
-			((_file, _uuid) => {
-				var web = electron.BrowserWindow.fromId(_uuid);
-				fs.open(_file, 'r', function(err1, fd) {
-					if(err1 !== null) new Common.Exit(`- renderer-getproject request failed to open file -\n\t${_file}\n`);
-					fs.fstat(fd, function(serr, stats) {
-						if (serr !== null) console.trace(`- renderer-getproject fstat failed -\n\t${_file}`);
-						var fileSize = stats.size + 1;
-						fs.read(fd, {buffer: Buffer.alloc(fileSize)}, function(err2, bytes, buffer) {
-							if(err2 !== null) console.trace(`- renderer-getproject request failed to read file -\n\t${_file}\n`);
-							var content = buffer.toString('utf8', 0, bytes);
-							web.webContents.send('main-getproject', { value: content });
-							fs.close(fd, function(err3) {
-								if(err3 !== null) return console.trace(`- renderer-getproject request failed to close file -\n\t${_file}\n`);
-							});
-						});
-					});
-				});
-			})(dir, data.uuid);
+			OpenFile(dir, data.encoding, data.uuid, function(file, content, windowId) {
+				var web = electron.BrowserWindow.fromId(windowId);
+				if (web) web.webContents.send('main-getproject', { path: file, value: content });
+			}, function(msg) {
+				console.trace(msg);
+			});
 		});
 			
 			
@@ -131,7 +129,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		// save files
 		electron.ipcMain.on('renderer-save', function(event, data) {
 			//var web = electron.BrowserWindow.fromId(data.uuid);
-			if (data.uuid == undefined/* || web == null*/) return new Common.Error("- renderer-save request by unknown window -");
+			if (data.uuid == undefined/* || web == null*/) return console.trace("- renderer-save request by unknown window -");
 			//console.log("received open", data);
 			var file = data.path;
 			if (file == undefined) 
@@ -139,8 +137,13 @@ var {Plugins} = require("./src/shared/plugins.js");
 			if (file == undefined)
 				return console.log(`- renderer-save request was canceled`);
 			//var encoding = data.encoding || 'utf8'; // default to utf8
-			console.log(file);
-			SaveFile(file, data.encoding, data.value, data.id, data.uuid);
+			console.log("save file:", file);
+			SaveFile(file, data.encoding, data.value, data.id, data.uuid, function(file, tabId, windowId) {
+				var web = electron.BrowserWindow.fromId(windowId);
+				if (web) web.webContents.send("main-tab-save", {name: file, id: tabId});
+			}, function(msg) {
+				console.log("save error: ", msg);
+			});
 			/*((_file, _data, _id, _uuid) => {
 				var web = electron.BrowserWindow.fromId(_uuid);
 				var encoding = data.encoding || 'utf8'; 
@@ -180,7 +183,12 @@ var {Plugins} = require("./src/shared/plugins.js");
 			//var encoding = data.encoding || 'utf8'; // default to utf8
 			console.log(files);
 			for(var i = 0; i < files.length; i++) {
-				OpenFile(files[i], data.encoding, data.uuid);
+				OpenFile(files[i], data.encoding, data.uuid, function(file, content, windowId) {
+					var web = electron.BrowserWindow.fromId(windowId);
+					if (web) web.webContents.send('main-open', { path: file, value: content });
+				}, function(msg) {
+					console.log("open error: ", msg);
+				});
 				/*((_file, _uuid) => {
 					var encoding = data.encoding || 'utf8'; 
 					var web = electron.BrowserWindow.fromId(_uuid);
@@ -261,48 +269,61 @@ var {Plugins} = require("./src/shared/plugins.js");
 		});
 		return appWindow;
 	}
-	function OpenFile(file, encoding, uuid) {
+	/* callback hell wrapper for more callbacks
+		file: full file path and name,
+		encoding: defaults to utf8
+		uuid: window id, proably doesn't need to be part of this at all 
+		fnDone: callback when file contents are in buffer
+		fnError: something bad happen
+	*/
+	function OpenFile(file, encoding, uuid, fnDone, fnError) {
 		((_file, _encoding, _uuid) => {
+			fnDone = fnDone || (() => {});
+			fnError = fnError || (() => {});
 			var encoding = _encoding || 'utf8'; 
-			var web = electron.BrowserWindow.fromId(_uuid);
-			fs.open(_file, 'r', function(err1, fd) {
-				if(err1 !== null) new Common.Exit(`- renderer-open request failed to open file -\n\t${_file}\n`);
-				fs.fstat(fd, function(serr, stats) {
-					if (serr !== null) console.trace(`- renderer-open fstat failed -\n\t${_file}`);
+			//var web = electron.BrowserWindow.fromId(_uuid);
+			fs.open(_file, 'r', function(err, fd) {
+				if(err !== null) return fnError(`- OpenFile request failed to open file -\n\t${_file}\n`);
+				fs.fstat(fd, function(err, stats) {
+					if (err !== null) return fnError(`- OpenFile fstat failed -\n\t${_file}`);
 					var fileSize = stats.size + 1;
-					fs.read(fd, {buffer: Buffer.alloc(fileSize)}, function(err2, bytes, buffer) {
-						if(err2 !== null) new Common.Exit(`- renderer-open request failed to read file -\n\t${_file}\n`);
+					fs.read(fd, {buffer: Buffer.alloc(fileSize)}, function(err, bytes, buffer) {
+						if(err !== null) return fnError(`- OpenFile request failed to read file -\n\t${_file}\n`);
 						var content = buffer.toString(encoding, 0, bytes);
-						if (web) web.webContents.send('main-open', { path: _file, value: content });
-						fs.close(fd, function(err3) {
-							if(err3 !== null) return console.trace(`- renderer-open request failed to close file -\n\t${_file}\n`);
+						//if (web) web.webContents.send('main-open', { path: _file, value: content });
+						fnDone(_file, content, _uuid);
+						fs.close(fd, function(err) {
+							if (err !== null) return fnError(`- OpenFile request failed to close file -\n\t${_file}\n`);
 						});
 					});
 				});
 			});
 		})(file, encoding ,uuid);
 	};
-	function SaveFile(file, encoding, data, id, uuid) {
+	function SaveFile(file, encoding, data, id, uuid, fnDone, fnError) {
 		((_file, _encoding, _data, _id, _uuid) => {
-			var web = electron.BrowserWindow.fromId(_uuid);
+			fnDone = fnDone || (() => {});
+			fnError = fnError || (() => {});
+			//var web = electron.BrowserWindow.fromId(_uuid);
 			var encoding = _encoding || 'utf8'; 
 			var pathSplit = _file.split(/[\\\/]/g);
 			var fileName = pathSplit[pathSplit.length - 1];
 			var tempDir = path.normalize(path.join(__dirname, Config.TempDir));
 			//var tempFile = [fileName, "_tmp.sav"].join("");
 			fs.mkdir(tempDir, {recursive: true}, function(err) { // make a temporary directory
-				if (err!==null) return new Common.Error("- renderer-save could not create temp folder -\n\t" + tempDir);
+				if (err!==null) return fnError("- SaveFile could not create temp folder -\n\t" + tempDir);
 				//var tempFilePath = path.normalize(path.join(tempDir, tempFile));
 				var backupFilePath = path.normalize(path.join(tempDir, [fileName, ".0"].join("")));
 				fs.copyFile(_file, backupFilePath, function(err) { // make a backup of the original file
-					if (err!==null) console.trace(`- renderer-save could not copy original file to backup -\n\t${_file} to ${backupFilePath}`);
+					if (err!==null) console.trace(`- SaveFile could not copy original file to backup -\n\t${_file} to ${backupFilePath}`);
 					fs.open(_file, 'w+', function(err, fd) { // truncate/create file
-						if (err!==null) return new Common.Error(`- renderer-save could not open file -\n\t${_file}`);	
+						if (err!==null) return fnError(`- SaveFile could not open file -\n\t${_file}`);	
 						fs.write(fd, _data, function(err, bytesWritten, buffer) { // write data to final file
-							if (err!==null) return new Common.Error(`- renderer-save could not write file -\n\t${_file}`);
+							if (err!==null) return fnError(`- SaveFile could not write file -\n\t${_file}`);
 							fs.close(fd, function(err) { // done
-								if (err!==null) return new Common.Error(`- renderer-save could not close file -\n\t${_file}`);
-								if (web) web.webContents.send("main-tab-save", {name: _file, id: _id});
+								if (err!==null) return fnError(`- SaveFile could not close file -\n\t${_file}`);
+								fnDone( _file, _id, _uuid);
+								//if (web) web.webContents.send("main-tab-save", {name: _file, id: _id});
 							});
 						});
 					});
