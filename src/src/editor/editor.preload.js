@@ -21,7 +21,7 @@ contextBridge.exposeInMainWorld('api', {
 	open: 					ApiOpenFile,//(data) 		=> ApiOpenFile(data),
 	toggleConsole:			ApiToggleConsole,//() 			=> ApiToggleConsole(),
 	openFileLocation: 		ApiOpenFileLocation,//(data) 		=> ApiOpenFileLocation(data),
-	getCurrentProject:		ApiGetCurrentProject,
+	getProjectFile:			ApiGetProjectFile,
 	gc: 					ApiGC,//()			=> ApiGC(),
 	quit:					ApiQuit
 });
@@ -43,13 +43,6 @@ function ApiInit() {
 		API_Blob.uuid = data.uuid;
 		API_Blob.ready = 1;
 	});
-/*
-	electron.ipcRenderer.on('main-open', function(event, data) { 
-		console.log("preload: received main-open: ", data);
-		// customevent handlering is in editor.window.js
-		window.dispatchEvent(new CustomEvent("app-open", {detail: {path: data.path, value: data.value}}));
-	});
-*/
 	electron.ipcRenderer.on('main-open', function(event, data) {
 		console.log("preload: received main-open: ", data);
 		window.dispatchEvent(new CustomEvent("app-open", {detail: {path: data.path, value: data.value}}));
@@ -62,14 +55,14 @@ function ApiInit() {
 		console.log("preload: received main-plugin: ", data);
 		window.dispatchEvent(new CustomEvent("app-plugin", {detail: data}));
 	});
-	electron.ipcRenderer.on('main-getproject', function(event, data) {
-		console.log("preload: received main-getproject: ", data);
-		window.dispatchEvent(new CustomEvent("app-getproject", {detail: data}));
+	electron.ipcRenderer.on('main-getprojectfile', function(event, data) {
+		console.log("preload: received main-getprojectfile: ", data);
+		window.dispatchEvent(new CustomEvent("app-getprojectfile", {detail: data}));
 	});
 };
-function ApiGetCurrentProject(data) {
+function ApiGetProjectFile(data) {
 	if (!API_Blob.ready) return;
-	IPCSend("renderer-getproject", data);
+	IPCSend("renderer-getprojectfile", {path: data});
 };
 function ApiQuit() {
 	if (!API_Blob.ready) return;

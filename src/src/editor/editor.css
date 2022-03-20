@@ -221,7 +221,10 @@ body {
 	outline: none;
 }
 .ui-select-multi > option {
-	color: rgb(120, 200, 240);
+	color: rgb(158 255 109);
+}
+.ui-select-multi > option:nth-child(odd) {
+	background-color: rgb(100, 100, 100);
 }
 .top-level-most {
 	z-index: 1100;
@@ -313,47 +316,52 @@ details > .ui-context-menu {
 	width: 16px;
 	height: 16px;
 }
+.ui-select-icon {
+	background-repeat: no-repeat;
+	padding: 2px 0px 0px 20px;
+	margin: 2px 0px 0px 2px;
+}
 .ui-icon-container:hover {
 	background-color: rgb(200, 200, 200);
 }
 .ui-icon-container:active {
 	background-color: rgb(130, 130, 130);
 }
+.ui-icon-folder {
+	background-image: url("../../data/icons/folder.png");
+}
+.ui-icon-add {
+	background-image: url("../../data/icons/page_add.png");
+}
 .ui-icon-save {
 	background-image: url("../../data/icons/disk.png");
+}
+.ui-icon-script {
+	background-image: url("../../data/icons/page_white_text.png");
 }
 .ui-icon-save-all {
 	background-image: url("../../data/icons/disk_multiple.png");
 }
 .ui-icon-new {
-	background-image: url("../../data/icons/page_add.png");
+	background-image: url("../../data/icons/page_white_add.png");
+}
+.ui-icon-remove {
+	background-image: url("../../data/icons/page_delete.png");
 }
 .ui-icon-open {
-	background-image: url("../../data/icons/folder.png");
+	background-image: url("../../data/icons/folder_explore.png");
 }
-.ui-icon-script {
-	background-image: url("../../data/icons/script.png");
+.ui-icon-close {
+	background-image: url("../../data/icons/cancel.png");
 }
-.ui-icon-page {
-	background-image: url("../../data/icons/page.png");
-}
-.ui-icon-page-code {
-	background-image: url("../../data/icons/page_code.png");
-}
-.ui-icon-package {
-	background-image: url("../../data/icons/package.png");
-}
-.ui-icon-package-add {
-	background-image: url("../../data/icons/package_add.png");
+.ui-icon-check {
+	background-image: url("../../data/icons/tick.png");
 }
 .ui-icon-bin-empty {
 	background-image: url("../../data/icons/bin_empty.png");
 }
-.ui-icon-server-delete {
-	background-image: url("../../data/icons/server_delete.png");
-}
 .ui-icon-folder-explore {
-	background-image: url("../../data/icons/folder_explore.png");
+	background-image: url("../../data/icons/folder_magnify.png");
 }
 .ui-icon-happy {
 	background-image: url("../../data/icons/emoticon_smile.png");
@@ -553,10 +561,15 @@ details > .ui-context-menu {
     border-style: solid;
     border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
 }
-.ui-input-fuller {
-	padding: 2px;
-	margin: 0px 0px 0px 0px;
+.ui-input-project {
+	padding-right: 40px;
 	color: rgb(145, 170, 220);
+}
+.ui-input-project-button {
+	width: 40px;
+	margin-left: -40px;
+	border: 0px;
+	background-color: rgb(200, 200, 200);
 }
 .ui-checkbox {
 	width: 15px;

@@ -90,7 +90,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 		function onContextMenu(event, isTab) {
 			var context = new ElementContextMenu();
 			if (typeof fnOnContextMenu === "function")
-				fnOnContextMenu(context, isTab);
+				fnOnContextMenu(context, {isTab: isTab, datum: datum, tab: tab});
 			if (isTab) {
 				context.add(Lang.Menu.Close, "ui-icon-close", Lang.Menu.CloseHint).onclick = function() {
 					if (self.tabs.activeTab.datum.id == tab.datum.id) { // if the active tab is being closed then activate another tab
@@ -148,6 +148,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 			*/
 			if (context.items.length > 0) // destroy the tiny little square of resistence
 				context.show(event.clientX, event.clientY);
+			console.log(event.clientX, event.pageX);
 		}
 
 		pane.oncontextmenu = function(event) { onContextMenu(event, false); }

@@ -7,6 +7,7 @@
 function EditorWindow(opts) {
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
+	var ProjectFile = {files:[], columns: 1, active_files: []}; // active_files: [{file: "", column: 1}]
 	// 
 	var find = new Finder();
 	find.fnOnFind = function(f, item) { // fnOnFind callback, used on new searches only
@@ -23,7 +24,7 @@ function EditorWindow(opts) {
 											{line: item.endLine, ch: item.endCh},
 											{className: className});
 		}
-	}
+	};
 	find.fnOnRepeat = function(f, next, prev) { // fnNext callback, used on duplicate search
 		console.log("onRepeat");
 		var edit = GetActiveTabEditor();
@@ -42,7 +43,7 @@ function EditorWindow(opts) {
 											{line: next.endLine, ch: next.endCh},
 											{className: "cm-highlight-focused"});
 		}
-	}
+	};
 	find.fnOnReset = function(f) { // fnReset
 		var edit = GetActiveTabEditor();
 		if (edit) {	
@@ -51,7 +52,46 @@ function EditorWindow(opts) {
 				mark.clear();
 			});
 		}
+	};
+	function fnGetProject() {
+		var filename = projectFileInput.value;
+		if (filename.length > 0) {
+			window.api.getProjectFile(filename);
+		}
+	};
+	function fnRebuildFileExplorerList() {
+		// re/populate the files list
+		fileExplorerList.remove();
+		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
+		fileExplorerList.setAttribute("multiple", true);
+		for(var i = 0; i < ProjectFile.files.length; i++) {
+			var classNames = ["ui-select-icon", "ui-icon-script"].join(" "); // ui-icon-folder
+			var item = new UI.make("option", classNames, fileExplorerList, ProjectFile.files[i]);
+			item.ondblclick = function() { // open files on double click
+				console.log("clicked item: ", this.value);
+				window.api.open({path: this.value});
+			};
+			item.oncontextmenu = function(event) {
+				console.log(event);
+				var dto = new InputEventDto(event);
+				var w = new ElementContextMenu();
+				w.add("remove", "ui-icon-remove", "Remove item from workspace file").onclick = function() {
+					console.log("asdasd");
+				};
+				w.show(dto.x, dto.y);
+			};
+		}
 	}
+	function fnOnGetProjectFile(event) {
+		try {
+			ProjectFile = JSON.parse(event.detail.value);
+			console.log(ProjectFile);
+			fnRebuildFileExplorerList();
+		}
+		catch(e) {
+			console.trace(e);
+		}
+	};
 	function fnToggleLineWrap() {
 		Config.editor.LineWrapping = !Config.editor.LineWrapping;
 		var edit = GetActiveTabEditor();
@@ -59,9 +99,6 @@ function EditorWindow(opts) {
 			var cm = edit.datum.codemirror;
 			cm.setOption("lineWrapping", Config.editor.LineWrapping);
 		}
-	};
-	function fnTabContextMenus(context, isTab) {
-		context.add("Toggle line wrapping ", "ui-icon-close", "").onclick = fnToggleLineWrap;
 	};
 	function fnToggleProjectViewer() {
 		if (project.visible) {
@@ -73,6 +110,41 @@ function EditorWindow(opts) {
 			project.setAttribute("data-show", "1");
 			//window.api.getCurrentProject({path: projectFileInput.value});
 		}
+	};
+	function fnTabContextMenus(context, details) {
+		var edit = GetActiveTabEditor();
+		if (edit) {
+			var cm = edit.datum.codemirror;
+			if (!details.isTab) {
+				var selections = cm.doc.getSelection();
+				if (selections.length > 0) {
+					var tmpSel = selections.substring(10, 0);
+					context.add(`highlight selection \"${tmpSel}...\"`, "", "", true).onclick = function() {
+						console.log("selected junko: %s", selections);
+						find.search(cm.doc.getValue(), selections, true);
+					};
+				}
+				context.add("Toggle line wrapping ", Config.editor.LineWrapping ? "ui-icon-check" : "" , "").onclick = fnToggleLineWrap;
+				context.add(Lang.Menu.OpenFileLocation, "ui-icon-folder-explore", Lang.Menu.OpenFileLocationHint).onclick = function() {
+					console.log(edit.datum);
+					if (edit.datum.path == undefined) return;
+					var splits = edit.datum.path.split(/[\\/]/g);
+					console.log(splits);
+					splits.pop();
+					window.api.openFileLocation({path: splits.join("/")});
+				};
+			}
+			else {
+				context.add("Add file to project", "" , "").onclick = function() {
+					console.log("adding %s to project file", details.datum.path);
+					if (details.datum.path.length > 2) {
+						ProjectFile.files.push(details.datum.path);
+					}
+					fnRebuildFileExplorerList();
+				};
+			}
+			
+		};
 	};
 	function fnSetIdentationMode() {
 		var activeEditor = self.columns.active().editor;
@@ -275,7 +347,7 @@ function EditorWindow(opts) {
 	file.add(Lang.Menu.Open, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile;
 	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
-	file.add(Lang.Menu.Quit, "ui-icon-save", Lang.Menu.QuitHint).onclick = function() {
+	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
 		window.api.quit();
 	};
 	
@@ -309,8 +381,18 @@ function EditorWindow(opts) {
 	var projectTableHeadRowContent = new UI.make("td", "", projectTableHeadRow);
 	var projectTableBodyRowContent = new UI.make("td", "", projectTableBodyRow);
 	var projectTableFootRowContent = new UI.make("td", "", projectTableFootRow);
-	var projectFileInput = UI.make("input", "ui-input ui-input-fuller", projectTableHeadRowContent);
 	
+	var projectTableHeadRowContentDiv = new UI.make("div", "full-width", projectTableHeadRowContent);
+	var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
+	projectFileInput.value = ".scribble";
+	projectFileInput.onkeyup = function(event) {
+		var e = new InputEventDto(event);
+		if (e.key == InputEventDto.prototype.KEY_RETURN) {
+			fnGetProject();
+		}
+	}
+	var projectFileInputSearch = UI.make("button", "ui-input-project-button", projectTableHeadRowContentDiv, "load");
+	projectFileInputSearch.onclick = fnGetProject;
 	var fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
 	fileExplorerList.setAttribute("multiple", true);
 	/*var projectContents = new UI.make("div", "full-height", this.project);
@@ -325,14 +407,12 @@ function EditorWindow(opts) {
 		col.editor = new ElementEditorColumn(col).init(Config.editor.Columns-1>i?1:0, fnEditorTabActivate);
 	};
 	
-	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;/*() => {
-		window.api.open();
-	};*/
+	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile
 	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
-	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint, undefined, undefined, function() {
+	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint).onclick = function() {
 		window.api.gc();
-	});
+	};
 	
 	
 	/*window.addEventListener("app-plugin", function(event) {
@@ -379,12 +459,6 @@ function EditorWindow(opts) {
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_N], fnNewFile); // ctrl + n
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_O], fnOpenFile); // ctrl + o
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
-	globalHotkeys.add(InputEventDto.prototype.CTRL, [68], function(dto, event) { // ctrl d
-		
-	});
-	globalHotkeys.add(InputEventDto.prototype.SHIFT, [68], function(dto, event) { // shift d
-		
-	});
 	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_F], function() {
 		var from = "";
 		var edit = GetActiveTabEditor();
@@ -467,21 +541,6 @@ function EditorWindow(opts) {
 	});
 	window.addEventListener("app-open", function(event) { // file open event
 		self.columns.active().editor.addTab(event.detail.path, event.detail.value, fnTabContextMenus);
-		
 	});
-	window.addEventListener('app-getproject', function(event) {
-		fileExplorerList.remove();
-		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
-		fileExplorerList.setAttribute("multiple", true);
-		try {
-			var projectFile = JSON.parse(event.detail.value);
-			console.log(projectFile);
-			for(var i = 0; i < projectFile.files.length; i++) {
-				new UI.make("option", "", fileExplorerList, projectFile.files[i]);
-			}
-		}
-		catch(e) {
-			console.trace(e);
-		}
-	});
+	window.addEventListener('app-getprojectfile', fnOnGetProjectFile);
 };

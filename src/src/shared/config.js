@@ -1,3 +1,4 @@
+// global editor config
 var Config = {
 	TempDir: "../tmp",
 	SrcDir: "/src",

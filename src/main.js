@@ -11,7 +11,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 	var APP_VERSION_MAJOR = 0;
 	var APP_VERSION_MINOR = 0;
-	var APP_VERSION_PATCH = 0x031622; // the date of modification
+	var APP_VERSION_PATCH = 0x03182022; // the date of modification
 	var DEBUG = false;
 	
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
@@ -72,32 +72,19 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 		});
 		// get explorer directory from path
-		electron.ipcMain.on('renderer-getproject', function(event, data) {
-			console.log("received getproject: ", data);
-			if (data.uuid == undefined) return console.trace("- renderer-getproject request by unknown window -");
+		electron.ipcMain.on('renderer-getprojectfile', function(event, data) {
+			console.log("received getprojectfile: ", data);
+			if (data.uuid == undefined) return console.trace("- renderer-getprojectfile request by unknown window -");
 			var mypath = data.path.replace("~", os.homedir());
 			var dir = path.normalize(mypath);
 			console.log("project file: %s", dir);			
 			OpenFile(dir, data.encoding, data.uuid, function(file, content, windowId) {
 				var web = electron.BrowserWindow.fromId(windowId);
-				if (web) web.webContents.send('main-getproject', { path: file, value: content });
+				if (web) web.webContents.send('main-getprojectfile', { path: file, value: content });
 			}, function(msg) {
 				console.trace(msg);
 			});
 		});
-			
-			
-			/*fs.readdir(dir, function(err, files) {
-				if (err) return console.log("- renderer-getdir error -");
-				files.forEach(function(file) {
-					fs.stat(file, function(err, stats) {
-						if (err) return console.log("- renderer-getdir fs.stat error -");
-						
-							//web.webContents.send("main-getdir", {path: file, isFile: false});
-					});
-				});
-				//web.webContents.send("main-getdir", {items: files});
-			});*/
 		// close a window
 		electron.ipcMain.on('renderer-quit', function(event, data) {
 			console.log("received open console: ", data);
@@ -128,60 +115,29 @@ var {Plugins} = require("./src/shared/plugins.js");
 		
 		// save files
 		electron.ipcMain.on('renderer-save', function(event, data) {
-			//var web = electron.BrowserWindow.fromId(data.uuid);
 			if (data.uuid == undefined/* || web == null*/) return console.trace("- renderer-save request by unknown window -");
-			//console.log("received open", data);
 			var file = data.path;
 			if (file == undefined) 
 				file = electron.dialog.showSaveDialogSync( { properties: ['showHiddenFiles'] });
 			if (file == undefined)
 				return console.log(`- renderer-save request was canceled`);
-			//var encoding = data.encoding || 'utf8'; // default to utf8
-			console.log("save file:", file);
+			console.log("saving file:", file);
 			SaveFile(file, data.encoding, data.value, data.id, data.uuid, function(file, tabId, windowId) {
 				var web = electron.BrowserWindow.fromId(windowId);
 				if (web) web.webContents.send("main-tab-save", {name: file, id: tabId});
 			}, function(msg) {
 				console.log("save error: ", msg);
 			});
-			/*((_file, _data, _id, _uuid) => {
-				var web = electron.BrowserWindow.fromId(_uuid);
-				var encoding = data.encoding || 'utf8'; 
-				var pathSplit = _file.split(/[\\\/]/g);
-				var fileName = pathSplit[pathSplit.length - 1];
-				var tempDir = path.normalize(path.join(__dirname, Config.TempDir));
-				//var tempFile = [fileName, "_tmp.sav"].join("");
-				fs.mkdir(tempDir, {recursive: true}, function(err) { // make a temporary directory
-					if (err!==null) return new Common.Error("- renderer-save could not create temp folder -\n\t" + tempDir);
-					//var tempFilePath = path.normalize(path.join(tempDir, tempFile));
-					var backupFilePath = path.normalize(path.join(tempDir, [fileName, ".0"].join("")));
-					fs.copyFile(_file, backupFilePath, function(err) { // make a backup of the original file
-						if (err!==null) console.trace(`- renderer-save could not copy original file to backup -\n\t${_file} to ${backupFilePath}`);
-						fs.open(_file, 'w+', function(err, fd) { // truncate/create file
-							if (err!==null) return new Common.Error(`- renderer-save could not open file -\n\t${_file}`);	
-							fs.write(fd, _data, function(err, bytesWritten, buffer) { // write data to final file
-								if (err!==null) return new Common.Error(`- renderer-save could not write file -\n\t${_file}`);
-								fs.close(fd, function(err) { // done
-									if (err!==null) return new Common.Error(`- renderer-save could not close file -\n\t${_file}`);
-									if (web) web.webContents.send("main-tab-save", {name: _file, id: _id});
-								});
-							});
-						});
-					});
-				});
-			})(file, data.value, data.id, data.uuid);*/
 		});
 
 		// open files
 		electron.ipcMain.on('renderer-open', function(event, data) {
-			//var web = electron.BrowserWindow.fromId(data.uuid);
 			if (data.uuid == undefined/* || web == null*/) return console.trace("- renderer-open request by unknown window -");
 			console.log("received open", data);
 			var files = [data.path];
 			if (data.path == undefined) 
 				files = electron.dialog.showOpenDialogSync( { properties: ['openFile', 'multiSelections', 'showHiddenFiles'] }) || [];
-			//var encoding = data.encoding || 'utf8'; // default to utf8
-			console.log(files);
+			console.log("opening files:", files);
 			for(var i = 0; i < files.length; i++) {
 				OpenFile(files[i], data.encoding, data.uuid, function(file, content, windowId) {
 					var web = electron.BrowserWindow.fromId(windowId);
@@ -189,25 +145,6 @@ var {Plugins} = require("./src/shared/plugins.js");
 				}, function(msg) {
 					console.log("open error: ", msg);
 				});
-				/*((_file, _uuid) => {
-					var encoding = data.encoding || 'utf8'; 
-					var web = electron.BrowserWindow.fromId(_uuid);
-					fs.open(_file, 'r', function(err1, fd) {
-						if(err1 !== null) new Common.Exit(`- renderer-open request failed to open file -\n\t${_file}\n`);
-						fs.fstat(fd, function(serr, stats) {
-							if (serr !== null) console.trace(`- renderer-open fstat failed -\n\t${_file}`);
-							var fileSize = stats.size + 1;
-							fs.read(fd, {buffer: Buffer.alloc(fileSize)}, function(err2, bytes, buffer) {
-								if(err2 !== null) new Common.Exit(`- renderer-open request failed to read file -\n\t${_file}\n`);
-								var content = buffer.toString(encoding, 0, bytes);
-								if (web) web.webContents.send('main-open', { path: _file, value: content });
-								fs.close(fd, function(err3) {
-									if(err3 !== null) return console.trace(`- renderer-open request failed to close file -\n\t${_file}\n`);
-								});
-							});
-						});
-					});
-				})(files[i], data.uuid);*/
 			}
 		});
 	};

@@ -30,6 +30,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 		case "mousedown":
 		case "mouseup":
 		case "mousemove":
+		case "contextmenu":
 		case "mousewheel": { // todo: this should account for pointer lock
 			/*this.x = event.pageX;
 			this.y = event.pageY;
@@ -112,6 +113,7 @@ InputEventDto.prototype.SHIFT = 4;
 InputEventDto.prototype.META = 8;
 /* these will probably be system dependent and are probably 
 	only useful for an initial startup, there is also a very good chance these are just wrong */
+InputEventDto.prototype.KEY_ENTER = 13;
 InputEventDto.prototype.KEY_RETURN = 13;
 InputEventDto.prototype.KEY_A = 65;
 InputEventDto.prototype.KEY_B = 66;
