@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('api', {
 	toggleConsole:			ApiToggleConsole,//() 			=> ApiToggleConsole(),
 	openFileLocation: 		ApiOpenFileLocation,//(data) 		=> ApiOpenFileLocation(data),
 	getProjectFile:			ApiGetProjectFile,
+	saveProjectFile:		ApiSaveProjectFile,
 	gc: 					ApiGC,//()			=> ApiGC(),
 	quit:					ApiQuit
 });
@@ -59,6 +60,14 @@ function ApiInit() {
 		console.log("preload: received main-getprojectfile: ", data);
 		window.dispatchEvent(new CustomEvent("app-getprojectfile", {detail: data}));
 	});
+	electron.ipcRenderer.on('main-saveprojectfile', function(event, data) {
+		console.log("preload: received main-saveprojectfile: ", data);
+		window.dispatchEvent(new CustomEvent("app-saveprojectfile", {detail: data}));
+	});
+};
+function ApiSaveProjectFile(data) {
+	if (!API_Blob.ready) return;
+	IPCSend("renderer-saveprojectfile", data);
 };
 function ApiGetProjectFile(data) {
 	if (!API_Blob.ready) return;

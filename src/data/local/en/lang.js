@@ -9,12 +9,14 @@ var Lang = {
 		File: "File",
 		Open: "Open",
 		OpenHint: "Open files",
-		Save: "Save",
+		Save: "Save Active File",
 		SaveHint: "Save active file",
 		New: "New",
 		NewHint: "New tab",
 		Quit: "Quit",
 		QuitHint: "Close this window(without warning!)",
+		SaveProject: "Save Project",
+		SaveProjectHint: "Save the current project state to a .scribble file",
 		// view menu
 		View: "View",
 		OpenRenderConsole: "Open Render Console",
@@ -30,7 +32,11 @@ var Lang = {
 		CloseAllOther: "Close All Other",
 		CloseAllOtherHint: "Close all but this item",
 		OpenFileLocation: "Open File Location",
-		OpenFileLocationHint: "Launch shell at file location"
+		OpenFileLocationHint: "Launch shell at file location",
+		// ???
+		GarbageCollection: "Force Garbage Collection",
+		GarbageCollectionHint: "If --expose-gc flag is enabled then this will attempt to free up used memory."
+		
 	}
 };
 if (typeof module!=="undefined")

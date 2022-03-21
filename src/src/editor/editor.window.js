@@ -53,6 +53,32 @@ function EditorWindow(opts) {
 			});
 		}
 	};
+	function fnCreateEditorColumns(count) {
+		console.log(count);
+		var columns = self.columns.get();
+		console.log(columns.length);
+		while (columns.length > 0) {
+			var column = columns.pop();
+			column.editor.destroy();
+			column.editor = null;
+			column = null;
+			tabs = null;
+			column = null;
+		}
+		for(var i = 0; i < count; i ++) {
+			var col = self.columns.add();
+			col.editor = new ElementEditorColumn(col).init(Config.editor.Columns-1>i?1:0, fnEditorTabActivate);
+		};
+		// remove or add a resizer to the first column
+		var tmpGetColumn = self.columns.get(0);
+		if (self.columns.get().length == 1) {
+			tmpGetColumn.editor.destroyResizer();
+		}
+		else if (tmpGetColumn !== undefined && tmpGetColumn !== null && tmpGetColumn.editor.resizer == null) {
+			tmpGetColumn.editor.appendResizer();
+		}
+		columnsSlider.value = count;
+	};
 	function fnGetProject() {
 		var filename = projectFileInput.value;
 		if (filename.length > 0) {
@@ -60,6 +86,7 @@ function EditorWindow(opts) {
 		}
 	};
 	function fnRebuildFileExplorerList() {
+		console.log(ProjectFile);
 		// re/populate the files list
 		fileExplorerList.remove();
 		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
@@ -67,25 +94,33 @@ function EditorWindow(opts) {
 		for(var i = 0; i < ProjectFile.files.length; i++) {
 			var classNames = ["ui-select-icon", "ui-icon-script"].join(" "); // ui-icon-folder
 			var item = new UI.make("option", classNames, fileExplorerList, ProjectFile.files[i]);
-			item.ondblclick = function() { // open files on double click
-				console.log("clicked item: ", this.value);
-				window.api.open({path: this.value});
-			};
-			item.oncontextmenu = function(event) {
-				console.log(event);
-				var dto = new InputEventDto(event);
-				var w = new ElementContextMenu();
-				w.add("remove", "ui-icon-remove", "Remove item from workspace file").onclick = function() {
-					console.log("asdasd");
+			((_index) => {
+				item.ondblclick = function() { // open files on double click
+					console.log("clicked item: ", this.value);
+					window.api.open({path: this.value});
 				};
-				w.show(dto.x, dto.y);
-			};
+				item.oncontextmenu = function(event) {
+					console.log(event);
+					var dto = new InputEventDto(event);
+					var w = new ElementContextMenu();
+					w.add("remove", "ui-icon-remove", "Remove item from workspace file").onclick = function() {
+						var swap = ProjectFile.files[ProjectFile.length - 1];
+						ProjectFile.files[_index] = swap;
+						ProjectFile.files.pop();
+						fnRebuildFileExplorerList();
+					};
+					w.show(dto.x, dto.y);
+				};
+			})(i);
 		}
 	}
 	function fnOnGetProjectFile(event) {
 		try {
 			ProjectFile = JSON.parse(event.detail.value);
-			console.log(ProjectFile);
+			if (ProjectFile.columns != 1) fnCreateEditorColumns(ProjectFile.columns);
+			ProjectFile.active_files.forEach(function(item) {
+				console.log(item);
+			});
 			fnRebuildFileExplorerList();
 		}
 		catch(e) {
@@ -138,6 +173,11 @@ function EditorWindow(opts) {
 				context.add("Add file to project", "" , "").onclick = function() {
 					console.log("adding %s to project file", details.datum.path);
 					if (details.datum.path.length > 2) {
+						for(var i = 0; i < ProjectFile.files.length; i++) {
+							if (ProjectFile.files[i] == details.datum.path) {
+								return console.log("this file is already part of the project");
+							}
+						}
 						ProjectFile.files.push(details.datum.path);
 					}
 					fnRebuildFileExplorerList();
@@ -350,6 +390,10 @@ function EditorWindow(opts) {
 	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
 		window.api.quit();
 	};
+	file.add(undefined);
+	file.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
+		window.api.saveProjectFile({project: ProjectFile});
+	};
 	
 	var view = menu.add(Lang.Menu.View);
 	view.add(Lang.Menu.OpenRenderConsole, "", Lang.Menu.OpenRenderConsoleHint, true).onclick = function(event, data) {
@@ -402,17 +446,14 @@ function EditorWindow(opts) {
 	//var bleh = new ElementColumn(null, this.project.content);
 	//var label = new UI.make("div", "ui-column-folders", bleh.content, "blah");
 	
-	for(var i =0; i < Config.editor.Columns; i ++) {
-		var col = self.columns.add();
-		col.editor = new ElementEditorColumn(col).init(Config.editor.Columns-1>i?1:0, fnEditorTabActivate);
-	};
 	
 	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile
 	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
-	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GCHint).onclick = function() {
+	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GarbageCollectionHint).onclick = function() {
 		window.api.gc();
 	};
+	fnCreateEditorColumns(Config.editor.Columns);
 	
 	
 	/*window.addEventListener("app-plugin", function(event) {
@@ -543,4 +584,7 @@ function EditorWindow(opts) {
 		self.columns.active().editor.addTab(event.detail.path, event.detail.value, fnTabContextMenus);
 	});
 	window.addEventListener('app-getprojectfile', fnOnGetProjectFile);
+	window.addEventListener('app-saveprojectfile', function() {
+		console.log("blah");
+	});
 };

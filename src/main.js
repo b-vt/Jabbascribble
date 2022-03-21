@@ -71,7 +71,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 			})();
 
 		});
-		// get explorer directory from path
+		// load project file from path
 		electron.ipcMain.on('renderer-getprojectfile', function(event, data) {
 			console.log("received getprojectfile: ", data);
 			if (data.uuid == undefined) return console.trace("- renderer-getprojectfile request by unknown window -");
@@ -84,6 +84,24 @@ var {Plugins} = require("./src/shared/plugins.js");
 			}, function(msg) {
 				console.trace(msg);
 			});
+		});
+		// save project file from renderer
+		electron.ipcMain.on('renderer-saveprojectfile', function(event, data) {
+			console.log("received saveprojectfile console: ", data);
+			var web = electron.BrowserWindow.fromId(data.uuid);
+			if (data.uuid == undefined || web == null) return console.trace("- renderer-saveprojectfile request by unknown window -");
+			var file = data.path;
+			if (file == undefined) 
+				file = electron.dialog.showSaveDialogSync( { defaultPath: "./.scribble", properties: ['showHiddenFiles'] });
+			if (file == undefined)
+				return console.log(`- renderer-saveprojectfile request was canceled`);
+			SaveFile(file, undefined, JSON.stringify(data.project), undefined, data.uuid, function(file, tabId, windowId) {
+				var web = electron.BrowserWindow.fromId(windowId);
+				if (web) web.webContents.send("main-saveprojectfile", {});
+			}, function(msg) {
+				console.log("save project file error: ", msg);
+			});
+			
 		});
 		// close a window
 		electron.ipcMain.on('renderer-quit', function(event, data) {
