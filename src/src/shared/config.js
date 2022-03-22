@@ -4,7 +4,7 @@ var Config = {
 	SrcDir: "/src",
 	Lang: "en",
 	Langs: ["en"],
-	EnableDevTools: true,
+	EnableDevTools: false,
 	TabsScrollDelta: 10,
 	Debug: false,
 	window: {

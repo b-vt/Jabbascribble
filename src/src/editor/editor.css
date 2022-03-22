@@ -15,12 +15,12 @@
 	/*bottom: 0.8rem !important;*/
 	height: 100% !important;
 	text-shadow: 1px 1px 1px #000 !important;
-	font-size: 1.2em !important;
+	font-size: 15px !important;
 	/*font-family: "Georgia", serif;*/
-	font-family: monospace;
+	/*font-family: monospace;*/
 }
 .CodeMirror-focused {
-
+	background-color: red;
 }
 .CodeMirror-gutters {
 	background: #272822 !important;
@@ -170,7 +170,9 @@
 /* app data */
 body {
 	background-color: rgb(0, 0, 0);
-	font-family: "system-ui";
+	/*font-family: "system-ui";*/
+	font-family: monospace;
+	font-size: 13px;
 	color: #e0e0e0;
 	user-select: none;
 	overflow-x: hidden;
@@ -320,6 +322,9 @@ details > .ui-context-menu {
 .ui-icon-script {
 	background-image: url("../../data/icons/page_white_text.png");
 }
+.ui-icon-console {
+	background-image: url("../../data/icons/television.png");
+}
 .ui-icon-save-all {
 	background-image: url("../../data/icons/disk_multiple.png");
 }
@@ -329,8 +334,17 @@ details > .ui-context-menu {
 .ui-icon-remove {
 	background-image: url("../../data/icons/page_delete.png");
 }
+.ui-icon-project {
+	background-image: url("../../data/icons/report_magnify.png");
+}
+.ui-icon-columns {
+	background-image: url("../../data/icons/text_columns.png");
+}
 .ui-icon-projectsave {
-	background-image: url("../../data/icons/layout_edit.png");
+	background-image: url("../../data/icons/report_disk.png");
+}
+.ui-icon-projectopen {
+	background-image: url("../../data/icons/report.png");
 }
 .ui-icon-open {
 	background-image: url("../../data/icons/folder_explore.png");
@@ -530,6 +544,8 @@ details > .ui-context-menu {
 	background: #8b88b7;
 }
 .ui-columns-column {
+	font-family: monospace;
+	font-size: 15px;
 	height: 100%;
 }
 .ui-input {
@@ -544,16 +560,6 @@ details > .ui-context-menu {
     border-width: 1px;
     border-style: solid;
     border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
-}
-.ui-input-project {
-	padding-right: 40px;
-	color: rgb(145, 170, 220);
-}
-.ui-input-project-button {
-	width: 40px;
-	margin-left: -40px;
-	border: 0px;
-	background-color: rgb(200, 200, 200);
 }
 .ui-checkbox {
 	width: 15px;
@@ -587,6 +593,18 @@ details > .ui-context-menu {
 .ui-menu-slider {
 	top: 4px;
 }
+.ui-input-project {
+	padding-right: 40px;
+	color: rgb(145, 170, 220);
+	/*overflow: hidden;*/
+	/*text-overflow: ellipsis;*/
+}
+.ui-input-project-button {
+	width: 40px;
+	margin-left: -40px;
+	border: 0px;
+	background-color: rgb(200, 200, 200);
+}
 .ui-select-multi-item {
 	background-repeat: no-repeat;
 	padding-left: 20px;
@@ -601,6 +619,9 @@ details > .ui-context-menu {
 	color: rgb(158 255 109);
 	appearance: none;
 	-webkit-appearance: none;
+	/*overflow: hidden;*/
+	/*text-overflow: ellipsis;*/
+	/*direction: rtl;*/
 }
 .ui-select-multi > option:nth-child(odd) {
 	background-color: rgb(100, 100, 110);

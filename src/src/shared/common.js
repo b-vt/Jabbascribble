@@ -263,7 +263,7 @@ function GetRandomString() {
 		var rng = Math.floor(Math.random() * 1000);
 		arr.push((time*rng)%255);
 	}
-	return Bytes2Hex(arr);//[ (time*(time%65536))%255, (time*(time%16))%255, (time*(time%32))%255, (time*(time%256))%255, ((time<<(time%2)))%255, (time*(time%65536))%255, (time*(time%65536))%255 ]);//.join("");
+	return Bytes2Hex(arr);
 };
 // [0xff, 0xfe]
 // returns 0 to 65535

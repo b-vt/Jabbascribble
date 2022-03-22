@@ -79,31 +79,38 @@ function EditorWindow(opts) {
 		}
 		columnsSlider.value = count;
 	};
-	function fnGetProject() {
-		var filename = projectFileInput.value;
-		if (filename.length > 0) {
+	function fnGetProject(filename) {
+		if (filename && filename.length > 0)
 			window.api.getProjectFile(filename);
-		}
+		else
+			window.api.getProjectFile();
 	};
-	function fnRebuildFileExplorerList() {
+	/*function fnRebuildFileExplorerList() {
 		console.log(ProjectFile);
 		// re/populate the files list
+		projectFileInput.value = ProjectFile.projectFile;
 		fileExplorerList.remove();
 		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
 		fileExplorerList.setAttribute("multiple", true);
+		var dirsplit = ProjectFile.projectFile.split(/[\\\/]/g);
+		var basedir = dirsplit[dirsplit.length - 2];
 		for(var i = 0; i < ProjectFile.files.length; i++) {
-			var classNames = ["ui-select-icon", "ui-icon-script"].join(" "); // ui-icon-folder
-			var item = new UI.make("option", classNames, fileExplorerList, ProjectFile.files[i]);
-			((_index) => {
-				item.ondblclick = function() { // open files on double click
+			var filesplit = ProjectFile.files[i].split(/[\\\/]/g);
+			var filedir = filesplit[filesplit.length - 2];
+			
+			var classNames = ["ui-select-icon", "ui-icon-script"];
+			var item = new UI.make("option", classNames.join(" "), fileExplorerList, filesplit[filesplit.length - 1]);
+			item.src = ProjectFile.files[i];
+			((_item, _index) => {
+				_item.ondblclick = function() { // open files on double click
 					console.log("clicked item: ", this.value);
-					window.api.open({path: this.value});
+					window.api.open({path: this.src});
 				};
-				item.oncontextmenu = function(event) {
+				_item.oncontextmenu = function(event) {
 					console.log(event);
 					var dto = new InputEventDto(event);
 					var w = new ElementContextMenu();
-					w.add("remove", "ui-icon-remove", "Remove item from workspace file").onclick = function() {
+					w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
 						var swap = ProjectFile.files[ProjectFile.length - 1];
 						ProjectFile.files[_index] = swap;
 						ProjectFile.files.pop();
@@ -111,17 +118,109 @@ function EditorWindow(opts) {
 					};
 					w.show(dto.x, dto.y);
 				};
-			})(i);
+			})(item, i);
+		}
+	}*/
+	function sortPaths(sorts, tracks, offset) {
+		/*
+		sorts [
+		test/folder/file.png,
+		test/folder2/file.js,
+		test/folder/file2.png,
+		]
+
+		becomes
+		[
+		test/,
+			folder/,
+				file.png,
+				file2.png,
+			folder2/,
+				file.js,
+		]
+		*/
+		tracks = tracks || [];
+		var msorts = [];
+		offset = offset || 0;
+		for(var i = 0; i < sorts.length; i++) {
+			var paths = sorts[i].split(/[\\\/]/g);
+			for(var x = offset; x < paths.length; x++) {
+				msorts.push(paths[x]);
+				//if (tracks[paths[x])
+			}
+		}
+		return msorts;
+	}
+	function fnRebuildFileExplorerList(itemList) {
+		console.log(ProjectFile);
+		// re/populate the files list
+		projectFileInput.value = ProjectFile.projectFile;
+		fileExplorerList.remove();
+		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
+		fileExplorerList.setAttribute("multiple", true);
+		var dirsplit = ProjectFile.projectFile.split(/[\\\/]/g);
+		var basedir = dirsplit[dirsplit.length - 2];
+		for(var i = 0; i < itemList.length; i++) {
+			var filesplit = itemList[i].split(/[\\\/]/g);
+			var filedir = filesplit[filesplit.length - 2];
+			
+			var classNames = ["ui-select-icon", "ui-icon-script"];
+			var item = new UI.make("option", classNames.join(" "), fileExplorerList, filesplit[filesplit.length - 1]);
+			item.src = itemList[i];
+			((_item, _index) => {
+				_item.ondblclick = function() { // open files on double click
+					console.log("clicked item: ", this.value);
+					window.api.open({path: this.src});
+				};
+				_item.oncontextmenu = function(event) {
+					console.log(event);
+					var dto = new InputEventDto(event);
+					var w = new ElementContextMenu();
+					w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
+						var swap = itemList[itemList.length - 1];
+						itemList[_index] = swap;
+						itemList.pop();
+						fnRebuildFileExplorerList(itemList);
+					};
+					w.show(dto.x, dto.y);
+				};
+			})(item, i);
 		}
 	}
 	function fnOnGetProjectFile(event) {
 		try {
 			ProjectFile = JSON.parse(event.detail.value);
+			ProjectFile.projectFile = event.detail.path;
+			var projectsplits = ProjectFile.projectFile.split(/[\\\/]/g);
+			var basedir = projectsplits[projectsplits.length - 2];
+			// sort the files by directory
+			var sorts = [];
+			console.log(sortPaths(ProjectFile.files));
+			/*
+			test/folder/file.png
+			test/folder2/file.js
+			test/folder/file2.png
+			
+			becomes
+			test/
+				folder/
+					file.png
+					file2.png
+				folder2/
+					file.js
+			*/
+			/*for(var i = 0; i < ProjectFile.files.length; i++) {
+				var filesplits = ProjectFile.files[i].split(/[\\\/]/g);
+				var filedir = filesplits[filesplits.length - 2];
+				console.log(basedir, filedir);
+				sorts[filedir]
+			}*/
+			
 			if (ProjectFile.columns != 1) fnCreateEditorColumns(ProjectFile.columns);
 			ProjectFile.active_files.forEach(function(item) {
-				console.log(item);
+				console.log("todo:", item);
 			});
-			fnRebuildFileExplorerList();
+			fnRebuildFileExplorerList(ProjectFile.files);
 		}
 		catch(e) {
 			console.trace(e);
@@ -159,7 +258,7 @@ function EditorWindow(opts) {
 						find.search(cm.doc.getValue(), selections, true);
 					};
 				}
-				context.add("Toggle line wrapping ", Config.editor.LineWrapping ? "ui-icon-check" : "" , "").onclick = fnToggleLineWrap;
+				context.add(Lang.Menu.ToggleLineWrap, Config.editor.LineWrapping ? "ui-icon-check" : "" , ToggleLineWrapHint).onclick = fnToggleLineWrap;
 				context.add(Lang.Menu.OpenFileLocation, "ui-icon-folder-explore", Lang.Menu.OpenFileLocationHint).onclick = function() {
 					console.log(edit.datum);
 					if (edit.datum.path == undefined) return;
@@ -216,7 +315,7 @@ function EditorWindow(opts) {
 			if (tab && tab.datum !== undefined && tab.datum !== null) { // todo: column resize doesn't activate mode */
 				//console.log(tab.datum.codemirror.getOption("mode"));
 				setEditorModeSelector(activeFileExtension, tab.datum.codemirror.getOption("mode").name);
-				find.reset();
+				//find.reset();
 			}
 		}
 	};
@@ -363,7 +462,6 @@ function EditorWindow(opts) {
 	activeFileExtension.name = "activeFileExtension";
 	activeFileExtension.onchange = fnEditorTabMode;
 	UI.make("option", "", activeFileExtension, "Raw");
-	UI.makeUnique("modetest", "option", "", activeFileExtension, "Mode Test");
 	UI.makeUnique("javascript", "option", "", activeFileExtension, "JavaScript");
 	UI.makeUnique("text/x-c++src", "option", "", activeFileExtension, "C/C++");
 	UI.makeUnique("xml", "option", "", activeFileExtension, "HTML");
@@ -384,29 +482,40 @@ function EditorWindow(opts) {
 	var menu = new ElementMenu(this.rowMenu);
 	
 	var file = menu.add(Lang.Menu.File);
+	//file.add();
 	file.add(Lang.Menu.Open, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
+	file.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
+		//window.api.getProjectFile();
+		fnGetProject();
+	};
 	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile;
 	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
-	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
-		window.api.quit();
-	};
-	file.add(undefined);
 	file.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
 		window.api.saveProjectFile({project: ProjectFile});
 	};
+	file.add();
+	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
+		window.api.quit();
+	};
+	
+	var edit = menu.add(Lang.Menu.Edit);
+	//edit.add();
+	edit.add(Lang.Menu.ToggleLineWrap, "ui-icon-project", Lang.Menu.ToggleLineWrapHint).onclick = function() {
+		fnToggleLineWrap();
+	};
 	
 	var view = menu.add(Lang.Menu.View);
-	view.add(Lang.Menu.OpenRenderConsole, "", Lang.Menu.OpenRenderConsoleHint, true).onclick = function(event, data) {
-		window.api.toggleConsole(true);
-	};
-	var columnsSlider = UI.make("input", "relative ui-menu-slider", view.add(Lang.Menu.Columns, "", Lang.Menu.ColumnsHint, true).container);
+	//view.add();
+	var columnsSlider = UI.make("input", "relative ui-menu-slider", view.add(Lang.Menu.Columns, "ui-icon-columns", Lang.Menu.ColumnsHint).container);
 	columnsSlider.type = "range";
 	columnsSlider.min = 1;
 	columnsSlider.max = 4;
 	columnsSlider.value = Config.editor.Columns;
 	columnsSlider.oninput = resizeEditorColumns;
-	view.add("Toggle Project Viewer", "", "", true).onclick = fnToggleProjectViewer
-	
+	view.add("Toggle Project Viewer", "ui-icon-project", "").onclick = fnToggleProjectViewer
+	view.add(Lang.Menu.OpenRenderConsole, "ui-icon-console", Lang.Menu.OpenRenderConsoleHint).onclick = function(event, data) {
+		window.api.toggleConsole(true);
+	};
 	
 	// initialize the editor
 	this.columns = new ElementColumns(columnsTableBody);
@@ -432,11 +541,13 @@ function EditorWindow(opts) {
 	projectFileInput.onkeyup = function(event) {
 		var e = new InputEventDto(event);
 		if (e.key == InputEventDto.prototype.KEY_RETURN) {
-			fnGetProject();
+			fnGetProject(projectFileInput.value);
 		}
 	}
 	var projectFileInputSearch = UI.make("button", "ui-input-project-button", projectTableHeadRowContentDiv, "load");
-	projectFileInputSearch.onclick = fnGetProject;
+	projectFileInputSearch.onclick = function(event) {
+		fnGetProject(projectFileInput.value);
+	}
 	var fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
 	fileExplorerList.setAttribute("multiple", true);
 	/*var projectContents = new UI.make("div", "full-height", this.project);
@@ -450,7 +561,7 @@ function EditorWindow(opts) {
 	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile
 	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
-	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.Menu.GarbageCollectionHint).onclick = function() {
+	new ElementIconButton(this.rowTools, "ui-icon-bin-empty", Lang.GarbageCollectionHint).onclick = function() {
 		window.api.gc();
 	};
 	fnCreateEditorColumns(Config.editor.Columns);

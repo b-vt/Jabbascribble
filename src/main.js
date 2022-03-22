@@ -75,10 +75,14 @@ var {Plugins} = require("./src/shared/plugins.js");
 		electron.ipcMain.on('renderer-getprojectfile', function(event, data) {
 			console.log("received getprojectfile: ", data);
 			if (data.uuid == undefined) return console.trace("- renderer-getprojectfile request by unknown window -");
-			var mypath = data.path.replace("~", os.homedir());
-			var dir = path.normalize(mypath);
-			console.log("project file: %s", dir);			
-			OpenFile(dir, data.encoding, data.uuid, function(file, content, windowId) {
+			var pf = [data.path];
+			if (data.path == undefined) 
+				pf = electron.dialog.showOpenDialogSync( { defaultPath: "./.scribble", properties: ['openFile', 'showHiddenFiles'] }) || [];
+			if (!pf[0]) return console.log("- renderer-getprojectfile request canceled -");
+			//var mypath = data.path.replace("~", os.homedir());
+			//var dir = path.normalize(mypath);
+			console.log("project file: %s", pf[0]);
+			OpenFile(pf[0], data.encoding, data.uuid, function(file, content, windowId) {
 				var web = electron.BrowserWindow.fromId(windowId);
 				if (web) web.webContents.send('main-getprojectfile', { path: file, value: content });
 			}, function(msg) {
@@ -90,12 +94,12 @@ var {Plugins} = require("./src/shared/plugins.js");
 			console.log("received saveprojectfile console: ", data);
 			var web = electron.BrowserWindow.fromId(data.uuid);
 			if (data.uuid == undefined || web == null) return console.trace("- renderer-saveprojectfile request by unknown window -");
-			var file = data.path;
-			if (file == undefined) 
-				file = electron.dialog.showSaveDialogSync( { defaultPath: "./.scribble", properties: ['showHiddenFiles'] });
-			if (file == undefined)
-				return console.log(`- renderer-saveprojectfile request was canceled`);
-			SaveFile(file, undefined, JSON.stringify(data.project), undefined, data.uuid, function(file, tabId, windowId) {
+			var pf = data.path;
+			if (data.path == undefined) 
+				pf = electron.dialog.showSaveDialogSync( { defaultPath: "./.scribble", properties: ['showHiddenFiles'] });
+			if (pf == undefined) return console.log(`- renderer-saveprojectfile request was canceled`);
+			console.log(pf);
+			SaveFile(pf, undefined, JSON.stringify(data.project), undefined, data.uuid, function(file, tabId, windowId) {
 				var web = electron.BrowserWindow.fromId(windowId);
 				if (web) web.webContents.send("main-saveprojectfile", {});
 			}, function(msg) {
@@ -176,8 +180,11 @@ var {Plugins} = require("./src/shared/plugins.js");
 			height: Config.window.Height,
 			openTools: Config.EnableDevTools
 		});
-		appWindow.webContents.send('main-init', { uuid: appWindow.id });
+		//appWindow.webContents.send('main-init', { uuid: appWindow.id });
 		appWindow.show();
+		
+		if (Config.Debug) appWindow.webContents.openDevTools();
+			
 
 		// plugins are last in case one needs to interact with the window maybe?
 		//this.plugins = new Plugins(this);
@@ -246,7 +253,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 						if(err !== null) return fnError(`- OpenFile request failed to read file -\n\t${_file}\n`);
 						var content = buffer.toString(encoding, 0, bytes);
 						//if (web) web.webContents.send('main-open', { path: _file, value: content });
-						fnDone(_file, content, _uuid);
+						fnDone(path.resolve(_file), content, _uuid);
 						fs.close(fd, function(err) {
 							if (err !== null) return fnError(`- OpenFile request failed to close file -\n\t${_file}\n`);
 						});
