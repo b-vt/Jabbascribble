@@ -121,70 +121,71 @@ function EditorWindow(opts) {
 			})(item, i);
 		}
 	}*/
-	function sortPaths(sorts, tracks, offset) {
-		/*
-		sorts [
-		test/folder/file.png,
-		test/folder2/file.js,
-		test/folder/file2.png,
-		]
-
-		becomes
-		[
-		test/,
-			folder/,
-				file.png,
-				file2.png,
-			folder2/,
-				file.js,
-		]
-		*/
-		tracks = tracks || [];
-		var msorts = [];
-		offset = offset || 0;
-		for(var i = 0; i < sorts.length; i++) {
-			var paths = sorts[i].split(/[\\\/]/g);
-			for(var x = offset; x < paths.length; x++) {
-				msorts.push(paths[x]);
-				//if (tracks[paths[x])
-			}
-		}
-		return msorts;
-	}
-	function fnRebuildFileExplorerList(itemList) {
-		console.log(ProjectFile);
-		// re/populate the files list
-		projectFileInput.value = ProjectFile.projectFile;
+	function fnRebuildFileExplorerList() {
+		
 		fileExplorerList.remove();
-		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
-		fileExplorerList.setAttribute("multiple", true);
-		var dirsplit = ProjectFile.projectFile.split(/[\\\/]/g);
-		var basedir = dirsplit[dirsplit.length - 2];
-		for(var i = 0; i < itemList.length; i++) {
-			var filesplit = itemList[i].split(/[\\\/]/g);
-			var filedir = filesplit[filesplit.length - 2];
-			
-			var classNames = ["ui-select-icon", "ui-icon-script"];
-			var item = new UI.make("option", classNames.join(" "), fileExplorerList, filesplit[filesplit.length - 1]);
-			item.src = itemList[i];
-			((_item, _index) => {
-				_item.ondblclick = function() { // open files on double click
-					console.log("clicked item: ", this.value);
-					window.api.open({path: this.src});
-				};
-				_item.oncontextmenu = function(event) {
-					console.log(event);
-					var dto = new InputEventDto(event);
-					var w = new ElementContextMenu();
-					w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
-						var swap = itemList[itemList.length - 1];
-						itemList[_index] = swap;
-						itemList.pop();
-						fnRebuildFileExplorerList(itemList);
+		fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
+		
+		//fileExplorerList.setAttribute("multiple", true);
+		
+		
+		/*
+			contents[0] => {name: "/jabbascribble", contents: []};
+			contents[0].contents[0] => {name: "/src", contents: []};
+			contents[0].contents[0].contents[0] => {name:"/src", contents: []}
+			contents[0].contents[0].contents[0].contents[0] => {name:"blah.css", contents: null}
+		*/
+		function node(name, depth) {
+			this.name = name;
+			this.depth = depth || 0;
+			this.children = [];
+		}
+		// oddwarg magic. 
+		function parsed(path, parentNode, offset, depth, index) {
+			console.log(path);
+			var separator = path.indexOf("/", offset);
+			var name = path.substring(offset);
+			if (separator != -1)
+				name = path.substring(offset, separator);
+			var current = parentNode.children[name];
+			if (current == undefined || current == null) {
+				parentNode.children[name] = new node(name, depth);
+				var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
+				var fileName = [new Array(parentNode.children[name].depth).join('\xa0'), name].join('');
+				var item = new UI.make("div", classNames.join(" "), fileExplorerList, fileName);
+				item.src = path;//ProjectFile.files[itemCount];
+				//if ( item is not directory )
+				((_item, _index) => {
+					_item.onclick = function() {
+						
 					};
-					w.show(dto.x, dto.y);
-				};
-			})(item, i);
+					_item.ondblclick = function() {
+						console.log("clicked item: ", _item.src);
+						window.api.open({path: _item.src});
+					};
+					_item.oncontextmenu = function(event) {
+						console.log(_item, _index);
+						var dto = new InputEventDto(event);
+						var w = new ElementContextMenu();
+						w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
+							var swap = ProjectFile.files[ProjectFile.files.length - 1];
+							var t = ProjectFile.files[_index] = swap;
+							console.log(t, swap);
+							ProjectFile.files.pop();
+							console.log(ProjectFile.files);
+							return fnRebuildFileExplorerList();
+						};
+						w.show(dto.x, dto.y);
+					};
+				})(item, index);
+			}
+			if (separator != -1)
+				parsed(path, parentNode.children[name], separator+1, depth+1, index);
+		}
+		
+		var root = new node("");
+		for(var i = 0; i < ProjectFile.files.length; i++) {
+			parsed(ProjectFile.files[i], root, 0, 0, i);
 		}
 	}
 	function fnOnGetProjectFile(event) {
@@ -195,7 +196,7 @@ function EditorWindow(opts) {
 			var basedir = projectsplits[projectsplits.length - 2];
 			// sort the files by directory
 			var sorts = [];
-			console.log(sortPaths(ProjectFile.files));
+			//console.log(sortPaths(ProjectFile.files));
 			/*
 			test/folder/file.png
 			test/folder2/file.js
@@ -220,6 +221,7 @@ function EditorWindow(opts) {
 			ProjectFile.active_files.forEach(function(item) {
 				console.log("todo:", item);
 			});
+			
 			fnRebuildFileExplorerList(ProjectFile.files);
 		}
 		catch(e) {
@@ -258,7 +260,7 @@ function EditorWindow(opts) {
 						find.search(cm.doc.getValue(), selections, true);
 					};
 				}
-				context.add(Lang.Menu.ToggleLineWrap, Config.editor.LineWrapping ? "ui-icon-check" : "" , ToggleLineWrapHint).onclick = fnToggleLineWrap;
+				context.add(Lang.Menu.ToggleLineWrap, Config.editor.LineWrapping ? "ui-icon-check" : "" , Lang.Menu.ToggleLineWrapHint).onclick = fnToggleLineWrap;
 				context.add(Lang.Menu.OpenFileLocation, "ui-icon-folder-explore", Lang.Menu.OpenFileLocationHint).onclick = function() {
 					console.log(edit.datum);
 					if (edit.datum.path == undefined) return;
@@ -500,8 +502,13 @@ function EditorWindow(opts) {
 	
 	var edit = menu.add(Lang.Menu.Edit);
 	//edit.add();
-	edit.add(Lang.Menu.ToggleLineWrap, "ui-icon-project", Lang.Menu.ToggleLineWrapHint).onclick = function() {
+	edit.add(Lang.Menu.ToggleLineWrap, Config.editor.LineWrapping ? "ui-icon-check" : "", Lang.Menu.ToggleLineWrapHint).onclick = function() {
 		fnToggleLineWrap();
+		if (Config.editor.LineWrapping)
+			this.container.children[0].classList.add("ui-icon-check");
+		else
+			this.container.children[0].classList.remove("ui-icon-check");
+														
 	};
 	
 	var view = menu.add(Lang.Menu.View);
@@ -524,7 +531,7 @@ function EditorWindow(opts) {
 	//this.project.container.style.width = "1px";
 	var project = UI.make("td", "ui-column-folders", this.columns.container);
 	project.setAttribute("data-show", "0");
-	var projectTable = new UI.make("table", "full-height full-width", project);
+	var projectTable = new UI.make("table", "ui-column-folders full-height full-width", project);
 	var projectTableHead = new UI.make("thead", "", projectTable);
 	var projectTableBody = new UI.make("tbody", "full-height", projectTable);
 	var projectTableFoot = new UI.make("tfoot", "", projectTable);
@@ -548,8 +555,35 @@ function EditorWindow(opts) {
 	projectFileInputSearch.onclick = function(event) {
 		fnGetProject(projectFileInput.value);
 	}
-	var fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
-	fileExplorerList.setAttribute("multiple", true);
+	var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
+	
+	/*
+	
+	from
+	
+	/jabbascribble/src/file.js
+	/jabbascribble/.scribble
+	/jabbascribble/bin/test.js
+	/jabbascribble/src/blah.css
+	/jabbascribble/src/src/something.js
+	
+	to
+	
+	/jabbascribble
+		/src
+			/src
+				something.js
+			file.js
+			blah.css
+		/bin
+			test.js
+		.scribble
+	
+	*/
+	
+	
+	/*var fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
+	fileExplorerList.setAttribute("multiple", true);*/
 	/*var projectContents = new UI.make("div", "full-height", this.project);
 	this.fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectContents);
 	this.fileExplorerList.setAttribute("multiple", true);*/
