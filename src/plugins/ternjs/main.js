@@ -1,9 +1,9 @@
 var child = require("child_process");
 var path = require("path");
 
-var {PluginMain} = require(path.normalize(path.join(process.cwd(), "./src/src/shared/plugin.js")));
-var Common = require(path.normalize(path.join(process.cwd(), "./src/src/shared/common.js")));
-var Config = require(path.normalize(path.join(process.cwd(), "./src/src/shared/config.js")));
+var {PluginMain} = require(path.normalize(path.join(__dirname, "../../src/shared/plugin.js")));
+var Common = require(path.normalize(path.join(__dirname, "../../src/shared/common.js")));
+var Config = require(path.normalize(path.join(__dirname, "../../src/shared/config.js")));
 /*
 (() => {
 	var filePath = "E:\\Development\\Projects\\NodeJS\\Jabbascribble\\src\\main.js";
@@ -39,10 +39,11 @@ var Config = require(path.normalize(path.join(process.cwd(), "./src/src/shared/c
 	//});
 })();
 */
-function TernPluginMain(pluginConf) {
+function TernPluginMain(pluginConf, appWindow) {
 	PluginMain.call(this);
 	console.log(`-- TernPluginMain constructor --\n`, pluginConf);
 	var self = this;
+	this.window = appWindow;
 	this.server = null;
 	this.name = "ternjs";
 	this.pluginConf = pluginConf;
@@ -51,7 +52,7 @@ function TernPluginMain(pluginConf) {
 };
 TernPluginMain.prototype = Object.create(PluginMain.prototype);
 TernPluginMain.prototype.constructor = TernPluginMain;
-TernPluginMain.prototype.onRendererEvent = function(renderer, msg) {
+TernPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
 	//console.log("-- TernPluginMain doTask --");
 	(() => {
@@ -89,7 +90,7 @@ TernPluginMain.prototype.onRendererEvent = function(renderer, msg) {
 					name: "ternjs",
 					data: data
 				}
-				renderer.webContents.send("plugin-", msg);
+				self.window.webContents.send("plugin-", msg);
 			}
 		});
 	})();
@@ -97,16 +98,15 @@ TernPluginMain.prototype.onRendererEvent = function(renderer, msg) {
 TernPluginMain.prototype.start = function() {
 	var self = this;
 	if (this.server != null) return;
-	var nodePath = "node";
-	console.log(Config);
+	var nodePath = process.argv[0];
 	if (Config.Debug == false) {
 		console.log("ASD!@");
-		nodePath = path.normalize(path.join(process.cwd(), "jabbascribble.exe"));
+		//nodePath = path.normalize(path.join(process.cwd(), "jabbascribble.exe"));
 	}
 	var ternPath = path.normalize(path.join(__dirname, this.pluginConf.config.bin));//"/ternjs/bin/tern"));
 	var cmd = [ternPath, "--port", this.pluginConf.config.port, "--no-port-file", "--ignore-stdin", "--verbose"];
-	console.log(ternPath, cmd);
 	this.server = child.spawn(nodePath, cmd);
+	
 	this.server.stdout.on("data", function(data) {
 		console.log("-------TernPluginMain stdout-------\n", data.toString(), "\n----------------------------");
 	});

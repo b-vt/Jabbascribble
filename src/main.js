@@ -6,12 +6,12 @@ var os = require("os");
 var {Config} = require("./src/shared/config.js");
 var Common = require("./src/shared/common.js");
 var {Plugins} = require("./src/shared/plugins.js");
-
+console.log("!!!", module.exports);
 (() => {
 
 	var APP_VERSION_MAJOR = 0;
 	var APP_VERSION_MINOR = 0;
-	var APP_VERSION_PATCH = 0x03182022; // the date of modification
+	var APP_VERSION_PATCH = 0x04292022; // the date of modification
 	var DEBUG = false;
 	
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
@@ -61,13 +61,10 @@ var {Plugins} = require("./src/shared/plugins.js");
 				//console.log("received plugin: ", data);
 				var web = electron.BrowserWindow.fromId(data.uuid);
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");
-				//self.plugins.pushPluginEvent(web, data);
-				//console.log(data.name, data.msg);
-				/*if (self.plugins == null) return;javascript:void(0)
-				var p = self.plugins.get(data.name);
-				if (p != null) {
-					p.doTask(data.msg, web);
-				}*/
+				if (self.plugins == null) return;
+				self.plugins.pushPluginEvent(web, data);
+				console.log(data);
+				
 			})();
 
 		});
@@ -187,7 +184,13 @@ var {Plugins} = require("./src/shared/plugins.js");
 			
 
 		// plugins are last in case one needs to interact with the window maybe?
-		//this.plugins = new Plugins(this);
+		this.plugins = new Plugins(this, appWindow);
+		//for(var i = 0; i < this.plugins.activePlugins.length; i++) {
+			//var plugin = this.plugins.activePlugins[i];
+			//appWindow.webContents.
+			//var path = plugin.source
+			//appWindow.webContents.send('main-plugin-load', {file: path );
+		//}
 	};
 
 	function CreateWindow(instance, src, opt) {

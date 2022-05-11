@@ -64,6 +64,12 @@ function ApiInit() {
 		console.log("preload: received main-saveprojectfile: ", data);
 		window.dispatchEvent(new CustomEvent("app-saveprojectfile", {detail: data}));
 	});
+	electron.ipcRenderer.on('main-pluginload', function(event, data) {
+		console.log("preload: received main-pluginload: ", data);
+		setTimeout(function() {
+			window.dispatchEvent(new CustomEvent("app-pluginload", {detail: data}));
+		}, 1000);
+	});
 };
 function ApiSaveProjectFile(data) {
 	if (!API_Blob.ready) return;

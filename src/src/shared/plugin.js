@@ -1,5 +1,5 @@
 // things that all PluginMains should have i guess
-function PluginMain(conf) {
+function PluginMain(conf, appWindow) {
 	// inheritance
 	//PluginMain.call(this);
 	console.log("PluginMain constructor");
@@ -11,14 +11,7 @@ function PluginMain(conf) {
 //
 PluginMain.prototype.name = ""; // required by Plugins, used as map key
 PluginMain.prototype.versionString = "";
-/* some code to inject into context menus */
-PluginMain.prototype.injectEditorContextMenu = function() {
-	return null;
-};
-/* some code to inject into renderer */
-PluginMain.prototype.injectRenderer = function() {
-	return null;
-};
+
 /* any event from renderer thread */
 PluginMain.prototype.onRendererEvent = function(message) {
 	return null;

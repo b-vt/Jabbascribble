@@ -4,7 +4,8 @@
 function InputEventDto(event, keymap, noDefaultPropagation) {
 	this.x = 0; // mouse cursor position
 	this.y = 0;
-	this.key = -1; // key press keyCode
+	this.key = -1; // key or mouse keyCode
+	this.buttons = -1; // mouse bitfield
 	this.isModified = false; // input has a modifier key
 	this.modifiers = 0; // bitfield for modifier keys
 	this.map = ""; // poorly implemented string name of button, ie "A KEY" when A is pressed
@@ -12,6 +13,9 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 	this.wheelDelta = 0;
 	this.wheelDeltaX = 0;
 	this.wheelDeltaY = 0;
+	this.deltaX = 0;
+	this.deltaY = 0;
+	this.deltaZ = 0;
 	this.target = null; // element that the event happened in?
 
 
@@ -75,7 +79,8 @@ InputEventDto.prototype.consumeMouseEvent = function(event) {
 
 	this.target = event.target;
 
-	this.key = event.buttons;
+	this.key = event.button;// || event.buttons;
+	this.buttons = event.buttons;
 	this.map = ["MOUSE", this.key].join(" ");
 };
 // todo: this is not 'future proof' because it uses keyCode
@@ -111,8 +116,18 @@ InputEventDto.prototype.CTRL = 1;
 InputEventDto.prototype.ALT = 2;
 InputEventDto.prototype.SHIFT = 4;
 InputEventDto.prototype.META = 8;
+InputEventDto.prototype.MOUSE_1 = 1;
+InputEventDto.prototype.MOUSE_2 = 2;
+InputEventDto.prototype.MOUSE_3 = 4;
+InputEventDto.prototype.MOUSE_4 = 8;
+InputEventDto.prototype.MOUSE_5 = 16;
 /* these will probably be system dependent and are probably 
 	only useful for an initial startup, there is also a very good chance these are just wrong */
+InputEventDto.prototype.MOUSE_LEFT = 0;
+InputEventDto.prototype.MOUSE_MIDDLE = 1;
+InputEventDto.prototype.MOUSE_RIGHT = 2;
+InputEventDto.prototype.MOUSE_BACK = 3;
+InputEventDto.prototype.MOUSE_FORWARD = 4;
 InputEventDto.prototype.KEY_ENTER = 13;
 InputEventDto.prototype.KEY_RETURN = 13;
 InputEventDto.prototype.KEY_A = 65;
@@ -176,6 +191,7 @@ InputEventDto.prototype.KEY_F11 = 122;
 InputEventDto.prototype.KEY_F12 = 123;
 InputEventDto.prototype.KEY_PRINT = 44;
 InputEventDto.prototype.KEY_SCROLL_LOCK = 145;
+InputEventDto.prototype.KEY_SPACE = 32;
 InputEventDto.prototype.KEY_PAUSE = 19;
 InputEventDto.prototype.KEY_INSERT = 45;
 InputEventDto.prototype.KEY_DEL = 46;

@@ -5,6 +5,7 @@
 
 /* generates window elements, callback hell and general laziness, etc */
 function EditorWindow(opts) {
+	window.editor = this;
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
 	var ProjectFile = {files:[], columns: 1, active_files: []}; // active_files: [{file: "", column: 1}]
@@ -196,26 +197,6 @@ function EditorWindow(opts) {
 			var basedir = projectsplits[projectsplits.length - 2];
 			// sort the files by directory
 			var sorts = [];
-			//console.log(sortPaths(ProjectFile.files));
-			/*
-			test/folder/file.png
-			test/folder2/file.js
-			test/folder/file2.png
-			
-			becomes
-			test/
-				folder/
-					file.png
-					file2.png
-				folder2/
-					file.js
-			*/
-			/*for(var i = 0; i < ProjectFile.files.length; i++) {
-				var filesplits = ProjectFile.files[i].split(/[\\\/]/g);
-				var filedir = filesplits[filesplits.length - 2];
-				console.log(basedir, filedir);
-				sorts[filedir]
-			}*/
 			
 			if (ProjectFile.columns != 1) fnCreateEditorColumns(ProjectFile.columns);
 			ProjectFile.active_files.forEach(function(item) {
@@ -632,7 +613,8 @@ function EditorWindow(opts) {
 	});*/
 	//var popup = null;
 	// these are global hotkeys i guess idk
-	var globalHotkeys = new Hotkeys();
+	this.hotkeys = new Hotkeys(); 
+	var globalHotkeys = this.hotkeys;
 	/*globalHotkeys.onKeyDown = function(inputDto) {
 		var pluginMsg = {
 			event: "hotkey",
@@ -730,6 +712,9 @@ function EditorWindow(opts) {
 	});
 	window.addEventListener('app-getprojectfile', fnOnGetProjectFile);
 	window.addEventListener('app-saveprojectfile', function() {
-		console.log("blah");
+		
+	});
+	window.addEventListener('app-pluginload', function(event) {
+		LoadScript(event.detail.script);
 	});
 };

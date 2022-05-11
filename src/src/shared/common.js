@@ -293,16 +293,30 @@ function ArrayToUnsignedLongInt(arr) {
 };
 /* src: full file name and path
 	fnConstructor: prototype constructor */
-function LoadScript(src, fnConstructor) {
+function LoadScript(src, data, fnConstructor) {
 	var script = document.createElement("script");
 	script.type = "application/javascript";
 	script.onload = function() {
-		if (typeof constructor == "function")
-			new constructor();
+		if (typeof fnConstructor == "function")
+			new fnConstructor(args);
 	}
 	script.src = src;
+	script.loadData = data;
 	document.head.appendChild(script);
 };
+
+function GetURL(url, data, fnDone) {
+	var req = new XMLHttpRequest();
+	req.onreadystatechange = function() {
+		if (req.readyState == 4) {
+			if (typeof fnDone !== "undefined")
+				fnDone(req.response.toString());
+		}
+	};
+	req.open("POST", url, true);
+	req.send(data);
+	
+}
 // afaik module should only exist in a nodejs environment
 if (typeof module!=="undefined") {
 	var proc = null;//require("process");

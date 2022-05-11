@@ -373,7 +373,7 @@ function ElementTabs(parent, column) {
 	this.scrollerRight.setAttribute("data-dir", "1");
 
 	// content is the container that holds all tabs
-	this.content = UI.make("div", "relative tabs-container wrapped-all", tdLeft);
+	this.content = UI.make("div", "tabs-container wrapped-all", tdLeft);
 
 	this.scrollerLeft.onmousedown = function(event) { self.enableScroll(-1); }
 	this.scrollerLeft.onmouseup = function(event) { self.disableScroll(); }
@@ -464,7 +464,6 @@ ElementTabs.prototype.remove = function() {
 			this.tabs.pop();
 		}
 	}
-	this.tabs
 };
 ElementTabs.prototype.scroll = function(dir) {
 	this.x = Clamp(this.x + dir, 0, this.content.scrollWidth - this.content.parentElement.getClientRects()[0].width);
@@ -480,7 +479,7 @@ function ElementTab(tabs, data) {
 	this.fnActivateCallback = null;
 	this.datum = data// = new ElementTabData(namid);
 	this.pane = null; // content element that tab will hide/show/modify
-	this.tab = UI.make("div", "relative inline top-level tab", null, data.name, true);
+	this.tab = UI.make("div", "inline tab", null, data.name, true);
 	this.tab.onclick = function(event) {
 		self.activate();
 	}
@@ -506,41 +505,61 @@ function ElementTab(tabs, data) {
 	};
 
 	this.tab.onmousedown = function (event1) {
-
 		var initialRect = self.tab.getClientRects()[0];
+		console.log(initialRect);
 		var isMoving = false;
-
+		var e1= new InputEventDto(event1);
 		document.onmousemove = function(event2) {
-			if (Math.abs(event2.clientX - event1.clientX) > 50 || 
-					Math.abs(event2.clientY - event1.clientY) > 50 &&
+			var e2 = new InputEventDto(event2);
+			if (Math.abs(e2.x - e1.x) > 50 || 
+					Math.abs(e2.y - e1.y) > 50 &&
 						!isMoving) {
 				isMoving = true;
 				self.tab.classList.remove("top-level");
+				self.tab.classList.remove("relative");
 				self.tab.classList.add("top-level-most");
+				self.tab.classList.add("absolute");
+				self.tab.classList.add("outlined");
 			}
 
 			if (isMoving) {
 				var rect = self.tabs.column.container.getClientRects()[0];
-				var nextX = ((event2.clientX - rect.left) - (event1.clientX - initialRect.x));
-				var nextY = ((event2.clientY - rect.top) - (event1.clientY - initialRect.y))
-
-				self.tab.style.position = "absolute";
-				self.tab.style.pointerEvents = "none";
+				//var nextX = ((event2.clientX - rect.left) - (event1.clientX - initialRect.x));
+				//var nextY = ((event2.clientY - rect.top) - (event1.clientY - initialRect.y))
+				var nextX = e2.x - (rect.left - initialRect.x);
+				var nextY = e2.y - (rect.top - initialRect.y);
+				
+				console.log(nextX, nextY);
+				//self.tab.style.position = "absolute";
+				//self.tab.style.zIndex = "1100";
+				//self.tab.style.pointerEvents = "none";
 				self.tab.style.left = nextX + "px";
 				self.tab.style.top = nextY + "px";
+				
 			}
 		}
 		document.onmouseup = function(event2) {
-			self.tab.style.position = "relative";
-			self.tab.style.pointerEvents = "auto";
+			//self.tab.style.position = "relative";
+			//self.tab.style.pointerEvents = "auto";
+			//self.tab.style.zIndex = "1000";
 			self.tab.style.left = "0px";
 			self.tab.style.top = "0px";
 
 			self.tab.classList.remove("top-level-most");
-			self.tab.classList.add("top-level");			
+			self.tab.classList.remove("absolute");
+			self.tab.classList.remove("outlined");
+			self.tab.classList.add("relative");
+			self.tab.classList.add("top-level");
 
 			document.onmousemove = null;
 			document.onmouseup = null;
+			if (self.pane) self.pane.focus(); // moving the tab causes artifacts, focusing seems to resolve this
+		}
+	}
+	this.tab.onmouseup = function(event) {
+		var e = new InputEventDto(event);
+		if (e.key == InputEventDto.prototype.MOUSE_MIDDLE) {//new Bitfield(e.key).compare(InputEventDto.prototype.MOUSE)) {
+			self.destroy();
 		}
 	}
 }
@@ -548,7 +567,6 @@ ElementTab.prototype.setContext = function(newContext) {
 	this.tab.oncontextmenu = newContext;
 };
 ElementTab.prototype.destroy = function() {
-	//this.tabs.get()[this.id] = null;
 	this.removed = true;
 	this.tab.onmousedown = null;
 	this.tab.oncontextmenu = null;
