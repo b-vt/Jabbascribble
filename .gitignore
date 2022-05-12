@@ -1,0 +1,10 @@
+tmp/
+src/data/debug/
+bin/
+src/plugins/ternjsxx/
+.scribble
+.tern-project
+build.js
+merge.sh
+test.sh
+test.js
