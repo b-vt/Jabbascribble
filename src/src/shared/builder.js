@@ -526,8 +526,9 @@ function ElementTab(tabs, data) {
 				var rect = self.tabs.column.container.getClientRects()[0];
 				//var nextX = ((event2.clientX - rect.left) - (event1.clientX - initialRect.x));
 				//var nextY = ((event2.clientY - rect.top) - (event1.clientY - initialRect.y))
-				var nextX = e2.x - (rect.left - initialRect.x);
-				var nextY = e2.y - (rect.top - initialRect.y);
+				console.log(e2.x, rect.left, initialRect.x, rect.x);
+				var nextX = (rect.left - initialRect.x) - e2.x;
+				var nextY = (rect.top - initialRect.y) - e2.y;
 				
 				console.log(nextX, nextY);
 				//self.tab.style.position = "absolute";

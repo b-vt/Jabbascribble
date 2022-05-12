@@ -26,8 +26,7 @@ var Config = {
 			renderer: "ternjs/render.js",
 			config: {
 				bin: "/bin/lib/tern",
-				port: 49000,
-				key: 32
+				port: 49000
 			}
 		}
 	]

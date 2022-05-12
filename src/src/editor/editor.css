@@ -449,12 +449,13 @@ details > .ui-context-menu {
 	width: 0px;
 	min-width: 100%;
 	top: 2px;
+	height: 23px;
 }
 .tab {
-	position: relative;
+
 	/*background-color: #2f2f30;*/
 	background-color: #5a5a5a;
-	/*height: 1.25rem;*/
+	height: 1.25rem;
 	width: auto;
 	
 	vertical-align: top;
@@ -476,12 +477,21 @@ details > .ui-context-menu {
 	font-size: medium;
 	color: #999;
 }
+.outlined { 
+	border: 1px solid #1f1f1f;
+}
 .tab:hover {
-	box-shadow: 0 0 5px 1px #474842;
+	/*box-shadow: 0 0 5px 1px #474842;*/
+	background-color: #6d6d6d;
 }
 .tab:active {
 	background-color: #272822;
-	box-shadow: 0 0 5px 1px #373832;
+	/*box-shadow: 0 0 5px 1px #373832;*/
+}
+.tab:hover[data-active="1"] {
+	background-color: #272822;
+	min-width: 10%;
+	color: #a6a3b9;
 }
 .tab[data-active="1"] {
 	background-color: #272822;
