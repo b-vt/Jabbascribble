@@ -1,0 +1,22 @@
+{
+	"ssl":
+	{
+		"enabled": true,
+		"port": 443,
+		"paths": {
+			"cert": "E:\\acme\\cert.pem",
+			"key": "E:\\acme\\privkey.pem"
+		}
+	},
+	"port": 8080,
+	"versioner": false,
+	"session": false,
+	"logging": false,
+	"fs": {
+		"root": "E:\\Development\\Projects\\NodeJS\\tern-master",
+		"log": "E:\\Development\\Projects\\NodeJS\\tern-master\\logs"
+	},
+	"php": {
+		"path": "E:\\Programs\\php\\"
+	}
+}
