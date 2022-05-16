@@ -189,24 +189,27 @@ ElementTabEditorData.prototype.update = function(data) {
 };
 // auto compete thing
 function ElementPopup(x, y, completions) {
+	var self = this;
 	this.container = UI.makeUnique("popup", "div", "absolute popup", window.body);
 	
-	this.select = UI.make("select", "", this.container);
+	//this.label = UI.make("label", "", this.container);
+	//this.label.setAttribute("for", "autocomplete");
+	this.select = UI.make("select", "popup", this.container);
+	//this.select.setAttribute("name", "autocomplete");
 	this.select.setAttribute("multiple", "");
-	//activeFileExtension.name = "activeFileExtension";
-	//activeFileExtension.onchange = fnEditorTabMode;
 	for(var i = 0; i < completions.length; i++) {
 		var opt = UI.make("option", "", this.select, completions[i]);
-		opt.isPopup = true;
 	}
+	
+	this.container.focus();
 
 	this.container.style.left = `${x}px`;
 	this.container.style.top = `${y}px`;
+	
 
-	this.container.isPopup = true;
-	this.select.isPopup = true;
 
 };
 ElementPopup.prototype.destroy = function() {
+	this.select.onkeyup = null;
 	this.container.remove();
 };

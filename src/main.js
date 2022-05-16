@@ -6,12 +6,12 @@ var os = require("os");
 var {Config} = require("./src/shared/config.js");
 var Common = require("./src/shared/common.js");
 var {Plugins} = require("./src/shared/plugins.js");
-console.log("!!!", module.exports);
+
 (() => {
 
 	var APP_VERSION_MAJOR = 0;
 	var APP_VERSION_MINOR = 0;
-	var APP_VERSION_PATCH = 0x04292022; // the date of modification
+	var APP_VERSION_PATCH = 0x05122022; // the date of modification
 	var DEBUG = false;
 	
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
@@ -23,8 +23,6 @@ console.log("!!!", module.exports);
 		try {
 			new Common.Configure().add("-d -debug", function(v) {
 				Config.Debug = true;
-				console.log(`overwrite debug=${Config.Debug}`);
-
 			}).add("-v -version", function() {
 				console.log("Jabbascribble version:", [APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH].join("."));
 			}).add("-f -file", function(arg) {
@@ -62,9 +60,7 @@ console.log("!!!", module.exports);
 				var web = electron.BrowserWindow.fromId(data.uuid);
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");
 				if (self.plugins == null) return;
-				self.plugins.pushPluginEvent(web, data);
-				console.log(data);
-				
+				self.plugins.pushPluginEvent(data);			
 			})();
 
 		});

@@ -6,6 +6,7 @@
 /* generates window elements, callback hell and general laziness, etc */
 function EditorWindow(opts) {
 	window.editor = this;
+	window.popups = [];
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
 	var ProjectFile = {files:[], columns: 1, active_files: []}; // active_files: [{file: "", column: 1}]
@@ -474,7 +475,7 @@ function EditorWindow(opts) {
 	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile;
 	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
 	file.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
-		window.api.saveProjectFile({project: ProjectFile});
+		window.api.saveProjectFile({project: ProjectFile, columns: Config.editor.Columns});
 	};
 	file.add();
 	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
@@ -689,6 +690,11 @@ function EditorWindow(opts) {
 			find.reset();
 			searchInput.value = "";
 			searchReplace.value = "";
+			for(var popup in window.popups) {
+				console.log("??");
+				if (typeof window.popups[popup].destroy === "function")
+					window.popups[popup].destroy();
+			}
 		}
 	});
 	window.addEventListener('mouseup', function(event) {
@@ -707,6 +713,7 @@ function EditorWindow(opts) {
 			});
 		});
 	});
+	
 	window.addEventListener("app-open", function(event) { // file open event
 		self.columns.active().editor.addTab(event.detail.path, event.detail.value, fnTabContextMenus);
 	});

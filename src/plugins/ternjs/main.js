@@ -41,80 +41,74 @@ var Config = require(path.normalize(path.join(__dirname, "../../src/shared/confi
 */
 function TernPluginMain(pluginConf, appWindow) {
 	PluginMain.call(this);
-	console.log(`-- TernPluginMain constructor --\n`, pluginConf);
 	var self = this;
 	this.window = appWindow;
 	this.server = null;
 	this.name = "ternjs";
 	this.pluginConf = pluginConf;
 
-	//this.onRendererEvent = function()
+	console.log(`-- TernPluginMain constructor --\n`, pluginConf);
+
 };
 TernPluginMain.prototype = Object.create(PluginMain.prototype);
 TernPluginMain.prototype.constructor = TernPluginMain;
 TernPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
-	//console.log("-- TernPluginMain doTask --");
-	(() => {
-		var post = {
-			query: {
-				type: "completions",
-				file: msg.name,
-				end: {line: 3, ch: 3}//msg.text.length
-			},
-			files: [{
-				name: msg.name,
-				text: msg.text,
-				type: "full"
-			}]
-		};
-		console.log("-- TernPluginMain post --\n", post);
-		Common.PostURL(`http://127.0.0.1:${self.pluginConf.port}`, post, function(data, err) {
-			if (err) { // server is dead?
-				console.log("-- TernPluginMain post error --");
-				try {
-					if (self.server !== null && self.server.killed == false)
-						self.server.kill('SIGINT');
-					else {
-						self.server = null;
-						self.start(); // try restarting it
-					}
-				}
-				catch (e) {
-					console.trace(err, e);
+	console.log("-- TernPluginMain doTask --\n", event);
+	//((_event) => {
+	var post = {
+		query: {
+			type: "completions",
+			file: "#0",
+			end: {ch: event.request.ch, line: event.request.line}//msg.text.length
+		},
+		files: [{
+			name: event.request.file,
+			text: event.request.text,
+			type: "full"
+		}]
+	};
+	console.log("-- TernPluginMain post --\n", post);
+	Common.PostURL(`http://127.0.0.1:${self.pluginConf.config.port}`, post, function(data, err) {
+		if (err) { // server is dead?
+			console.log("-- TernPluginMain post error --");
+			try {
+				if (self.server !== null && self.server.killed == false)
+					self.server.kill('SIGINT');
+				else {
+					self.server = null;
+					self.start(); // try restarting it
 				}
 			}
-			else {
-				//console.log(data);
-				var msg = {
-					name: "ternjs",
-					data: data
-				}
-				self.window.webContents.send("plugin-", msg);
+			catch (e) {
+				console.trace(err, e);
 			}
-		});
-	})();
+		}
+		else {
+			self.window.webContents.send("main-plugin", { name: self.name,  data: data });
+		}
+	});
+	//})(event);
 };
 TernPluginMain.prototype.start = function() {
+	console.log(`-- TernPluginMain has started --`);
 	var self = this;
 	if (this.server != null) return;
 	var nodePath = process.argv[0];
-	if (Config.Debug == false) {
-		console.log("ASD!@");
-		//nodePath = path.normalize(path.join(process.cwd(), "jabbascribble.exe"));
-	}
 	var ternPath = path.normalize(path.join(__dirname, this.pluginConf.config.bin));//"/ternjs/bin/tern"));
+	console.log(ternPath);
 	var cmd = [ternPath, "--port", this.pluginConf.config.port, "--no-port-file", "--ignore-stdin", "--verbose"];
-	this.server = child.spawn(nodePath, cmd);
-	
+	var env = process.env;
+	env.ELECTRON_RUN_AS_NODE = 1;
+	this.server = child.spawn(nodePath, cmd, {cwd: __dirname, env: env});
 	this.server.stdout.on("data", function(data) {
-		console.log("-------TernPluginMain stdout-------\n", data.toString(), "\n----------------------------");
+		console.log("-------TernPluginMain stdout-------\n", data.toString() || "", "\n----------------------------");
 	});
 	this.server.stderr.on("data", function(data) {
-		console.log("-------TernPluginMain stderr-------\n", data.toString(), "\n----------------------------");
+		console.log("-------TernPluginMain stderr-------\n", data.toString() || "", "\n----------------------------");
 	});
 	this.server.on("close", function(data) {
-		console.log("-------TernPluginMain close-------\n", data.toString(), "\n----------------------------");
+		console.log("-------TernPluginMain close-------\n", data, "\n----------------------------");
 		self.server = null;
 	});
 	return this;

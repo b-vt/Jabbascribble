@@ -625,10 +625,13 @@ details > .ui-context-menu {
 	border: 10px solid #f00;
 }
 .popup {
-	width: 10px;
-	height: 10px;
+	width: auto;
+	height: auto;
 	resize: both;
-	background-color: rgb(100, 100, 150);
+	background-color: rgb(100, 100, 100);
 	border: 1px solid #000;
-	z-index: 1000000;
+	z-index: 1100;
+}
+.popup:focus {
+	border: 1px solid #f00;
 }

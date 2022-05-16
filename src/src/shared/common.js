@@ -426,7 +426,7 @@ if (typeof module!=="undefined") {
 				fs = require("fs");
 			if (path == null)
 				path = require("path");
-			//var web = null;
+
 			var splits = url.split(/[:]/g);
 			var w = null;
 			if (splits[0] === "https") {
@@ -440,27 +440,28 @@ if (typeof module!=="undefined") {
 				w = web;
 			}
 
-			//var split = path.normalize(url).split(/[\\\/]/);
+			var port = splits[splits.length - 1] || 80;
+			console.log("port", splits, splits[splits.length - 1], port, url);
 			var opt = {
 				url: url,
-				method: 'POST'
+				method: 'POST',
+				port: port
 			};
 			var request = w.request(opt, function(res) {
 				console.log(`request status code ${res.statusCode}`);
 				var chunks = [];
 				res.on('data', function(data) {
-					//console.log("QueryURL data: ", data.toString());
+					console.log("QueryURL data: ", data.toString());
 					chunks.push(data.toString());
 				});
 				res.on('end', function(a, b, c) {
-					//console.log("QueryURL end");
+					console.log("QueryURL end");
 					if (typeof fnDone == "function")
 						fnDone(chunks.join(""));
 				});
-				
 			});
 			request.on('error', function(error) {
-				//console.log("QueryURL error: ",error);
+				console.log("QueryURL error: ",error);
 				if (typeof fnDone == "function")
 						fnDone("", error);
 			});

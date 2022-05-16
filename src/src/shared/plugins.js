@@ -7,12 +7,6 @@ var {Plugin} = require("../../src/shared/plugin.js");
 function Plugins(appClass, window) {
 	var self = this;
 	this.activePlugins = [];
-	/*this.listeners = [
-		"render": [],
-		"main": [],
-		"save": [],
-		"open": []
-	];*/ 
 	for(var i = 0; i < Config.plugins.length; i++) {
 		try {
 			((_i, _window) => {
@@ -22,11 +16,8 @@ function Plugins(appClass, window) {
 				var renderer = path.normalize(path.join(__dirname, `../../plugins/${conf.renderer}`));
 				_window.webContents.send("main-pluginload", {script: renderer, index: _i});
 				fs.access(main, fs.constants.F_OK, function(err) {
-					console.log("fuck shit");
 					if (err) return console.log(`- Plugins.js error could not find plugin:\n\t${main} ${err}`);	
 					var MyPlugin = require(main);
-					console.log(conf);
-					// todo: tell renderer about conf.renderer
 					var plugin = new MyPlugin(conf, _window).start();
 					self.activePlugins[plugin.name] = plugin;
 				});
@@ -45,7 +36,6 @@ Plugins.prototype.on = function(eventName, fnCallback) {
 };
 /* all plugins must inherit from plugin.js and overload methods accordingly otherwise they return null */
 Plugins.prototype.pushPluginEvent = function(event) {
-	console.log(event);
 	var reply = null;
 	if (event.name == undefined || event.name == null || event.name.length == 0)
 		for(item in this.activePlugins) {//var i = 0; i < this.activePlugins.length; i++) {
