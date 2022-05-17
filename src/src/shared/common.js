@@ -420,7 +420,7 @@ if (typeof module!=="undefined") {
 	/* url: https://someproject.github.com/src/release.zip
 		fnDone: callback on status 200
 		pathName: should be undefined, but can be whatever. mainly used for redirects */
-	function PostURL(url, post, fnDone) {
+	function PostURL(url, port, post, fnDone) {
 		try {
 			if (fs == null)
 				fs = require("fs");
@@ -439,38 +439,35 @@ if (typeof module!=="undefined") {
 					web = require("http");
 				w = web;
 			}
-
-			var port = splits[splits.length - 1] || 80;
-			console.log("port", splits, splits[splits.length - 1], port, url);
-			var opt = {
-				url: url,
-				method: 'POST',
-				port: port
-			};
-			var request = w.request(opt, function(res) {
-				console.log(`request status code ${res.statusCode}`);
+			
+			((_url, _port, _post) => {
+				var opt = {
+					hostname: _url,
+					method: 'POST',
+					port: _port,
+					headers: {
+						'Content-Type': 'application/json',
+						'Content-Length': Buffer.byteLength(_post)
+					}
+				};
 				var chunks = [];
-				res.on('data', function(data) {
-					console.log("QueryURL data: ", data.toString());
-					chunks.push(data.toString());
-				});
-				res.on('end', function(a, b, c) {
-					console.log("QueryURL end");
-					if (typeof fnDone == "function")
-						fnDone(chunks.join(""));
-				});
-			});
-			request.on('error', function(error) {
-				console.log("QueryURL error: ",error);
-				if (typeof fnDone == "function")
-						fnDone("", error);
-			});
-			console.log("headers:", JSON.stringify(post));
-			request.write(JSON.stringify(post));
-			request.end();
+				function fnResponse(res) {
+					res.on('data', function(data) {
+						chunks.push(data.toString());
+					});
+					res.on('end', function(a, b, c) {
+						if (typeof fnDone == "function")
+							fnDone(chunks.join(""));
+					});
+				};
+				var request = w.request(opt, fnResponse);
+				request.write(_post);
+				request.end();
+			})(url, port, post);
 		}
 		catch(e) {
-			new Exit(e);
+			//new Exit(e);
+			console.log(e);
 		}
 	};
 	/* url: https://someproject.github.com/src/release.zip
@@ -524,7 +521,7 @@ if (typeof module!=="undefined") {
 			request.end();
 		}
 		catch(e) {
-			new Exit(e);
+			console.log(e);
 		}
 	};
 	/* syncronous write to stdout that poorly mimics console.log */

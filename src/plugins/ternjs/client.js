@@ -41,12 +41,12 @@ var Common = require("../../src/shared/common.js");
 		query: {type: "files"},
 		files: [{type: "full", name: filePath, text: lineText}]
 	}
-	Common.PostURL("http://127.0.0.1:49000", post2, function(data, error) {
-		console.log(data, error);
-		Common.PostURL("http://127.0.0.1:49000", post, function(data, error) {
+	//Common.PostURL("http://127.0.0.1:49000", post2, function(data, error) {
+		//console.log(data, error);
+		Common.PostURL("localhost", 49000, JSON.stringify(post), function(data, error) {
 			console.log(data, error);
 		});
-	});
+	//});
 })();
 
 /*(() => {

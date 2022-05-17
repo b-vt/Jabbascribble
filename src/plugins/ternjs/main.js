@@ -4,41 +4,6 @@ var path = require("path");
 var {PluginMain} = require(path.normalize(path.join(__dirname, "../../src/shared/plugin.js")));
 var Common = require(path.normalize(path.join(__dirname, "../../src/shared/common.js")));
 var Config = require(path.normalize(path.join(__dirname, "../../src/shared/config.js")));
-/*
-(() => {
-	var filePath = "E:\\Development\\Projects\\NodeJS\\Jabbascribble\\src\\main.js";
-	var readLength = 393;
-	var completes = { // now complete
-		query: {
-			type: "completions",
-			file: filePath,
-			end: 11// 
-		},
-		files: [{
-			name: filePath,
-			text: "Common.Quer",
-			type: "full"
-		}]
-	}
-	var addFiles = { // add files first
-		query: {
-			type: "files"
-		},
-		files: [{
-			name: filePath,
-			text: fs.readFileSync(filePath).toString('utf8'),
-			type: "full"
-		}]
-	}
-	//Common.QueryURL("http://127.0.0.1:49000", addFiles, function(data, error) {
-		//if (error)
-		Common.QueryURL("http://127.0.0.1:49000", completes, function(data, error) {
-			//if (error)
-			console.log(data, error);
-		});
-	//});
-})();
-*/
 function TernPluginMain(pluginConf, appWindow) {
 	PluginMain.call(this);
 	var self = this;
@@ -55,45 +20,45 @@ TernPluginMain.prototype.constructor = TernPluginMain;
 TernPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
 	console.log("-- TernPluginMain doTask --\n", event);
-	//((_event) => {
-	var post = {
-		query: {
-			type: "completions",
-			file: "#0",
-			end: {ch: event.request.ch, line: event.request.line}//msg.text.length
-		},
-		files: [{
-			name: event.request.file,
-			text: event.request.text,
-			type: "full"
-		}]
-	};
-	console.log("-- TernPluginMain post --\n", post);
-	Common.PostURL(`http://127.0.0.1:${self.pluginConf.config.port}`, post, function(data, err) {
-		if (err) { // server is dead?
-			console.log("-- TernPluginMain post error --");
-			try {
-				if (self.server !== null && self.server.killed == false)
-					self.server.kill('SIGINT');
-				else {
-					self.server = null;
-					self.start(); // try restarting it
+	((_event) => {
+		var post = {
+			query: {
+				type: "completions",
+				file: "#0",
+				end: {ch: _event.request.ch, line: _event.request.line}//msg.text.length
+			},
+			files: [{
+				name: _event.request.file,
+				text: _event.request.text,
+				type: "full"
+			}]
+		};
+		console.log("-- TernPluginMain post --\n", post);
+		Common.PostURL("127.0.0.1", self.pluginConf.config.port, JSON.stringify(post), function(data, err) {
+			if (err) { // server is dead?
+				console.log("-- TernPluginMain post error --");
+				try {
+					if (self.server !== null && self.server.killed == false)
+						self.server.kill('SIGINT');
+					else {
+						self.server = null;
+						self.start(); // try restarting it
+					}
+				}
+				catch (e) {
+					console.trace(err, e);
 				}
 			}
-			catch (e) {
-				console.trace(err, e);
+			else {
+				self.window.webContents.send("main-plugin", { name: self.name,  data: data });
 			}
-		}
-		else {
-			self.window.webContents.send("main-plugin", { name: self.name,  data: data });
-		}
-	});
-	//})(event);
+		});
+	})(event);
 };
 TernPluginMain.prototype.start = function() {
 	console.log(`-- TernPluginMain has started --`);
 	var self = this;
-	if (this.server != null) return;
+	if (this.server != null) this.destroy();
 	var nodePath = process.argv[0];
 	var ternPath = path.normalize(path.join(__dirname, this.pluginConf.config.bin));//"/ternjs/bin/tern"));
 	console.log(ternPath);
@@ -116,6 +81,7 @@ TernPluginMain.prototype.start = function() {
 TernPluginMain.prototype.destroy = function() {
 	console.log("-- TernPluginMain cleanup! --");
 	this.server.exit('SIGINT');
+	this.server = null;
 	return;
 };
 if (typeof module!=="undefined")

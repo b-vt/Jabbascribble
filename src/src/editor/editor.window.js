@@ -55,6 +55,13 @@ function EditorWindow(opts) {
 			});
 		}
 	};
+	
+	function fnClearPopups() {
+		for(var popup in window.popups) {
+			if (typeof window.popups[popup].destroy === "function")
+				window.popups[popup].destroy();
+		}
+	}
 	function fnCreateEditorColumns(count) {
 		console.log(count);
 		var columns = self.columns.get();
@@ -87,56 +94,10 @@ function EditorWindow(opts) {
 		else
 			window.api.getProjectFile();
 	};
-	/*function fnRebuildFileExplorerList() {
-		console.log(ProjectFile);
-		// re/populate the files list
-		projectFileInput.value = ProjectFile.projectFile;
-		fileExplorerList.remove();
-		fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
-		fileExplorerList.setAttribute("multiple", true);
-		var dirsplit = ProjectFile.projectFile.split(/[\\\/]/g);
-		var basedir = dirsplit[dirsplit.length - 2];
-		for(var i = 0; i < ProjectFile.files.length; i++) {
-			var filesplit = ProjectFile.files[i].split(/[\\\/]/g);
-			var filedir = filesplit[filesplit.length - 2];
-			
-			var classNames = ["ui-select-icon", "ui-icon-script"];
-			var item = new UI.make("option", classNames.join(" "), fileExplorerList, filesplit[filesplit.length - 1]);
-			item.src = ProjectFile.files[i];
-			((_item, _index) => {
-				_item.ondblclick = function() { // open files on double click
-					console.log("clicked item: ", this.value);
-					window.api.open({path: this.src});
-				};
-				_item.oncontextmenu = function(event) {
-					console.log(event);
-					var dto = new InputEventDto(event);
-					var w = new ElementContextMenu();
-					w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
-						var swap = ProjectFile.files[ProjectFile.length - 1];
-						ProjectFile.files[_index] = swap;
-						ProjectFile.files.pop();
-						fnRebuildFileExplorerList();
-					};
-					w.show(dto.x, dto.y);
-				};
-			})(item, i);
-		}
-	}*/
 	function fnRebuildFileExplorerList() {
 		
 		fileExplorerList.remove();
 		fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
-		
-		//fileExplorerList.setAttribute("multiple", true);
-		
-		
-		/*
-			contents[0] => {name: "/jabbascribble", contents: []};
-			contents[0].contents[0] => {name: "/src", contents: []};
-			contents[0].contents[0].contents[0] => {name:"/src", contents: []}
-			contents[0].contents[0].contents[0].contents[0] => {name:"blah.css", contents: null}
-		*/
 		function node(name, depth) {
 			this.name = name;
 			this.depth = depth || 0;
@@ -155,8 +116,7 @@ function EditorWindow(opts) {
 				var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
 				var fileName = [new Array(parentNode.children[name].depth).join('\xa0'), name].join('');
 				var item = new UI.make("div", classNames.join(" "), fileExplorerList, fileName);
-				item.src = path;//ProjectFile.files[itemCount];
-				//if ( item is not directory )
+				item.src = path;
 				((_item, _index) => {
 					_item.onclick = function() {
 						
@@ -184,7 +144,7 @@ function EditorWindow(opts) {
 			if (separator != -1)
 				parsed(path, parentNode.children[name], separator+1, depth+1, index);
 		}
-		
+		// todo: sort projectFile.files
 		var root = new node("");
 		for(var i = 0; i < ProjectFile.files.length; i++) {
 			parsed(ProjectFile.files[i], root, 0, 0, i);
@@ -682,7 +642,6 @@ function EditorWindow(opts) {
 			}
 		}
 	});*/
-
 	// cleanup temporary elements on escape and mouse clicks
 	window.addEventListener('keyup', function(event) {
 		var dto = new InputEventDto(event);
@@ -690,16 +649,18 @@ function EditorWindow(opts) {
 			find.reset();
 			searchInput.value = "";
 			searchReplace.value = "";
-			for(var popup in window.popups) {
-				console.log("??");
-				if (typeof window.popups[popup].destroy === "function")
-					window.popups[popup].destroy();
-			}
+			fnClearPopups();
 		}
 	});
 	window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
+		console.log(event.target)
 		//find.reset();
+		for(var popup in window.popups) {
+			console.log("??");
+			if (typeof window.popups[popup].destroy === "function")
+				window.popups[popup].destroy();
+		}
 	});
 	
 	// event listeners from preload script
