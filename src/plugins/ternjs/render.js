@@ -75,9 +75,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					popup.container.onkeyup = function(event) {
 						var dto = new InputEventDto(event);
 						if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
-							var cursor = cm.getCursor();
 							var opt = popup.select.options[popup.select.selectedIndex];
-							cm.replaceRange(opt.value, cursor);
+							cm.replaceRange(opt.value, response.start, response.end);
 							popup.destroy();
 						}
 						else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
@@ -85,9 +84,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 						}
 					}
 					popup.container.ondblclick = function(event) {
-						var cursor = cm.getCursor();
 						var opt = popup.select.options[popup.select.selectedIndex];
-						cm.replaceRange(opt.value, cursor);
+						cm.replaceRange(opt.value, response.start, response.end);
 						popup.destroy();
 					}
 					

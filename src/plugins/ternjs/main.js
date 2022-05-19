@@ -31,6 +31,8 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 		return {
 			query: {
 				type: "completions",
+				expandWordForward: false,
+				lineCharPositions: true,
 				file: "#0",
 				end: {ch: evt.request.ch, line: evt.request.line}//msg.text.length
 			},
