@@ -367,6 +367,12 @@ details > .ui-context-menu {
 .ui-icon-unhappy {
 	background-image: url("../../data/icons/emoticon_unhappy.png");
 }
+.ui-icon-plugin-enabled {
+	background-image: url("../../data/icons/plugin.png");
+}
+.ui-icon-plugin-disabled {
+	background-image: url("../../data/icons/plugin_disabled.png");
+}
 .clearfix::after {
 	content: "";
 	display:block;

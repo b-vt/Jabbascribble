@@ -25,6 +25,26 @@ ElementCompletionsPopup.prototype.destroy = function() {
 
 (() => {
 
+	//var tools = window.editor.rowTools
+	//new ElementIconButton(tools, "ui-icon-open", "").onclick = function() {
+	//	console.log("hello plugin world?");
+	//};
+	var autoRequest = true;
+	var menu = window.editor.menu;
+	var viewItem = menu.view.add("Tern Requests on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
+		if (autoRequest) {
+			autoRequest = false;
+			this.container.children[0].classList.remove("ui-icon-plugin-enabled");
+			this.container.children[0].classList.add("ui-icon-plugin-disabled");
+		}
+		else {
+			autoRequest = true;
+			this.container.children[0].classList.remove("ui-icon-plugin-disabled");
+			this.container.children[0].classList.add("ui-icon-plugin-enabled");
+		}
+			
+	}
+	
 	window.addEventListener('app-plugin-ternjs', function(event) {
 		if (window.popups["ternjs"]) window.popups["ternjs"].destroy();
 		try {
@@ -47,11 +67,17 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					
 					popup.move(x, y);
 					
+					if (!autoRequest) {
+						cm.display.input.blur();
+						console.log(popup.select.children[0]);
+						popup.select.focus();
+					}
 					popup.container.onkeyup = function(event) {
 						var dto = new InputEventDto(event);
 						if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
 							var cursor = cm.getCursor();
-							cm.replaceRange(this.value, cursor);
+							var opt = popup.select.options[popup.select.selectedIndex];
+							cm.replaceRange(opt.value, cursor);
 							popup.destroy();
 						}
 						else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
@@ -60,7 +86,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					}
 					popup.container.ondblclick = function(event) {
 						var cursor = cm.getCursor();
-						cm.replaceRange(this.value, cursor);
+						var opt = popup.select.options[popup.select.selectedIndex];
+						cm.replaceRange(opt.value, cursor);
 						popup.destroy();
 					}
 					
@@ -98,6 +125,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	var lastKeyStrokeTimer = null;
 	window.addEventListener('keyup', function(event) {
 		//console.log(event);
+		if (!autoRequest) return;
 		var dto = new InputEventDto(event);
 		console.log(dto);
 		if (!(dto.key <= 90 && dto.key >= 65)) {

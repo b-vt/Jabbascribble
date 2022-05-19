@@ -362,6 +362,7 @@ function EditorWindow(opts) {
 	var rowTools = UI.make("tr", "", this.head);
 	this.rowTools = UI.make("td", "zero-height ui-row-toolbar no-padding no-margin", rowTools);
 	var footerContents = UI.make("div", "", this.rowFooter, "");
+	this.footerContents = footerContents;
 	
 	var searchInput = UI.make("input", "ui-input", footerContents);
 	searchInput.placeholder = Lang.EditSearchPlaceholder;
@@ -428,8 +429,10 @@ function EditorWindow(opts) {
 	indentation.onmouseup = fnSetIdentationMode;
 
 	var menu = new ElementMenu(this.rowMenu);
+	this.menu = {this: menu}; // exposing for plugins
 	
 	var file = menu.add(Lang.Menu.File);
+	this.menu.file = file;
 	//file.add();
 	file.add(Lang.Menu.Open, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	file.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
@@ -447,6 +450,7 @@ function EditorWindow(opts) {
 	};
 	
 	var edit = menu.add(Lang.Menu.Edit);
+	this.menu.edit = edit;
 	//edit.add();
 	edit.add(Lang.Menu.ToggleLineWrap, Config.editor.LineWrapping ? "ui-icon-check" : "", Lang.Menu.ToggleLineWrapHint).onclick = function() {
 		fnToggleLineWrap();
@@ -458,6 +462,7 @@ function EditorWindow(opts) {
 	};
 	
 	var view = menu.add(Lang.Menu.View);
+	this.menu.view = view;
 	//view.add();
 	var columnsSlider = UI.make("input", "relative ui-menu-slider", view.add(Lang.Menu.Columns, "ui-icon-columns", Lang.Menu.ColumnsHint).container);
 	columnsSlider.type = "range";
