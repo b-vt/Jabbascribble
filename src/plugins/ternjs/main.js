@@ -25,10 +25,7 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 			var file = evt.request.files[i];
 			post.files.push({name: file.name, text: file.text, type: "full"});
 		}
-		return { 
-			query: {},
-		   files: []
-		};
+		return post;
 	}
 	function fnRequestCompletions(evt) {
 		return {
@@ -48,6 +45,10 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 	switch(event.request.type) {
 		case "completes": {
 			post = fnRequestCompletions(event);
+			break;
+		}
+		case "add": {
+			post = fnRequestAddFiles(evt);
 			break;
 		}
 		default: {

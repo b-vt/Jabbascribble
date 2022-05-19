@@ -35,14 +35,15 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				var datum = editor.tabs.getActive().datum;
 				if (datum) {
 					var cm = datum.codemirror;
+					if (!cm.hasFocus()) return;
 					var popup = new ElementCompletionsPopup(response.completions);
 					
 					var rect = cm.display.cursorDiv.children[0].getClientRects()[0];
-					var x = rect.x - (popup.rect.width/2);
+					var x = rect.x;
 					var y = rect.y + 20;
 
 					x = Clamp(x, 0, window.innerWidth - (popup.rect.width * 2));
-					y = Clamp(y, 0, window.innerHeight - (popup.rect.height * 2));
+					y = Clamp(y, 0, window.innerHeight - (popup.rect.height));
 					
 					popup.move(x, y);
 					
