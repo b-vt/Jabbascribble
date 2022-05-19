@@ -575,10 +575,10 @@ details > .ui-context-menu {
     border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
 }
 .ui-checkbox {
-	width: 15px;
-	height: 15px;
-	min-width: 15px;
-	min-height: 15px;
+	width: 10px;
+	height: 10px;
+	min-width: 10px;
+	min-height: 10px;
 	background-color: #ff0000;
 }
 .collapsed {

@@ -16,7 +16,6 @@ function EditorWindow(opts) {
 		var edit = GetActiveTabEditor();
 		if (edit) {	
 			var cm = edit.datum.codemirror;
-			var from = cm.doc.getValue();
 			var className = "cm-highlight";
 			if (item.id == 0) {
 				className = "cm-highlight-focused";
@@ -377,10 +376,12 @@ function EditorWindow(opts) {
 				var selection = cm.doc.getSelection();
 				from = cm.doc.getValue();
 			}
+			var wcase = searchCaseSensitive.checked;
+			console.log(wcase);
 			if (dto.modifiers & InputEventDto.prototype.SHIFT)
-				find.search(from, this.value, true);
+				find.search(from, this.value, true, wcase);
 			else
-				find.search(from, this.value);
+				find.search(from, this.value, false, wcase);
 		}
 	};
 	var searchReplace = UI.make("input", "ui-input", footerContents);
@@ -397,11 +398,13 @@ function EditorWindow(opts) {
 				cm.doc.setValue(from.replace(searchInput.value, this.value));
 			}
 		}
-	};
-	var searchReplaceAll = UI.make("span", "ui-checkbox", footerContents, "");
-	UI.make("span", "absolute", searchReplaceAll, " ");
-	var searchReplaceAll2 = UI.make("span", "ui-checkbox", footerContents, "");
-	UI.make("span", "absolute", searchReplaceAll2, " ");
+	};	
+	var searchCaseSensitive = UI.makeUnique("scase", "input", "ui-checkbox", footerContents);
+	searchCaseSensitive.setAttribute("type", "checkbox");
+	searchCaseSensitive.checked = true;
+	var searchCaseSensitiveLabel = UI.make("label", "", footerContents, "Case Sensitive");
+	searchCaseSensitiveLabel.setAttribute("for", "scase");
+	//UI.make("span", "absolute", searchReplaceAll2, " ");
 	// mode change drop down
 	var activeFileExtension = this.activeFileExtension = UI.make("select", "right", footerContents);
 	activeFileExtension.name = "activeFileExtension";

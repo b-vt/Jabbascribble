@@ -58,8 +58,13 @@ Finder.prototype.repeat = function(ascending) {
 };
 /* todo: this will take forever for very large files
 	*/
-Finder.prototype.search = function(from, txt, ascending) {
+Finder.prototype.search = function(from, txt, ascending, isCaseSensitive) {
 	if (txt!=this.lastTxt && txt.length > 0) {
+		if (!isCaseSensitive) {
+			console.log("case insensitive search?");//, from, txt);
+			from = from.toLowerCase();
+			txt = txt.toLowerCase();
+		}
 		this.reset(true);
 		this.lastTxt = txt;
 		for(var i = 0; i < from.length; i++) {
