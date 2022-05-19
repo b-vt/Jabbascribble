@@ -1,5 +1,30 @@
-(() => {
+// auto compete thing
+function ElementCompletionsPopup(completions) {
+	var self = this;
+	this.container = UI.makeUnique("popup", "div", "absolute popup", document.body);
 	
+	//this.label = UI.make("label", "", this.container);
+	//this.label.setAttribute("for", "autocomplete");
+	this.select = UI.make("select", "popup", this.container);
+	//this.select.setAttribute("name", "autocomplete");
+	this.select.setAttribute("multiple", "");
+	for(var i = 0; i < completions.length; i++) {
+		var opt = UI.make("option", "", this.select, completions[i]);
+	}
+	this.rect = this.container.getClientRects()[0];
+	this.container.focus();
+};
+ElementCompletionsPopup.prototype.move = function(x, y) {
+	this.container.style.left = `${x}px`;
+	this.container.style.top = `${y}px`;
+};
+ElementCompletionsPopup.prototype.destroy = function() {
+	this.select.onkeyup = null;
+	this.container.remove();
+};
+
+(() => {
+
 	window.addEventListener('app-plugin-ternjs', function(event) {
 		if (window.popups["ternjs"]) window.popups["ternjs"].destroy();
 		try {
@@ -10,55 +35,85 @@
 				var datum = editor.tabs.getActive().datum;
 				if (datum) {
 					var cm = datum.codemirror;
-					var x = cm.display.cursorDiv.children[0].offsetLeft + 10;
-					var y = cm.display.cursorDiv.children[0].offsetTop + 100;
+					var popup = new ElementCompletionsPopup(response.completions);
+					
+					var rect = cm.display.cursorDiv.children[0].getClientRects()[0];
+					var x = rect.x - (popup.rect.width/2);
+					var y = rect.y + 20;
 
-					x = Clamp(x, 0, window.innerWidth - 425);
-					y = Clamp(y, 0, window.innerHeight - 250);
-					window.popups["ternjs"] = new ElementPopup(x, y, response.completions);
-					window.popups["ternjs"].container.onkeyup = function(event) {
+					x = Clamp(x, 0, window.innerWidth - (popup.rect.width * 2));
+					y = Clamp(y, 0, window.innerHeight - (popup.rect.height * 2));
+					
+					popup.move(x, y);
+					
+					popup.container.onkeyup = function(event) {
 						var dto = new InputEventDto(event);
 						if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
 							var cursor = cm.getCursor();
 							cm.replaceRange(this.value, cursor);
-							window.popups["ternjs"].destroy();
+							popup.destroy();
 						}
 						else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
-		 					window.popups["ternjs"].destroy();
+		 					popup.destroy();
 						}
 					}
-					window.popups["ternjs"].container.ondblclick = function(event) {
+					popup.container.ondblclick = function(event) {
 						var cursor = cm.getCursor();
 						cm.replaceRange(this.value, cursor);
-						window.popups["ternjs"].destroy();
+						popup.destroy();
 					}
+					
+					window.popups["ternjs"] = popup;
 				}
 			}
 		}
 		catch (e) {
 			console.log(e);
 		}
-		//new ElementPopup(
 	});
 	
-	window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_SPACE], function() {
-		var completes = {};
+	
+	
+	function fnGetCompletions() {
 		var editor =  window.editor.columns.active().editor;
 		var active = editor.tabs.getActive();
 		if (active) {
 			var datum = editor.tabs.getActive().datum;
-			//if ((editor !== undefined && editor !== null) && (active !== undefined && active !== null) && (datum !== undefined && datum !== null)) {
-			if (datum) {
+			if (datum && datum.mode == "javascript") {
 				var cursor = datum.codemirror.getCursor();
 				var text = datum.codemirror.getValue();
 				window.api.plugin({
 					name: "ternjs", event: "render", request: {
-						file: datum.path || `new_file_${Math.floor(Math.random() * 10000)}`, ch: cursor.ch, line: cursor.line, text: text
+						type: "completes",
+						file: datum.path || `new_file_${Math.floor(Math.random() * 10000)}`, 
+						ch: cursor.ch, 
+						line: cursor.line, 
+						text: text
 					}
 				});
 			}
 		}
-		//}
+	}
+	var lastKeyStrokeTimer = null;
+	window.addEventListener('keyup', function(event) {
+		//console.log(event);
+		var dto = new InputEventDto(event);
+		console.log(dto);
+		if (!(dto.key <= 90 && dto.key >= 65)) {
+			clearTimeout(lastKeyStrokeTimer);
+			lastKeyStrokeTimer = null;
+			return;
+		}
+		
+		if (lastKeyStrokeTimer == null) 
+			lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
+		else {
+			clearTimeout(lastKeyStrokeTimer);
+			lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
+		}
+	});
+	window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_SPACE], function() {
+		fnGetCompletions();
 	});
 	
 })();

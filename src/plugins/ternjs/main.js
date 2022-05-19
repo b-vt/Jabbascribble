@@ -19,8 +19,63 @@ TernPluginMain.prototype = Object.create(PluginMain.prototype);
 TernPluginMain.prototype.constructor = TernPluginMain;
 TernPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
-	console.log("-- TernPluginMain doTask --\n", event);
-	((_event) => {
+	function fnRequestAddFiles(evt) {
+		var post = { files: []};
+		for(var i = 0; i < evt.request.files.length; i++) {
+			var file = evt.request.files[i];
+			post.files.push({name: file.name, text: file.text, type: "full"});
+		}
+		return { 
+			query: {},
+		   files: []
+		};
+	}
+	function fnRequestCompletions(evt) {
+		return {
+			query: {
+				type: "completions",
+				file: "#0",
+				end: {ch: evt.request.ch, line: evt.request.line}//msg.text.length
+			},
+			files: [{
+				name: evt.request.file,
+				text: evt.request.text,
+				type: "full"
+			}]
+		};
+	}
+	var post = {};
+	switch(event.request.type) {
+		case "completes": {
+			post = fnRequestCompletions(event);
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+	Common.PostURL("127.0.0.1", self.pluginConf.config.port, JSON.stringify(post), function(data, err) {
+		if (err) { // server is dead?
+			console.log("-- TernPluginMain post error --");
+			try {
+				if (self.server !== null && self.server.killed == false) {
+					self.server.kill('SIGINT');
+				}
+				else {
+					self.server = null;
+					self.start(); // try restarting it
+				}
+			}
+			catch (e) {
+				console.trace(err, e);
+			}
+		}
+		else {
+			self.window.webContents.send("main-plugin", { name: self.name,  data: data });
+		}
+	});
+	//console.log("-- TernPluginMain doTask --\n", event);
+	/*((_event) => {
 		var post = {
 			query: {
 				type: "completions",
@@ -38,8 +93,9 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 			if (err) { // server is dead?
 				console.log("-- TernPluginMain post error --");
 				try {
-					if (self.server !== null && self.server.killed == false)
+					if (self.server !== null && self.server.killed == false) {
 						self.server.kill('SIGINT');
+					}
 					else {
 						self.server = null;
 						self.start(); // try restarting it
@@ -53,7 +109,7 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 				self.window.webContents.send("main-plugin", { name: self.name,  data: data });
 			}
 		});
-	})(event);
+	})(event);*/
 };
 TernPluginMain.prototype.start = function() {
 	console.log(`-- TernPluginMain has started --`);

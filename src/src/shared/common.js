@@ -441,28 +441,37 @@ if (typeof module!=="undefined") {
 			}
 			
 			((_url, _port, _post) => {
-				var opt = {
-					hostname: _url,
-					method: 'POST',
-					port: _port,
-					headers: {
-						'Content-Type': 'application/json',
-						'Content-Length': Buffer.byteLength(_post)
-					}
-				};
-				var chunks = [];
-				function fnResponse(res) {
-					res.on('data', function(data) {
-						chunks.push(data.toString());
+				try {
+					var opt = {
+						hostname: _url,
+						method: 'POST',
+						port: _port,
+						headers: {
+							'Content-Type': 'application/json',
+							'Content-Length': Buffer.byteLength(_post)
+						}
+					};
+					var chunks = [];
+					function fnResponse(res) {
+						res.on('data', function(data) {
+							chunks.push(data.toString());
+						});
+						res.on('end', function(a, b, c) {
+							if (typeof fnDone == "function")
+								fnDone(chunks.join(""));
+						});
+					};
+					console.log("before request");
+					var request = w.request(opt, fnResponse);
+					request.on('error', function(err) { 
+						fnDone('', err);
 					});
-					res.on('end', function(a, b, c) {
-						if (typeof fnDone == "function")
-							fnDone(chunks.join(""));
-					});
-				};
-				var request = w.request(opt, fnResponse);
-				request.write(_post);
-				request.end();
+					request.write(_post);
+					request.end();
+				}
+				catch(error) {
+					console.trace(error);
+				}
 			})(url, port, post);
 		}
 		catch(e) {

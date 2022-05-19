@@ -13,6 +13,8 @@ function ElementEditorColumn(column) {
 
 	this.header.setAttribute("colspan", "0");
 	
+	this.mode = null;
+	
 	this.tabs = null;
 	this.resizer = null;
 	column.fnActivateCallback = null;
@@ -169,7 +171,8 @@ function ElementTabEditorData(fullPathName, id) {
 	this.modifier = "";
 	//this.value = null;
 	this.path = fullPathName === Lang.NewTab ? undefined : fullPathName;
-	this.codemirror = null; // 	
+	this.codemirror = null; //
+	this.mode = null;
 }
 ElementTabEditorData.prototype.destroy = function() {
 	this.codemirror.setValue("");
@@ -186,30 +189,4 @@ ElementTabEditorData.prototype.update = function(data) {
 			//element.nodeValue = this.name;
 		}
 
-};
-// auto compete thing
-function ElementPopup(x, y, completions) {
-	var self = this;
-	this.container = UI.makeUnique("popup", "div", "absolute popup", window.body);
-	
-	//this.label = UI.make("label", "", this.container);
-	//this.label.setAttribute("for", "autocomplete");
-	this.select = UI.make("select", "popup", this.container);
-	//this.select.setAttribute("name", "autocomplete");
-	this.select.setAttribute("multiple", "");
-	for(var i = 0; i < completions.length; i++) {
-		var opt = UI.make("option", "", this.select, completions[i]);
-	}
-	
-	this.container.focus();
-
-	this.container.style.left = `${x}px`;
-	this.container.style.top = `${y}px`;
-	
-
-
-};
-ElementPopup.prototype.destroy = function() {
-	this.select.onkeyup = null;
-	this.container.remove();
 };

@@ -24,7 +24,7 @@ var Lang = {
 		// view menu
 		View: "View",
 		OpenRenderConsole: "Open Render Console",
-		OpenRenderConsoleHint: "*Caution* unsaved data will be lost on CTRL + R/F5 while console is open!",
+		OpenRenderConsoleHint: "*Caution* Breaks plugins & unsaved data will be lost on CTRL + R/F5 while console is open!",
 		Columns: "Columns",
 		ColumnsHint: "Change the number of editor columns",
 		// edit/tab menu

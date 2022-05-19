@@ -5,7 +5,7 @@
 
 /* generates window elements, callback hell and general laziness, etc */
 function EditorWindow(opts) {
-	window.editor = this;
+	window.editor = this; // exposed for lazy 
 	window.popups = [];
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
@@ -248,8 +248,9 @@ function EditorWindow(opts) {
 		var activeEditor = self.columns.active().editor;
 		if (activeEditor !== null && activeEditor.tabs.getActive() !== null) {
 			var tab = activeEditor.tabs.getActive();
+			tab.datum.mode = this.selectedOptions[0].id;
 			//console.log(this.selectedOptions);
-			tab.datum.codemirror.setOption("mode", {name: this.selectedOptions[0].id});
+			tab.datum.codemirror.setOption("mode", {name: tab.datum.mode});
 		}
 	};
 	function fnEditorTabActivate(activator) {
@@ -258,7 +259,9 @@ function EditorWindow(opts) {
 			var tab = editor.tabs.getActive();
 			if (tab && tab.datum !== undefined && tab.datum !== null) { // todo: column resize doesn't activate mode */
 				//console.log(tab.datum.codemirror.getOption("mode"));
-				setEditorModeSelector(activeFileExtension, tab.datum.codemirror.getOption("mode").name);
+				if (tab.datum.mode == null)
+					tab.datum.mode = tab.datum.codemirror.getOption("mode").name;
+				setEditorModeSelector(activeFileExtension, tab.datum.mode);
 				//find.reset();
 			}
 		}
@@ -267,7 +270,6 @@ function EditorWindow(opts) {
 	function setEditorModeSelector(selectorElement, mode) {
 		for(var i = 0; i < selectorElement.options.length; i++) {
 			var optName = selectorElement.options[i].id;
-			//console.log("looking for %s found %s", mode, optName);
 			if (optName === mode) {
 				selectorElement.selectedIndex = i;
 				break;
@@ -343,7 +345,6 @@ function EditorWindow(opts) {
 		}
 	};
 
-	//var table1 = UI.make("table", "a full-height full-width", table1);
 	this.head = UI.make("thead", "");//, "", table1);
 	this.body = UI.make("tbody", "ui-row-columns");//, table1);
 	this.footer = UI.make("tfoot");//, "", table1);
@@ -541,38 +542,6 @@ function EditorWindow(opts) {
 		window.api.gc();
 	};
 	fnCreateEditorColumns(Config.editor.Columns);
-	
-	
-	/*window.addEventListener("app-plugin", function(event) {
-		try {
-
-			if (event.detail.name == "ternjs") {
-				if (popup != null) {
-					popup.destroy();
-				}
-
-				var edit = self.columns.active().editor;
-				var tabdatum = edit.tabs.getActive().datum;
-				var cm = tabdatum.codemirror;
-				var position = { line: cm.getCursor().line, ch: cm.getCursor().ch };
-
-				var x = cm.display.cursorDiv.children[0].offsetLeft + 30;
-				var y = cm.display.cursorDiv.children[0].offsetTop + 110;
-
-				x = Clamp(x, 0, window.innerWidth - 425);
-				y = Clamp(y, 0, window.innerHeight - 250);
-				var completions = JSON.parse(event.detail.data).completions;
-				if (completions.length > 0)
-					popup = new ElementPopup(x, y, completions);
-			}
-
-			//fnAutoCompletions(JSON.parse(event.detail));
-		}
-		catch(e) {
-			console.trace(e);
-		}
-	});*/
-	//var popup = null;
 	// these are global hotkeys i guess idk
 	this.hotkeys = new Hotkeys(); 
 	var globalHotkeys = this.hotkeys;
@@ -614,34 +583,6 @@ function EditorWindow(opts) {
 		searchInput.select();
 		find.search(from, searchInput.value, true);
 	});
-	
-	/*globalHotkeys.add(InputEventDto.prototype.CTRL, [32], function(e) { // ctrl + space
-		var edit = self.columns.active().editor;
-		if (edit.tabs.get().length > 0) {
-			var tabdatum = edit.tabs.getActive().datum;
-			var cm = tabdatum.codemirror;*/
-			/*var position = { line: cm.getCursor().line, ch: cm.getCursor().ch };
-
-			var x = cm.display.cursorDiv.children[0].offsetLeft + 30;
-			var y = cm.display.cursorDiv.children[0].offsetTop + 110;
-
-			x = Clamp(x, 0, window.innerWidth - 425);
-			y = Clamp(y, 0, window.innerHeight - 250);*/
-/*
-			if (cm.getOption("mode").name == "javascript" || 1 == 1) {
-				console.log("javascript ternjs thing");
-				var plug = {
-					name: "ternjs",
-					msg: {
-						src: cm.getValue(),
-						name: tabdatum.path,
-						text: cm.getLine(cm.getCursor().line)
-					}
-				};
-				window.api.plugin(plug);
-			}
-		}
-	});*/
 	// cleanup temporary elements on escape and mouse clicks
 	window.addEventListener('keyup', function(event) {
 		var dto = new InputEventDto(event);

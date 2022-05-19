@@ -36,7 +36,7 @@ Plugins.prototype.on = function(eventName, fnCallback) {
 };
 /* all plugins must inherit from plugin.js and overload methods accordingly otherwise they return null */
 Plugins.prototype.pushPluginEvent = function(event) {
-	var reply = null;
+	var reply = null; // todo?
 	if (event.name == undefined || event.name == null || event.name.length == 0)
 		for(item in this.activePlugins) {//var i = 0; i < this.activePlugins.length; i++) {
 			reply = this.doTask(item, event);
