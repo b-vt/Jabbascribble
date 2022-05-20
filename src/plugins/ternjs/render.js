@@ -2,15 +2,19 @@
 function ElementCompletionsPopup(completions) {
 	var self = this;
 	this.container = UI.makeUnique("popup", "div", "absolute popup", document.body);
+	this.container.isPopup = true;
 	
 	//this.label = UI.make("label", "", this.container);
 	//this.label.setAttribute("for", "autocomplete");
 	this.select = UI.make("select", "popup", this.container);
+	this.select.isPopup = true;
 	//this.select.setAttribute("name", "autocomplete");
 	this.select.setAttribute("multiple", "");
 	for(var i = 0; i < completions.length; i++) {
 		var opt = UI.make("option", "", this.select, completions[i]);
+		opt.isPopup = true;
 	}
+
 	this.rect = this.container.getClientRects()[0];
 	this.container.focus();
 };
@@ -21,6 +25,7 @@ ElementCompletionsPopup.prototype.move = function(x, y) {
 ElementCompletionsPopup.prototype.destroy = function() {
 	this.select.onkeyup = null;
 	this.container.remove();
+	window.popups["ternjs"] = null;
 };
 
 (() => {
@@ -29,6 +34,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	//new ElementIconButton(tools, "ui-icon-open", "").onclick = function() {
 	//	console.log("hello plugin world?");
 	//};
+	var lastKeyStrokeTimer = null;
 	var autoRequest = true;
 	var menu = window.editor.menu;
 	var viewItem = menu.view.add("Tern Requests on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
@@ -44,9 +50,9 @@ ElementCompletionsPopup.prototype.destroy = function() {
 		}
 			
 	}
-	
 	window.addEventListener('app-plugin-ternjs', function(event) {
-		if (window.popups["ternjs"]) window.popups["ternjs"].destroy();
+		if (window.popups["ternjs"] && (typeof window.popups["ternjs"].destroy == "function")) 
+			window.popups["ternjs"].destroy();
 		try {
 			var response = JSON.parse(event.detail.data);
 			var editor =  window.editor.columns.active().editor;
@@ -57,7 +63,9 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					var cm = datum.codemirror;
 					if (!cm.hasFocus()) return;
 					var popup = new ElementCompletionsPopup(response.completions);
-					
+					if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
+						return popup.destroy();
+
 					var rect = cm.display.cursorDiv.children[0].getClientRects()[0];
 					var x = rect.x;
 					var y = rect.y + 20;
@@ -69,13 +77,13 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					
 					if (!autoRequest) {
 						cm.display.input.blur();
-						console.log(popup.select.children[0]);
 						popup.select.focus();
 					}
 					popup.container.onkeyup = function(event) {
 						var dto = new InputEventDto(event);
 						if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
-							var opt = popup.select.options[popup.select.selectedIndex];
+							var index = popup.select.selectedIndex >=0 ? popup.select.selectedIndex : 0;
+							var opt = popup.select.options[index];
 							cm.replaceRange(opt.value, response.start, response.end);
 							popup.destroy();
 						}
@@ -120,27 +128,56 @@ ElementCompletionsPopup.prototype.destroy = function() {
 			}
 		}
 	}
-	var lastKeyStrokeTimer = null;
+	
 	window.addEventListener('keyup', function(event) {
 		//console.log(event);
-		if (!autoRequest) return;
 		var dto = new InputEventDto(event);
 		console.log(dto);
-		if (!(dto.key <= 90 && dto.key >= 65)) {
-			clearTimeout(lastKeyStrokeTimer);
-			lastKeyStrokeTimer = null;
-			return;
+		// skip this routine if auto send is disabled or if this press was the hotkey
+		if (!autoRequest || dto.key == InputEventDto.prototype.KEY_CTRL || dto.key == InputEventDto.prototype.KEY_SPACE) return; 
+		var editor =  window.editor.columns.active().editor;
+		var active = editor.tabs.getActive();
+		if (active) {
+			var datum = editor.tabs.getActive().datum;
+			if (datum) {
+				var cm = datum.codemirror;
+				if (cm.hasFocus()) {
+					// if this is not an alphanumeric, underscore or period then cleanup the popup and cancel request
+					if (!(dto.key <= InputEventDto.prototype.KEY_Z && dto.key >= InputEventDto.prototype.KEY_0) && 
+								dto.key !== InputEventDto.prototype.KEY_UNDERSCORE &&
+									dto.key !== InputEventDto.prototype.KEY_PERIOD &&
+										dto.key !== InputEventDto.prototype.KEY_NUMPAD_PERIOD) { 
+						console.log("!!");
+						clearTimeout(lastKeyStrokeTimer);
+						lastKeyStrokeTimer = null;
+						if (window.popups["ternjs"] && (typeof window.popups["ternjs"].destroy == "function"))
+							window.popups["ternjs"].destroy();
+						return;
+					}
+					if (lastKeyStrokeTimer == null) 
+						lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
+					else {
+						clearTimeout(lastKeyStrokeTimer);
+						lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
+					}
+				}
+			}
 		}
 		
-		if (lastKeyStrokeTimer == null) 
-			lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
-		else {
-			clearTimeout(lastKeyStrokeTimer);
-			lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
-		}
 	});
 	window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_SPACE], function() {
-		fnGetCompletions();
+		if (autoRequest && window.popups["ternjs"])
+				window.popups["ternjs"].select.focus();
+		else  {
+			fnGetCompletions();
+			/*console.log("??");
+			if (lastKeyStrokeTimer == null) 
+				lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
+			else {
+				clearTimeout(lastKeyStrokeTimer);
+				lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
+			}*/
+		}
 	});
 	
 })();

@@ -57,7 +57,7 @@ function EditorWindow(opts) {
 	
 	function fnClearPopups() {
 		for(var popup in window.popups) {
-			if (typeof window.popups[popup].destroy === "function")
+			if (window.popups[popup] && (typeof window.popups[popup].destroy === "function"))
 				window.popups[popup].destroy();
 		}
 	}
@@ -605,11 +605,8 @@ function EditorWindow(opts) {
 		var e = new InputEventDto(event);
 		console.log(event.target)
 		//find.reset();
-		for(var popup in window.popups) {
-			console.log("??");
-			if (typeof window.popups[popup].destroy === "function")
-				window.popups[popup].destroy();
-		}
+		if (!event.target.isPopup)
+			fnClearPopups();
 	});
 	
 	// event listeners from preload script
