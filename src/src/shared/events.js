@@ -2,6 +2,7 @@
 		todo: multitouch, keyboard, mouse, controller support?
 	*/
 function InputEventDto(event, keymap, noDefaultPropagation) {
+	console.log(event);
 	this.x = 0; // mouse cursor position
 	this.y = 0;
 	this.key = -1; // key or mouse keyCode
@@ -95,13 +96,13 @@ InputEventDto.prototype.consumeKeyboardEvent = function(event, isDown) {
 };
 InputEventDto.prototype.hasModifier = function(event) {
 	this.modifiers = 0;
-	if (event.ctrlKey)
+	if (event.ctrlKey || this.key == InputEventDto.prototype.KEY_CTRL)
 		this.modifiers = this.modifiers | InputEventDto.prototype.CTRL;
-	if (event.shiftKey)
+	if (event.shiftKey || this.key == InputEventDto.prototype.KEY_SHIFT)
 		this.modifiers = this.modifiers | InputEventDto.prototype.SHIFT;
-	if (event.altKey)
+	if (event.altKey || this.key == InputEventDto.prototype.KEY_ALT)
 		this.modifiers = this.modifiers | InputEventDto.prototype.ALT;
-	if (event.metaKey)
+	if (event.metaKey || this.key == InputEventDto.prototype.KEY_META)
 		this.modifiers = this.modifiers | InputEventDto.prototype.META;
 	return (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey || this.isFunctionKey());
 };
