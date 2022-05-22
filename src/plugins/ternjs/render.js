@@ -14,7 +14,8 @@ function ElementCompletionsPopup(completions) {
 		var opt = UI.make("option", "", this.select, completions[i]);
 		opt.isPopup = true;
 	}
-
+	
+	
 	this.rect = this.container.getClientRects()[0];
 	this.container.focus();
 };
@@ -36,7 +37,9 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	//};
 	var lastKeyStrokeTimer = null;
 	var autoRequest = true;
+	var hotkeyConsume = false;
 	var menu = window.editor.menu;
+	
 	var viewItem = menu.view.add("Tern Requests on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
 		if (autoRequest) {
 			autoRequest = false;
@@ -61,6 +64,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				var datum = editor.tabs.getActive().datum;
 				if (datum) {
 					var cm = datum.codemirror;
+					console.log(cm);
 					if (!cm.hasFocus()) return;
 					var popup = new ElementCompletionsPopup(response.completions);
 					if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
@@ -86,15 +90,18 @@ ElementCompletionsPopup.prototype.destroy = function() {
 							var opt = popup.select.options[index];
 							cm.replaceRange(opt.value, response.start, response.end);
 							popup.destroy();
+							cm.focus();
 						}
 						else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
 		 					popup.destroy();
+							cm.focus();
 						}
 					}
 					popup.container.ondblclick = function(event) {
 						var opt = popup.select.options[popup.select.selectedIndex];
 						cm.replaceRange(opt.value, response.start, response.end);
 						popup.destroy();
+						cm.focus();
 					}
 					
 					window.popups["ternjs"] = popup;
@@ -130,11 +137,12 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	}
 	
 	window.addEventListener('keyup', function(event) {
-		//console.log(event);
 		var dto = new InputEventDto(event);
 		console.log(dto);
 		// skip this routine if auto send is disabled or if this press was the hotkey
-		if (!autoRequest || dto.key == InputEventDto.prototype.KEY_CTRL || dto.key == InputEventDto.prototype.KEY_SPACE) return; 
+		var bf = (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.CTRL);
+		console.log(bf);
+		if (!autoRequest || bf==true) return console.log("returned because no autorequest or ctrl key was held"); 
 		var editor =  window.editor.columns.active().editor;
 		var active = editor.tabs.getActive();
 		if (active) {
@@ -170,13 +178,6 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				window.popups["ternjs"].select.focus();
 		else  {
 			fnGetCompletions();
-			/*console.log("??");
-			if (lastKeyStrokeTimer == null) 
-				lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
-			else {
-				clearTimeout(lastKeyStrokeTimer);
-				lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
-			}*/
 		}
 	});
 	

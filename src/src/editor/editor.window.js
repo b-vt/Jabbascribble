@@ -7,6 +7,7 @@
 function EditorWindow(opts) {
 	window.editor = this; // exposed for lazy 
 	window.popups = [];
+	
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
 	var ProjectFile = {files:[], columns: 1, active_files: []}; // active_files: [{file: "", column: 1}]

@@ -453,6 +453,7 @@ if (typeof module!=="undefined") {
 					};
 					var chunks = [];
 					function fnResponse(res) {
+						console.log(`request status code ${res.statusCode}`);
 						res.on('data', function(data) {
 							chunks.push(data.toString());
 						});
@@ -460,10 +461,13 @@ if (typeof module!=="undefined") {
 							if (typeof fnDone == "function")
 								fnDone(chunks.join(""));
 						});
+						res.on('error', function(a, b, c) {
+							console.log(a, b, c);
+						});
 					};
-					console.log("before request");
 					var request = w.request(opt, fnResponse);
-					request.on('error', function(err) { 
+					request.on('error', function(err) {
+						console.log("?!", err);
 						fnDone('', err);
 					});
 					request.write(_post);

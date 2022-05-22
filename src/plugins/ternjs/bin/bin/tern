@@ -48,6 +48,11 @@ var httpServer = require("http").createServer(function(req, resp) {
     else respondSimple(resp, 400, "Missing query document");
   }
 });
+// fixme EADDRINUSE
+httpServer.on('error', function(err) {
+	process.stderr.write(`{"code": "${err.code}"}`);
+	process.exit(1);
+});
 
 var serverConfig = {
   disableLoadingLocal: disableLoadingLocal,

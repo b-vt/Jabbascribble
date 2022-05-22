@@ -561,6 +561,9 @@ function ElementTab(tabs, data) {
 		var e = new InputEventDto(event);
 		if (e.key == InputEventDto.prototype.MOUSE_MIDDLE) {//new Bitfield(e.key).compare(InputEventDto.prototype.MOUSE)) {
 			self.destroy();
+			if (self.tabs.get(0)) {
+				self.tabs.get(0).activate();
+			}
 		}
 	}
 }
