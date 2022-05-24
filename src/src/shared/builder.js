@@ -524,25 +524,14 @@ function ElementTab(tabs, data) {
 
 			if (isMoving) {
 				var rect = self.tabs.column.container.getClientRects()[0];
-				//var nextX = ((event2.clientX - rect.left) - (event1.clientX - initialRect.x));
-				//var nextY = ((event2.clientY - rect.top) - (event1.clientY - initialRect.y))
-				console.log(e2.x, rect.left, initialRect.x, rect.x);
 				var nextX = (rect.left - initialRect.x) - e2.x;
 				var nextY = (rect.top - initialRect.y) - e2.y;
-				
-				console.log(nextX, nextY);
-				//self.tab.style.position = "absolute";
-				//self.tab.style.zIndex = "1100";
-				//self.tab.style.pointerEvents = "none";
 				self.tab.style.left = nextX + "px";
 				self.tab.style.top = nextY + "px";
 				
 			}
 		}
 		document.onmouseup = function(event2) {
-			//self.tab.style.position = "relative";
-			//self.tab.style.pointerEvents = "auto";
-			//self.tab.style.zIndex = "1000";
 			self.tab.style.left = "0px";
 			self.tab.style.top = "0px";
 
@@ -561,6 +550,7 @@ function ElementTab(tabs, data) {
 		var e = new InputEventDto(event);
 		if (e.key == InputEventDto.prototype.MOUSE_MIDDLE) {//new Bitfield(e.key).compare(InputEventDto.prototype.MOUSE)) {
 			self.destroy();
+			self.tabs.remove();
 			if (self.tabs.get(0)) {
 				self.tabs.get(0).activate();
 			}
