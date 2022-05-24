@@ -64,7 +64,6 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				var datum = editor.tabs.getActive().datum;
 				if (datum) {
 					var cm = datum.codemirror;
-					console.log(cm);
 					if (!cm.hasFocus()) return;
 					var popup = new ElementCompletionsPopup(response.completions);
 					if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
