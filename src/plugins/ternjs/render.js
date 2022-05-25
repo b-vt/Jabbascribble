@@ -40,7 +40,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	var hotkeyConsume = false;
 	var menu = window.editor.menu;
 	
-	var viewItem = menu.view.add("Tern Requests on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
+	var pluginsMenu = menu.this.add("Plugins");
+	var viewItem = pluginsMenu.add("Tern Request on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
 		if (autoRequest) {
 			autoRequest = false;
 			this.container.children[0].classList.remove("ui-icon-plugin-enabled");
