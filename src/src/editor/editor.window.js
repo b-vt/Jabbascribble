@@ -88,6 +88,7 @@ function EditorWindow(opts) {
 		}
 		columnsSlider.value = count;
 	};
+	// todo: project files list needs to be sorted
 	function fnGetProject(filename) {
 		if (filename && filename.length > 0)
 			window.api.getProjectFile(filename);
@@ -106,6 +107,7 @@ function EditorWindow(opts) {
 		// oddwarg magic. 
 		function parsed(path, parentNode, offset, depth, index) {
 			console.log(path);
+			path = NormalizePath(path);
 			var separator = path.indexOf("/", offset);
 			var name = path.substring(offset);
 			if (separator != -1)
@@ -113,33 +115,36 @@ function EditorWindow(opts) {
 			var current = parentNode.children[name];
 			if (current == undefined || current == null) {
 				parentNode.children[name] = new node(name, depth);
-				var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
-				var fileName = [new Array(parentNode.children[name].depth).join('\xa0'), name].join('');
-				var item = new UI.make("div", classNames.join(" "), fileExplorerList, fileName);
-				item.src = path;
-				((_item, _index) => {
-					_item.onclick = function() {
-						
-					};
-					_item.ondblclick = function() {
-						console.log("clicked item: ", _item.src);
-						window.api.open({path: _item.src});
-					};
-					_item.oncontextmenu = function(event) {
-						console.log(_item, _index);
-						var dto = new InputEventDto(event);
-						var w = new ElementContextMenu();
-						w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
-							var swap = ProjectFile.files[ProjectFile.files.length - 1];
-							var t = ProjectFile.files[_index] = swap;
-							console.log(t, swap);
-							ProjectFile.files.pop();
-							console.log(ProjectFile.files);
-							return fnRebuildFileExplorerList();
+				if (depth > 3) {
+					var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
+					var fileName = [new Array(parentNode.children[name].depth-3).join('\xa0'), name].join('');
+					var item = new UI.make("div", classNames.join(" "), fileExplorerList, fileName);
+					//new UI.make("br", "", fileExplorerList, "");
+					item.src = path;
+					((_item, _index) => {
+						_item.onclick = function() {
+
 						};
-						w.show(dto.x, dto.y);
-					};
-				})(item, index);
+						_item.ondblclick = function() {
+							console.log("clicked item: ", _item.src);
+							window.api.open({path: _item.src});
+						};
+						_item.oncontextmenu = function(event) {
+							console.log(_item, _index);
+							var dto = new InputEventDto(event);
+							var w = new ElementContextMenu();
+							w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
+								var swap = ProjectFile.files[ProjectFile.files.length - 1];
+								var t = ProjectFile.files[_index] = swap;
+								console.log(t, swap);
+								ProjectFile.files.pop();
+								console.log(ProjectFile.files);
+								return fnRebuildFileExplorerList();
+							};
+							w.show(dto.x, dto.y);
+						};
+					})(item, index);
+				}
 			}
 			if (separator != -1)
 				parsed(path, parentNode.children[name], separator+1, depth+1, index);

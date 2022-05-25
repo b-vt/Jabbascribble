@@ -15,7 +15,6 @@ function TernPluginMain(pluginConf, appWindow) {
 
 	console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
 	
-
 };
 
 TernPluginMain.prototype = Object.create(PluginMain.prototype);
@@ -90,10 +89,8 @@ TernPluginMain.prototype.start = function(inc) {
 	var nodePath = process.argv[0];
 	var ternPath = path.normalize(path.join(__dirname, this.pluginConf.config.bin));//"/ternjs/bin/tern"));
 	var cmd = [ternPath, "--port", this.port, "--no-port-file", "--ignore-stdin", "--verbose"];
-	var env = process.env;
-	env.ELECTRON_RUN_AS_NODE = 1;
 	try {
-		this.server = child.spawn(nodePath, cmd, {cwd: __dirname, env: env});
+		this.server = child.spawn(nodePath, cmd, {cwd: __dirname});
 		this.server.stdout.on("data", function(data) {
 			console.log("-------TernPluginMain stdout-------\n", 
 						data.toString() || "", 

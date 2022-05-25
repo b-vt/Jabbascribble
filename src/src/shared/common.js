@@ -1,4 +1,8 @@
 // vanilla javascript
+function NormalizePath(path) {
+	var p = path.replace('\\', '/');
+	return p;
+}
 /* dynamically modifier css per selector with
 	for example, InjectCSS(".CodeMirror", "font-size", 25, "px");
 */
