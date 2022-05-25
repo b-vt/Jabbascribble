@@ -480,6 +480,7 @@ function ElementTab(tabs, data) {
 	this.datum = data// = new ElementTabData(namid);
 	this.pane = null; // content element that tab will hide/show/modify
 	this.tab = UI.make("div", "inline tab", null, data.name, true);
+	this.tab.title = data.path || "";
 	this.tab.onclick = function(event) {
 		self.activate();
 	}
@@ -524,8 +525,8 @@ function ElementTab(tabs, data) {
 
 			if (isMoving) {
 				var rect = self.tabs.column.container.getClientRects()[0];
-				var nextX = (rect.left - initialRect.x) - e2.x;
-				var nextY = (rect.top - initialRect.y) - e2.y;
+				var nextX = e2.x - (initialRect.x - rect.left);
+				var nextY = e2.y - (initialRect.y - rect.top);
 				self.tab.style.left = nextX + "px";
 				self.tab.style.top = nextY + "px";
 				

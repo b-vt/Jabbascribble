@@ -78,7 +78,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 		datum.codemirror.on('change', function(event, data) { // add a * until the document is saved
 			if (datum.modifier.length == 0) {
 				datum.modifier = "*";
-				tab.tab.firstChild.nodeValue = [datum.name, datum.modifier].join("");
+				tab.tab.firstChild.nodeValue = [ datum.modifier, datum.name ].join("");
 			}
 		});
 
@@ -86,7 +86,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 
 		tab.fnRefreshCallback = function(data) {
 			datum.update(data);
-			tab.tab.firstChild.nodeValue = [datum.name, datum.modifier].join("");
+			tab.tab.firstChild.nodeValue = [datum.modifier, datum.name ].join("");
 		}
 
 		function onContextMenu(event, isTab) {
@@ -122,7 +122,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 					for(var i = 0; i < tabs.length; i++) {
 						var item = tabs[i];
 						if (item.datum.id !== tab.datum.id) {
-							item.removed = true;
+							item.destroy();
 						}
 					};
 					self.tabs.remove();
