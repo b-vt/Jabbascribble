@@ -90,7 +90,7 @@ TernPluginMain.prototype.start = function(inc) {
 	var ternPath = path.normalize(path.join(__dirname, this.pluginConf.config.bin));//"/ternjs/bin/tern"));
 	var cmd = [ternPath, "--port", this.port, "--no-port-file", "--ignore-stdin", "--verbose"];
 	try {
-		this.server = child.spawn(nodePath, cmd, {cwd: __dirname});
+		this.server = child.spawn(nodePath, cmd, {cwd: __dirname, env: {"ELECTRON_RUN_AS_NODE": 1}});
 		this.server.stdout.on("data", function(data) {
 			console.log("-------TernPluginMain stdout-------\n", 
 						data.toString() || "", 
