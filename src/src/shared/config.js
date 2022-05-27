@@ -1,5 +1,6 @@
 // global editor config
 var Config = {
+	ProjectViewIgnoreDepth: 3,
 	TempDir: "../tmp",
 	SrcDir: "/src",
 	Lang: "en",

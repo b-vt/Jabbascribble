@@ -10,7 +10,7 @@ function EditorWindow(opts) {
 	
 	var self = this;
 	opts = (opts === undefined || opts === null) ? {} : opts;
-	var ProjectFile = {files:[], columns: 1, active_files: []}; // active_files: [{file: "", column: 1}]
+	var ProjectFile = {files:[], columns: 1, active_files: [], type: ""}; // active_files: [{file: "", column: 1}]
 	// 
 	var find = new Finder();
 	find.fnOnFind = function(f, item) { // fnOnFind callback, used on new searches only
@@ -65,7 +65,6 @@ function EditorWindow(opts) {
 	function fnCreateEditorColumns(count) {
 		console.log(count);
 		var columns = self.columns.get();
-		console.log(columns.length);
 		while (columns.length > 0) {
 			var column = columns.pop();
 			column.editor.destroy();
@@ -96,7 +95,6 @@ function EditorWindow(opts) {
 			window.api.getProjectFile();
 	};
 	function fnRebuildFileExplorerList() {
-		
 		fileExplorerList.remove();
 		fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 		function node(name, depth) {
@@ -115,9 +113,9 @@ function EditorWindow(opts) {
 			var current = parentNode.children[name];
 			if (current == undefined || current == null) {
 				parentNode.children[name] = new node(name, depth);
-				if (depth > 3) {
+				if (depth > Config.ProjectViewIgnoreDepth) {
 					var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
-					var fileName = [new Array(parentNode.children[name].depth-3).join('\xa0'), name].join('');
+					var fileName = [new Array(parentNode.children[name].depth-Config.ProjectViewIgnoreDepth).join('\xa0'), name].join('');
 					var item = new UI.make("div", classNames.join(" "), fileExplorerList, fileName);
 					//new UI.make("br", "", fileExplorerList, "");
 					item.src = path;
@@ -126,19 +124,22 @@ function EditorWindow(opts) {
 
 						};
 						_item.ondblclick = function() {
-							console.log("clicked item: ", _item.src);
 							window.api.open({path: _item.src});
 						};
 						_item.oncontextmenu = function(event) {
 							console.log(_item, _index);
 							var dto = new InputEventDto(event);
 							var w = new ElementContextMenu();
+							if (ProjectFile.type == "javascript") {
+								w.add("Inherit From", "ui-icon-missing", "").onclick = function() {
+									console.log("didney worl");
+								};
+							}
+							w.add();
 							w.add("remove", "ui-icon-remove", "Remove item from project file").onclick = function() {
 								var swap = ProjectFile.files[ProjectFile.files.length - 1];
 								var t = ProjectFile.files[_index] = swap;
-								console.log(t, swap);
 								ProjectFile.files.pop();
-								console.log(ProjectFile.files);
 								return fnRebuildFileExplorerList();
 							};
 							w.show(dto.x, dto.y);
@@ -301,7 +302,7 @@ function EditorWindow(opts) {
 	// todo: this is garbage
 	function resizeEditorColumns() {
 		var newValue = parseInt(this.value);
-		Config.editor.Columns = newValue;
+		ProjectFile.columns = Config.editor.Columns = newValue;
 		var columns = self.columns.get();
 		var tmpTabs = [];
 
@@ -439,7 +440,7 @@ function EditorWindow(opts) {
 	
 	var file = menu.add(Lang.Menu.File);
 	this.menu.file = file;
-	//file.add();
+	file.add();
 	file.add(Lang.Menu.Open, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	file.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
 		//window.api.getProjectFile();
@@ -448,7 +449,8 @@ function EditorWindow(opts) {
 	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile;
 	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
 	file.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
-		window.api.saveProjectFile({project: ProjectFile, columns: Config.editor.Columns});
+		window.api.saveProjectFile({project: ProjectFile});
+		console.log(ProjectFile);
 	};
 	file.add();
 	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
@@ -457,7 +459,7 @@ function EditorWindow(opts) {
 	
 	var edit = menu.add(Lang.Menu.Edit);
 	this.menu.edit = edit;
-	//edit.add();
+	edit.add();
 	edit.add(Lang.Menu.ToggleLineWrap, Config.editor.LineWrapping ? "ui-icon-check" : "", Lang.Menu.ToggleLineWrapHint).onclick = function() {
 		fnToggleLineWrap();
 		if (Config.editor.LineWrapping)
@@ -469,7 +471,7 @@ function EditorWindow(opts) {
 	
 	var view = menu.add(Lang.Menu.View);
 	this.menu.view = view;
-	//view.add();
+	view.add();
 	var columnsSlider = UI.make("input", "relative ui-menu-slider", view.add(Lang.Menu.Columns, "ui-icon-columns", Lang.Menu.ColumnsHint).container);
 	columnsSlider.type = "range";
 	columnsSlider.min = 1;
