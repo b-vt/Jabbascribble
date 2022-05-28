@@ -131,8 +131,9 @@ function EditorWindow(opts) {
 							var dto = new InputEventDto(event);
 							var w = new ElementContextMenu();
 							if (ProjectFile.type == "javascript") {
-								w.add("Inherit From", "ui-icon-missing", "").onclick = function() {
-									console.log("didney worl");
+								w.add("Inherit From", "ui-icon-inherit", "").onclick = function() {
+									//console.log(_item.src);
+									window.api.inheritJavascript(_item.src);
 								};
 							}
 							w.add();
@@ -203,6 +204,9 @@ function EditorWindow(opts) {
 				var selections = cm.doc.getSelection();
 				if (selections.length > 0) {
 					var tmpSel = selections.substring(10, 0);
+					context.add("Copy selection to clipboard", "", "", true).onclick = function() {
+						navigator.clipboard.writeText(selections);
+					};
 					context.add(`highlight selection \"${tmpSel}...\"`, "", "", true).onclick = function() {
 						console.log("selected junko: %s", selections);
 						find.search(cm.doc.getValue(), selections, true);

@@ -52,6 +52,17 @@ var {Plugins} = require("./src/shared/plugins.js");
 		electron.ipcMain.on('main-close', function(event, data) {
 			console.log("received close", data);
 		});
+		// 
+		electron.ipcMain.on('renderer-inheritjavascript', function(event, data) {
+
+			(() => {
+				//console.log("received plugin: ", data);
+				var web = electron.BrowserWindow.fromId(data.uuid);
+				if (data.uuid == undefined || web == null) return console.trace("- renderer-inheritjavascript request by unknown window -");
+				console.log(data);
+			})();
+
+		});
 		// plugin event from renderer to all plugins
 		electron.ipcMain.on('renderer-plugin', function(event, data) {
 

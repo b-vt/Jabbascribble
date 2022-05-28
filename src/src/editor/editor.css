@@ -373,6 +373,9 @@ details > .ui-context-menu {
 .ui-icon-plugin-disabled {
 	background-image: url("../../data/icons/plugin_disabled.png");
 }
+.ui-icon-inherit {
+	background-image: url("../../data/icons/page_white_copy.png");
+}
 .clearfix::after {
 	content: "";
 	display:block;

@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('api', {
 	openFileLocation: 		ApiOpenFileLocation,//(data) 		=> ApiOpenFileLocation(data),
 	getProjectFile:			ApiGetProjectFile,
 	saveProjectFile:		ApiSaveProjectFile,
+	inheritJavascript:		ApiInheritJavascript,
 	gc: 					ApiGC,//()			=> ApiGC(),
 	quit:					ApiQuit
 });
@@ -72,6 +73,10 @@ function ApiInit() {
 			window.dispatchEvent(new CustomEvent("app-pluginload", {detail: data}));
 		}, 1000);
 	});
+};
+function ApiInheritJavascript(data) {
+	if (!API_Blob.ready) return;
+	IPCSend("renderer-inheritjavascript", {path: data});
 };
 function ApiSaveProjectFile(data) {
 	if (!API_Blob.ready) return;
