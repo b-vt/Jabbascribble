@@ -46,7 +46,9 @@
 							_item.oncontextmenu = function(event) {
 								var dto = new InputEventDto(event);
 								var w = new ElementContextMenu();
-								if (ProjectFile.type == "javascript") {
+								var extSplits = _item.src.split(/[.]/g);
+								var ext =extSplits[ extSplits.length - 1];
+								if (ext === "js") {
 									w.add("Inherit From", "ui-icon-inherit", "").onclick = function() {
 										//console.log(_item.src);
 										window.api.inheritJavascript(_item.src);
@@ -137,7 +139,6 @@
 			console.log(ProjectFile);
 		};
 		
-		/*
 		var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
 		projectFileInput.value = ".scribble";
 		projectFileInput.onkeyup = function(event) {
@@ -149,7 +150,7 @@
 		var projectFileInputSearch = UI.make("button", "ui-input-project-button", projectTableHeadRowContentDiv, "load");
 		projectFileInputSearch.onclick = function(event) {
 			fnGetProject(projectFileInput.value);
-		}*/
+		}
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 
 		

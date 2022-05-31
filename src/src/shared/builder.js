@@ -186,11 +186,11 @@ ElementContextMenu.prototype.setPosition = function(x, y) {
 		bottom left = 3, bottom right = 4 */
 	var flag = 0;
 	if (x > window.innerWidth - rect.width) {
-		x = x - rect.width;
+		x = x - rect.width + 1;
 		flag|=1;
 	}
 	if (y > window.innerHeight - rect.height) {
-		y = y - rect.height;
+		y = y - rect.height + 1;
 		flag|=2;
 	}
 	flag++;
