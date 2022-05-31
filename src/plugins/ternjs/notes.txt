@@ -1,0 +1,31 @@
+TernJS requires a .tern-project file be present before it can be used(?). To test for a working installation a .tern-project 
+with invalid json will throw an error indicating that .tern-project is in the correct location. Otherwise there 
+won't be any messages to indicate a problem.
+
+valid:
+{
+	"libs": [
+		"browser",
+		"ecmascript"
+	],
+	"loadEagerly": [],
+	"plugins": {
+		"node": {},
+		"commonjs": {}
+	}
+}
+
+invalid:
+{
+	"libs": [
+		"browser",
+		"ecmascript"
+	],
+	"loadEagerly": [
+		""
+	],
+	"plugins": {
+		"node": {},
+		"commonjs": {}
+	}
+}
