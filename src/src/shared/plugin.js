@@ -44,11 +44,13 @@ PluginMain.prototype.start = function() {
 PluginMain.prototype.destroy = function(exitCode) {
 	return;
 };
-// things that all PluginRenders should have i guess
+
+// things all PluginRender should have
 function PluginRender() {
-
+	
 }
-
+PluginRender.prototype.onContextMenu = function(context, id, item) {
+};
 if (typeof module!=="undefined")
 	module.exports = { 
 		PluginMain,

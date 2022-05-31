@@ -11,10 +11,8 @@ function TernPluginMain(pluginConf, appWindow) {
 	this.server = null;
 	this.name = "ternjs";
 	this.pluginConf = pluginConf;
-	this.port = 49000;//Math.floor(Math.random() * 40000) + 10000;
-
+	this.port = 49000;
 	console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
-	
 };
 
 TernPluginMain.prototype = Object.create(PluginMain.prototype);
