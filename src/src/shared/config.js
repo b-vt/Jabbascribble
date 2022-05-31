@@ -23,6 +23,10 @@ var Config = {
 	},
 	plugins: [
 		{
+			name: "projectview",
+			renderer: "projects/render.js"
+		},
+		{
 			main: "ternjs/main.js",
 			renderer: "ternjs/render.js",
 			config: {
