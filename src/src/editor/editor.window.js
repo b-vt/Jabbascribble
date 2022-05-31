@@ -62,7 +62,7 @@ function EditorWindow(opts) {
 		}
 	}
 	function fnCreateEditorColumns(count) {
-		console.log(count);
+		console.log(count, "?!?!");
 		var columns = self.columns.get();
 		while (columns.length > 0) {
 			var column = columns.pop();
@@ -197,9 +197,10 @@ function EditorWindow(opts) {
 		window.api.open();
 	};
 	// todo: this is garbage
-	function resizeEditorColumns(v) {
-		var newValue = v || parseInt(this.value);
+	function resizeEditorColumns(evt, num) {
+		var newValue = num || parseInt(this.value);
 		Config.editor.Columns = newValue;
+		console.log(Config.editor.Columns);
 		var columns = self.columns.get();
 		var tmpTabs = [];
 

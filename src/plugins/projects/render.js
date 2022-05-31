@@ -1,3 +1,4 @@
+// todo: this is a copy paste from editor.window.js and is just plain uggo
 (() => {
 	var ProjectFile = {files:[], columns: 1, active_files: [], type: ""}; // active_files: [{file: "", column: 1}]
 	function ProjectsRender() {
@@ -85,7 +86,9 @@
 
 				if (ProjectFile.columns != 1) {
 					window.editor.fnCreateEditorColumns(ProjectFile.columns); // todo: this is a terrible hack to fix column and the position of the project viewer
-					window.editor.fnResizeEditorColumns(ProjectFile.columns);
+					window.editor.fnResizeEditorColumns(null, ProjectFile.columns);
+					project.visible = true;
+					project.setAttribute("data-show", "1");
 				}
 				ProjectFile.active_files.forEach(function(item) {
 					console.log("todo:", item);
@@ -123,7 +126,6 @@
 		var projectTableFootRowContent = new UI.make("td", "", projectTableFootRow);
 
 		var projectTableHeadRowContentDiv = new UI.make("div", "full-width", projectTableHeadRowContent);
-		var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
 		
 		var menu = window.editor.menu.this.add("Project");
 		menu.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
@@ -135,6 +137,8 @@
 			console.log(ProjectFile);
 		};
 		
+		/*
+		var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
 		projectFileInput.value = ".scribble";
 		projectFileInput.onkeyup = function(event) {
 			var e = new InputEventDto(event);
@@ -145,7 +149,7 @@
 		var projectFileInputSearch = UI.make("button", "ui-input-project-button", projectTableHeadRowContentDiv, "load");
 		projectFileInputSearch.onclick = function(event) {
 			fnGetProject(projectFileInput.value);
-		}
+		}*/
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 
 		
