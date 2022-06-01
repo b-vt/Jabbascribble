@@ -62,7 +62,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 			}
 
 		}
-		window.addEventListener('app-plugin-ternjs', function(event) {
+		window.addEventListener('app-plugin-ternjs-completions', function(event) {
 			if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function")) 
 				window.popups[self.pluginName].destroy();
 			try {

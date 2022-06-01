@@ -176,9 +176,9 @@
 		}*/
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 		window.editor.menu.view.add("Toggle Project Viewer", "ui-icon-project", "").onclick = fnToggleProjectViewer;
-		window.addEventListener('app-plugin-projectview', fnOnGetProjectFile);
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
-		window.addEventListener('app-plugin-projectview', function() {
+		window.addEventListener('app-plugin-projectview-open', fnOnGetProjectFile);
+		window.addEventListener('app-plugin-projectview-save', function() {
 			console.log("project file saved?!");
 		});
 	};

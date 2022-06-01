@@ -79,7 +79,7 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 			}
 		}
 		else {
-			self.window.webContents.send("main-plugin", { pluginName: self.pluginName,  data: data });
+			self.window.webContents.send("main-plugin", { pluginName: self.pluginName, type: "completions", data: data });
 		}
 	});
 };
