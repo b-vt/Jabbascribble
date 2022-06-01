@@ -4,12 +4,15 @@ var path = require("path");
 var {PluginMain} = require(path.normalize(path.join(__dirname, "../../src/shared/plugin.js")));
 var Common = require(path.normalize(path.join(__dirname, "../../src/shared/common.js")));
 var Config = require(path.normalize(path.join(__dirname, "../../src/shared/config.js")));
-function TernPluginMain(pluginConf, appWindow) {
+function TernPluginMain(app, pluginConf, appWindow) {
 	PluginMain.call(this);
 	var self = this;
 	this.window = appWindow;
+	this.app = app;
 	this.server = null;
-	this.name = "ternjs";
+	//this.name = "ternjs";
+	this.pluginName = "ternjs";
+	this.pluginEventName = "plugin-event-ternjs";
 	this.pluginConf = pluginConf;
 	this.port = 49000;
 	console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
@@ -23,8 +26,10 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 		var post = { files: []};
 		for(var i = 0; i < evt.request.files.length; i++) {
 			var file = evt.request.files[i];
-			post.files.push({name: file.name, text: file.text, type: "full"});
+			//file.text = OpenFile();
+			post.files.push({name: file.name, text: file.text, type: "part"});
 		}
+		console.log("am I here?", post);
 		return post;
 	}
 	function fnRequestCompletions(evt) {
@@ -74,7 +79,7 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 			}
 		}
 		else {
-			self.window.webContents.send("main-plugin", { name: self.name,  data: data });
+			self.window.webContents.send("main-plugin", { pluginName: self.pluginName,  data: data });
 		}
 	});
 };

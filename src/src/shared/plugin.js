@@ -1,16 +1,18 @@
 // things that all PluginMains should have i guess
-function PluginMain(conf, appWindow) {
+function PluginMain(app, conf, appWindow) {
 	// inheritance
 	//PluginMain.call(this);
 	console.log("PluginMain constructor");
-	this.name = typeof GetRandomString === "function" ? GetRandomString() : "";
+	this.pluginName = typeof GetRandomString === "function" ? GetRandomString() : "*";
+	this.pluginEventName = `main-plugin-${this.pluginName}`;
 };
 // inheritance  
 //MyPluginMain.prototype = Object.create(PluginMain.prototype);
 //MyPluginMain.prototype.constructor = MyPluginMain;
 //
-PluginMain.prototype.name = ""; // required by Plugins, used as map key
-PluginMain.prototype.versionString = "";
+PluginMain.prototype.pluginName = ""; // required by Plugins, used as map key and event owner
+PluginRender.prototype.pluginEventName = ""; // required for sorting events to and from renderer
+PluginMain.prototype.versionString = ""; // todo: unused, for debug stuff
 
 /* any event from renderer thread */
 PluginMain.prototype.onRendererEvent = function(message) {
@@ -47,8 +49,8 @@ PluginMain.prototype.destroy = function(exitCode) {
 
 // things all PluginRender should have
 function PluginRender() {
-	
-}
+	// todo?
+};
 PluginRender.prototype.onContextMenu = function(context, id, item) {
 };
 if (typeof module!=="undefined")

@@ -496,9 +496,6 @@ function EditorWindow(opts) {
 	window.addEventListener("app-open", function(event) { // file open event
 		self.columns.active().editor.addTab(event.detail.path, event.detail.value, fnTabContextMenus);
 	});
-	window.addEventListener('app-saveprojectfile', function() {
-		
-	});
 	window.addEventListener('app-pluginload', function(event) {
 		LoadScript(event.detail.script);
 	});

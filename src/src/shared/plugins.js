@@ -18,8 +18,9 @@ function Plugins(appClass, window) {
 				fs.access(main, fs.constants.F_OK, function(err) {
 					if (err) return console.log(`- Plugins.js error could not find plugin:\n\t${main} ${err}`);	
 					var MyPlugin = require(main);
-					var plugin = new MyPlugin(conf, _window).start();
-					self.activePlugins[plugin.name] = plugin;
+					console.log(main, MyPlugin);
+					var plugin = new MyPlugin(appClass, conf, _window).start();
+					self.activePlugins[plugin.pluginName] = plugin;
 				});
 			})(i, window);
 		}
@@ -34,15 +35,23 @@ Plugins.prototype.on = function(eventName, fnCallback) {
 		this.listeners[eventName].push(fnCallback);
 	};
 };
-/* all plugins must inherit from plugin.js and overload methods accordingly otherwise they return null */
+/* all plugins must inherit from plugin.js and overload methods accordingly otherwise they return null 
+	event { 
+		name: "plugin_name",
+		event: "event_name",
+		request: { // user data
+			event: "",
+			...
+		}
+	}*/
 Plugins.prototype.pushPluginEvent = function(event) {
 	var reply = null; // todo?
-	if (event.name == undefined || event.name == null || event.name.length == 0)
+	if (event.pluginName == undefined || event.pluginName == null || event.pluginName.length == 0)
 		for(item in this.activePlugins) {//var i = 0; i < this.activePlugins.length; i++) {
 			reply = this.doTask(item, event);
 		}
 	else {
-		var item = this.activePlugins[event.name];
+		var item = this.activePlugins[event.pluginName];
 		reply = this.doTask(item, event);
 	}
 };

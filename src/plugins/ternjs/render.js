@@ -42,8 +42,12 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	var menu = window.editor.menu;
 	
 	function TernRender() { // todo: refactor
-		this.name = "ternjs";
-		window.editor.plugins[this.name] = this;  
+		//this.name = "ternjs";
+		var self = this;
+		this.pluginName = "ternjs";
+		this.pluginEventName = "plugin-event-ternjs";
+		
+		window.editor.plugins[this.pluginName] = this;  
 		var pluginsMenu = menu.this.add("Plugins");
 		var viewItem = pluginsMenu.add("Tern Request on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
 			if (autoRequest) {
@@ -59,8 +63,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 
 		}
 		window.addEventListener('app-plugin-ternjs', function(event) {
-			if (window.popups["ternjs"] && (typeof window.popups["ternjs"].destroy == "function")) 
-				window.popups["ternjs"].destroy();
+			if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function")) 
+				window.popups[self.pluginName].destroy();
 			try {
 				var response = JSON.parse(event.detail.data);
 				var editor =  window.editor.columns.active().editor;
@@ -108,7 +112,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 							cm.focus();
 						}
 
-						window.popups["ternjs"] = popup;
+						window.popups[self.pluginName] = popup;
 					}
 				}
 			}
@@ -127,8 +131,17 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				if (datum && datum.mode == "javascript") {
 					var cursor = datum.codemirror.getCursor();
 					var text = datum.codemirror.getValue();
+					var prj = window.editor.plugins["project"];
+					if (prj && prj.projectFile)
+						window.api.plugin({
+							pluginName: self.pluginName, event: "render", 
+							request: {
+								type: "add",
+								files: prj.files,
+							}
+						});
 					window.api.plugin({
-						name: "ternjs", event: "render", request: {
+						pluginName: self.pluginName, event: "render", request: {
 							type: "completes",
 							file: datum.path || `new_file_${Math.floor(Math.random() * 10000)}`, 
 							ch: cursor.ch, 
@@ -145,7 +158,6 @@ ElementCompletionsPopup.prototype.destroy = function() {
 			console.log(dto);
 			// skip this routine if auto send is disabled or if this press was the hotkey
 			var bf = (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.CTRL);
-			console.log(bf);
 			if (!autoRequest || bf==true) return console.log("returned because no autorequest or ctrl key was held"); 
 			var editor =  window.editor.columns.active().editor;
 			var active = editor.tabs.getActive();
@@ -162,8 +174,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 							console.log("!!");
 							clearTimeout(lastKeyStrokeTimer);
 							lastKeyStrokeTimer = null;
-							if (window.popups["ternjs"] && (typeof window.popups["ternjs"].destroy == "function"))
-								window.popups["ternjs"].destroy();
+							if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function"))
+								window.popups[self.pluginName].destroy();
 							return;
 						}
 						if (lastKeyStrokeTimer == null) 
@@ -178,8 +190,8 @@ ElementCompletionsPopup.prototype.destroy = function() {
 
 		});
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_SPACE], function() {
-			if (autoRequest && window.popups["ternjs"])
-					window.popups["ternjs"].select.focus();
+			if (autoRequest && window.popups[self.pluginName])
+					window.popups[self.pluginName].select.focus();
 			else  {
 				fnGetCompletions();
 			}

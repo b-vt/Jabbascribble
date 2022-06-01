@@ -23,7 +23,7 @@ var Config = {
 	},
 	plugins: [
 		{
-			name: "projectview",
+			main: "projects/main.js",
 			renderer: "projects/render.js"
 		},
 		{

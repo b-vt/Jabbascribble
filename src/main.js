@@ -46,7 +46,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 	function ApplicationClass() {
 		var self = this;
-
+		this.openFile = OpenFile; // todo
+		this.saveFile = SaveFile; // todo
 		//this.plugins = new Plugins(this);
 
 		electron.ipcMain.on('main-close', function(event, data) {
@@ -67,7 +68,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		electron.ipcMain.on('renderer-plugin', function(event, data) {
 
 			(() => {
-				//console.log("received plugin: ", data);
+				console.log("received plugin: ", data);
 				var web = electron.BrowserWindow.fromId(data.uuid);
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");
 				if (self.plugins == null) return;
@@ -75,42 +76,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 			})();
 
 		});
-		// load project file from path
-		electron.ipcMain.on('renderer-getprojectfile', function(event, data) {
-			console.log("received getprojectfile: ", data);
-			if (data.uuid == undefined) return console.trace("- renderer-getprojectfile request by unknown window -");
-			var pf = [data.path];
-			if (data.path == undefined) 
-				pf = electron.dialog.showOpenDialogSync( { defaultPath: "./.scribble", properties: ['openFile', 'showHiddenFiles'] }) || [];
-			if (!pf[0]) return console.log("- renderer-getprojectfile request canceled -");
-			//var mypath = data.path.replace("~", os.homedir());
-			//var dir = path.normalize(mypath);
-			console.log("project file: %s", pf[0]);
-			OpenFile(pf[0], data.encoding, data.uuid, function(file, content, windowId) {
-				var web = electron.BrowserWindow.fromId(windowId);
-				if (web) web.webContents.send('main-getprojectfile', { path: file, value: content });
-			}, function(msg) {
-				console.trace(msg);
-			});
-		});
-		// save project file from renderer
-		electron.ipcMain.on('renderer-saveprojectfile', function(event, data) {
-			console.log("received saveprojectfile console: ", data);
-			var web = electron.BrowserWindow.fromId(data.uuid);
-			if (data.uuid == undefined || web == null) return console.trace("- renderer-saveprojectfile request by unknown window -");
-			var pf = data.path;
-			if (data.path == undefined) 
-				pf = electron.dialog.showSaveDialogSync( { defaultPath: "./.scribble", properties: ['showHiddenFiles'] });
-			if (pf == undefined) return console.log(`- renderer-saveprojectfile request was canceled`);
-			console.log(pf);
-			SaveFile(pf, undefined, JSON.stringify(data.project), undefined, data.uuid, function(file, tabId, windowId) {
-				var web = electron.BrowserWindow.fromId(windowId);
-				if (web) web.webContents.send("main-saveprojectfile", {});
-			}, function(msg) {
-				console.log("save project file error: ", msg);
-			});
-			
-		});
+		
 		// close a window
 		electron.ipcMain.on('renderer-quit', function(event, data) {
 			console.log("received open console: ", data);
@@ -303,4 +269,5 @@ var {Plugins} = require("./src/shared/plugins.js");
 			});
 		})(file, encoding, data, id, uuid);
 	}
+	
 })();

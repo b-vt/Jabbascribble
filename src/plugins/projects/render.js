@@ -2,14 +2,29 @@
 (() => {
 	var ProjectFile = {files:[], columns: 1, active_files: [], type: ""}; // active_files: [{file: "", column: 1}]
 	function ProjectsRender() {
-		this.name = "projects";
-		window.editor.plugins[this.name] = this;	
+		var self = this;
+		this.pluginName = "projectview";
+		this.pluginEventName = "plugin-event-projectview";
+		window.editor.plugins[this.name] = this;
+		this.projectFile = ProjectFile;
 		// todo: project files list needs to be sorted
 		function fnGetProject(filename) {
+			console.log("did open?");
 			if (filename && filename.length > 0)
-				window.api.getProjectFile(filename);
+				window.api.plugin({
+					pluginName: self.pluginName, event: "render", request: {
+						type: "open",
+						path: filename
+					}
+				});
+				//window.api.getProjectFile(filename);
 			else
-				window.api.getProjectFile();
+				window.api.plugin({
+					pluginName: self.pluginName, event: "render", request: {
+						type: "open"
+					}
+				});
+				//window.api.getProjectFile();
 		};
 		function fnRebuildFileExplorerList() {
 			fileExplorerList.remove();
@@ -50,8 +65,8 @@
 								var ext =extSplits[ extSplits.length - 1];
 								if (ext === "js") {
 									w.add("Inherit From", "ui-icon-inherit", "").onclick = function() {
-										//console.log(_item.src);
-										window.api.inheritJavascript(_item.src);
+										console.log(_item.src);
+										//window.api.inheritJavascript(_item.src);
 									};
 								}
 								w.add();
@@ -114,7 +129,9 @@
 			}
 		};
 		
-		var project = UI.make("td", "ui-column-folders", window.editor.columns.container);
+		console.log(window.editor);
+		var project = UI.make("td", "ui-column-folders", null, null, true);
+		window.editor.columns.container.parentElement.children[0].prepend(project);
 		project.setAttribute("data-show", "0");
 		var projectTable = new UI.make("table", "ui-column-folders full-height full-width", project);
 		var projectTableHead = new UI.make("thead", "", projectTable);
@@ -135,11 +152,17 @@
 		};
 		menu.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
 			ProjectFile.columns = Config.editor.Columns;
-			window.api.saveProjectFile({project: ProjectFile});
+			//window.api.saveProjectFile({project: ProjectFile});
+			window.api.plugin({
+				pluginName: self.pluginName, event: "render", request: {
+					type: "save",
+					project: ProjectFile
+				}
+			});
 			console.log(ProjectFile);
 		};
 		
-		var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
+		/*var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
 		projectFileInput.value = ".scribble";
 		projectFileInput.onkeyup = function(event) {
 			var e = new InputEventDto(event);
@@ -150,13 +173,14 @@
 		var projectFileInputSearch = UI.make("button", "ui-input-project-button", projectTableHeadRowContentDiv, "load");
 		projectFileInputSearch.onclick = function(event) {
 			fnGetProject(projectFileInput.value);
-		}
+		}*/
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
-
-		
-		window.editor.menu.view.add("Toggle Project Viewer", "ui-icon-project", "").onclick = fnToggleProjectViewer
-		window.addEventListener('app-getprojectfile', fnOnGetProjectFile);
+		window.editor.menu.view.add("Toggle Project Viewer", "ui-icon-project", "").onclick = fnToggleProjectViewer;
+		window.addEventListener('app-plugin-projectview', fnOnGetProjectFile);
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
+		window.addEventListener('app-plugin-projectview', function() {
+			console.log("project file saved?!");
+		});
 	};
 	ProjectsRender.prototype.onContextMenu = function(context, data) {
 		var self = this;
@@ -174,5 +198,6 @@
 			self.fnRebuildFileExplorerList();
 		};
 	};
+	
 	new ProjectsRender();
 })();
