@@ -38,7 +38,7 @@ function WindowBuilder(containerType) {
 	parent: optional, must be DOM object
 		eg, document.getElementById("icons-holder")
 	innerText: optional, adds text node to element. &nbsp is replaced by unicode a0
-	noAppend: optional, creates element but does not append it to any document
+	noAppend: optional, creates element but does not append it to any document, useful for prepend
 	*/
 WindowBuilder.prototype.make = function(type, classNames, parent, innerText, noAppend) {
 	var element = document.createElement(type);
