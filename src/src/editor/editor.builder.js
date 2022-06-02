@@ -129,26 +129,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 					tab.activate();
 				};
 			}
-			/*
-			else { // 
-				var selections = datum.codemirror.doc.getSelection();
-				if (selections > 0) {
-					console.log(selections);
-					
-					context.add(`search for \"${selections}\"`, "ui-icon-save", "").onclick = function() {
-						console.log("selected junko: %s", selections);
-					};
-				}
-			}
-			if (datum.path && datum.path.length > 1)
-				context.add(Lang.Menu.OpenFileLocation, "ui-icon-folder-explore", Lang.Menu.OpenFileLocationHint).onclick = function() {
-					if (datum.path == undefined) return;
-					var splits = datum.path.split(/[\\/]/g);
-					splits.pop();
-					window.api.openFileLocation({path: splits.join("/")});
-				};
-			*/
-			if (context.items.length > 0) // destroy the tiny little square of resistence
+			if (context.items.length > 0) // destroy the tiny little square of resistance
 				context.show(event.clientX, event.clientY);
 			console.log(event.clientX, event.pageX);
 		}

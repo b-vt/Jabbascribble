@@ -4,7 +4,6 @@
 	function ProjectsRender() {
 		var self = this;
 		this.pluginName = "projectview";
-		this.pluginEventName = "plugin-event-projectview";
 		window.editor.plugins[this.name] = this;
 		this.projectFile = ProjectFile;
 		// todo: project files list needs to be sorted
@@ -36,7 +35,6 @@
 			}
 			// oddwarg magic. 
 			function parsed(path, parentNode, offset, depth, index) {
-				console.log(path);
 				path = NormalizePath(path);
 				var separator = path.indexOf("/", offset);
 				var name = path.substring(offset);
@@ -45,15 +43,53 @@
 				var current = parentNode.children[name];
 				if (current == undefined || current == null) {
 					parentNode.children[name] = new node(name, depth);
-					if (depth > Config.ProjectViewIgnoreDepth) {
-						var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
+					if (depth > Config.ProjectViewIgnoreDepth) { // hide some directories from view
+						//var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
 						var fileName = [new Array(parentNode.children[name].depth-Config.ProjectViewIgnoreDepth).join('\xa0'), name].join('');
+						var fnSplits = fileName.split(/[.]/g);
+						var ext = fnSplits[fnSplits.length - 1];
+						console.log(ext);
+						var classNames = ["ui-select-icon ui-treeview-item"]//, (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
+						if (separator != -1) {
+							classNames.push("ui-icon-folder");
+						}
+						else {
+							switch (ext) {
+								case "js": {
+									classNames.push("ui-icon-js");
+									break;
+								}
+								case "c":
+								case "h":{
+									classNames.push("ui-icon-c");
+									break;
+								}
+								case "cpp":
+								case "hpp":{
+									classNames.push("ui-icon-cpp");
+									break;
+								}
+								case "css": {
+									classNames.push("ui-icon-css");
+									break;
+								}
+								case "html": {
+									classNames.push("ui-icon-html");
+									break;
+								}
+								default: {
+									classNames.push("ui-icon-script");
+									break;
+								}
+							}
+							
+						}
 						var item = new UI.make("div", classNames.join(" "), fileExplorerList, fileName);
-						//new UI.make("br", "", fileExplorerList, "");
 						item.src = path;
+						item.ext = ext;
 						((_item, _index) => {
 							_item.onclick = function() {
-
+								// todo
 							};
 							_item.ondblclick = function() {
 								window.api.open({path: _item.src});
@@ -66,7 +102,6 @@
 								if (ext === "js") {
 									w.add("Inherit From", "ui-icon-inherit", "").onclick = function() {
 										console.log(_item.src);
-										//window.api.inheritJavascript(_item.src);
 									};
 								}
 								w.add();
@@ -131,7 +166,7 @@
 		
 		console.log(window.editor);
 		var project = UI.make("td", "ui-column-folders", null, null, true);
-		window.editor.columns.container.parentElement.children[0].prepend(project);
+		window.editor.columns.container.parentElement.children[0].prepend(project); // force the view tree thing to appear on the left side
 		project.setAttribute("data-show", "0");
 		var projectTable = new UI.make("table", "ui-column-folders full-height full-width", project);
 		var projectTableHead = new UI.make("thead", "", projectTable);
@@ -149,6 +184,7 @@
 		var menu = window.editor.menu.this.add("Project");
 		menu.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
 			fnGetProject();
+			fnToggleProjectViewer();
 		};
 		menu.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
 			ProjectFile.columns = Config.editor.Columns;

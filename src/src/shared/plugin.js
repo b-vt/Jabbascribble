@@ -4,15 +4,12 @@ function PluginMain(app, conf, appWindow) {
 	//PluginMain.call(this);
 	console.log("PluginMain constructor");
 	this.pluginName = typeof GetRandomString === "function" ? GetRandomString() : "*";
-	this.pluginEventName = `main-plugin-${this.pluginName}`;
 };
 // inheritance  
 //MyPluginMain.prototype = Object.create(PluginMain.prototype);
 //MyPluginMain.prototype.constructor = MyPluginMain;
 //
 PluginMain.prototype.pluginName = ""; // required by Plugins, used as map key and event owner
-PluginRender.prototype.pluginEventName = ""; // required for sorting events to and from renderer
-PluginMain.prototype.versionString = ""; // todo: unused, for debug stuff
 
 /* any event from renderer thread */
 PluginMain.prototype.onRendererEvent = function(message) {
@@ -47,11 +44,12 @@ PluginMain.prototype.destroy = function(exitCode) {
 	return;
 };
 
-// things all PluginRender should have
+// things all PluginRender's should have i guess
 function PluginRender() {
-	// todo?
+	// 
 };
 PluginRender.prototype.onContextMenu = function(context, id, item) {
+	// 
 };
 if (typeof module!=="undefined")
 	module.exports = { 

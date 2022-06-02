@@ -320,7 +320,7 @@ details > .ui-context-menu {
 	background-image: url("../../data/icons/disk.png");
 }
 .ui-icon-script {
-	background-image: url("../../data/icons/page_white_text.png");
+	background-image: url("../../data/icons/page_white.png");
 }
 .ui-icon-console {
 	background-image: url("../../data/icons/television.png");
@@ -375,6 +375,21 @@ details > .ui-context-menu {
 }
 .ui-icon-inherit {
 	background-image: url("../../data/icons/page_white_copy.png");
+}
+.ui-icon-c {
+	background-image: url("../../data/icons/page_white_c.png");
+}
+.ui-icon-cpp {
+	background-image: url("../../data/icons/page_white_cplusplus.png");
+}
+.ui-icon-js {
+	background-image: url("../../data/icons/page_white_js.png");
+}
+.ui-icon-css {
+	background-image: url("../../data/icons/page_white_css.png");
+}
+.ui-icon-html {
+	background-image: url("../../data/icons/page_white_code_red.png");
 }
 .clearfix::after {
 	content: "";
