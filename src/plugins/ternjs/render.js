@@ -38,8 +38,6 @@ ElementCompletionsPopup.prototype.destroy = function() {
 	//};
 	var lastKeyStrokeTimer = null;
 	var autoRequest = true;
-	var hotkeyConsume = false;
-	var menu = window.editor.menu;
 	
 	function TernRender() { // todo: refactor
 		//this.name = "ternjs";
@@ -47,8 +45,9 @@ ElementCompletionsPopup.prototype.destroy = function() {
 		this.pluginName = "ternjs";
 		this.pluginEventName = "plugin-event-ternjs";
 		
+		//var menu = window.editor.menu;
 		window.editor.plugins[this.pluginName] = this;  
-		var pluginsMenu = menu.this.add("Plugins");
+		var pluginsMenu = window.editor.menu.plugins;//add("Plugins");
 		var viewItem = pluginsMenu.add("Tern Request on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
 			if (autoRequest) {
 				autoRequest = false;

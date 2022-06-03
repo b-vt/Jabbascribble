@@ -375,6 +375,8 @@ function EditorWindow(opts) {
 		window.api.toggleConsole(true);
 	};
 	
+	this.menu.project = menu.add(Lang.Menu.Project);
+	this.menu.plugins = menu.add(Lang.Menu.Plugins);
 	// initialize the editor
 	this.columns = new ElementColumns(columnsTableBody);
 	//this.project = new ElementColumn(this.columns, this.columns.container);

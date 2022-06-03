@@ -181,7 +181,8 @@
 
 		var projectTableHeadRowContentDiv = new UI.make("div", "full-width", projectTableHeadRowContent);
 		
-		var menu = window.editor.menu.this.add("Project");
+		var menu = window.editor.menu.project;
+		menu.add(Lang.Menu.ToggleProjectView, "ui-icon-project", "").onclick = fnToggleProjectViewer;
 		menu.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
 			fnGetProject();
 			fnToggleProjectViewer();
@@ -211,7 +212,6 @@
 			fnGetProject(projectFileInput.value);
 		}*/
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
-		window.editor.menu.view.add("Toggle Project Viewer", "ui-icon-project", "").onclick = fnToggleProjectViewer;
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
 		window.addEventListener('app-plugin-projectview-open', fnOnGetProjectFile);
 		window.addEventListener('app-plugin-projectview-save', function() {

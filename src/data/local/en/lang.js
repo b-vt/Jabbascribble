@@ -17,10 +17,6 @@ var Lang = {
 		NewHint: "New tab",
 		Quit: "Quit",
 		QuitHint: "Close this window(without warning!)",
-		SaveProject: "Save Project File",
-		SaveProjectHint: "Save the current project state to a .scribble file",
-		OpenProject: "Open Project File",
-		OpenProjectHint: "Open a project .scribble file",
 		// view menu
 		View: "View",
 		OpenRenderConsole: "Open Render Console",
@@ -38,7 +34,17 @@ var Lang = {
 		OpenFileLocation: "Open File Location",
 		OpenFileLocationHint: "Launch shell at file location",
 		ToggleLineWrap: "Toggle Line Wrap",
-		ToggleLineWrapHint: "Toggles line wrap in the active edit"
+		ToggleLineWrapHint: "Toggles line wrap in the active edit",
+		// projects
+		Project: "Project",
+		ToggleProjectView: "Toggle Project View",
+		SaveProject: "Save Project File",
+		SaveProjectHint: "Save the current project state to a .scribble file",
+		OpenProject: "Open Project File",
+		OpenProjectHint: "Open a project .scribble file",
+		// plugins
+		Plugins: "Plugins",
+		ViewPlugins: "View Active Plugins"
 		
 	}
 };
