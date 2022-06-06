@@ -152,16 +152,20 @@
 				console.trace(e);
 			}
 		};
-		function fnToggleProjectViewer() {
-			if (project.visible) {
-				project.visible = false;
-				project.setAttribute("data-show", "0");
-			}
-			else {
-				project.visible = true;
-				project.setAttribute("data-show", "1");
-				//window.api.getCurrentProject({path: projectFileInput.value});
-			}
+		function fnToggleProjectViewer(v) {
+			if (v == undefined)
+				if (project.visible) {
+					project.visible = false;
+					project.setAttribute("data-show", "0");
+				}
+				else {
+					project.visible = true;
+					project.setAttribute("data-show", "1");
+					//window.api.getCurrentProject({path: projectFileInput.value});
+				}
+			else
+				project.visible = v;
+				project.setAttribute("data-show", v.toString());
 		};
 		
 		console.log(window.editor);
@@ -185,7 +189,7 @@
 		menu.add(Lang.Menu.ToggleProjectView, "ui-icon-project", "").onclick = fnToggleProjectViewer;
 		menu.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
 			fnGetProject();
-			fnToggleProjectViewer();
+			fnToggleProjectViewer(true);
 		};
 		menu.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
 			ProjectFile.columns = Config.editor.Columns;

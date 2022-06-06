@@ -72,6 +72,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					var datum = editor.tabs.getActive().datum;
 					if (datum) {
 						var cm = datum.codemirror;
+						console.log(cm);
 						if (!cm.hasFocus()) return;
 						var popup = new ElementCompletionsPopup(response.completions);
 						if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
@@ -90,14 +91,20 @@ ElementCompletionsPopup.prototype.destroy = function() {
 							cm.display.input.blur();
 							popup.select.focus();
 						}
-						popup.container.onkeyup = function(event) {
+						popup.container.onkeyup = function(event, prevent) {
 							var dto = new InputEventDto(event);
+							console.log(cm);
+							event.preventDefault();
+							event.stopPropagation();
 							if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
 								var index = popup.select.selectedIndex >=0 ? popup.select.selectedIndex : 0;
 								var opt = popup.select.options[index];
-								cm.replaceRange(opt.value, response.start, response.end);
+								prevent = prevent || 0;
 								popup.destroy();
 								cm.focus();
+								if (prevent) response.end.ch += 1; // handle the inserted tab
+								cm.replaceRange(opt.value, response.start, response.end);
+								
 							}
 							else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
 								popup.destroy();
@@ -106,7 +113,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 						}
 						popup.container.ondblclick = function(event) {
 							var opt = popup.select.options[popup.select.selectedIndex];
-							cm.replaceRange(opt.value, response.start, response.end);
+							cm.replaceRange(`${opt.value}${String.fromCharCode(127)}`, response.start, response.end);
 							popup.destroy();
 							cm.focus();
 						}
@@ -119,8 +126,6 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				console.log(e);
 			}
 		});
-
-
 
 		function fnGetCompletions() {
 			var editor =  window.editor.columns.active().editor;
@@ -152,7 +157,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 			}
 		}
 
-		window.addEventListener('keyup', function(event) {
+		window.addEventListener('keyup', function(event) { // todo: refactor
 			var dto = new InputEventDto(event);
 			console.log(dto);
 			// skip this routine if auto send is disabled or if this press was the hotkey
@@ -165,6 +170,12 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				if (datum) {
 					var cm = datum.codemirror;
 					if (cm.hasFocus()) {
+						if (dto.key == InputEventDto.prototype.KEY_TAB) { // if
+							if (window.popups[self.pluginName]) {
+								window.popups[self.pluginName].container.onkeyup(event, true);
+							}
+							return;
+						}
 						// if this is not an alphanumeric, underscore or period then cleanup the popup and cancel request
 						if (!(dto.key <= InputEventDto.prototype.KEY_Z && dto.key >= InputEventDto.prototype.KEY_0) && 
 									dto.key !== InputEventDto.prototype.KEY_UNDERSCORE &&
@@ -176,7 +187,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 							if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function"))
 								window.popups[self.pluginName].destroy();
 							return;
-						}
+						}						
 						if (lastKeyStrokeTimer == null) 
 							lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
 						else {
@@ -184,6 +195,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 							lastKeyStrokeTimer = setTimeout(fnGetCompletions, 250);
 						}
 					}
+					
 				}
 			}
 

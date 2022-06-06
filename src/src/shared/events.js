@@ -18,7 +18,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 	this.deltaY = 0;
 	this.deltaZ = 0;
 	this.target = null; // element that the event happened in?
-
+	console.log(event);
 
 	switch(event.type) {
 
@@ -64,6 +64,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 
 		// todo: controller stuff?
 		default: {
+			console.trace("missing event type in events.js");
 			break;
 		}
 	}
