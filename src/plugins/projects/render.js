@@ -43,9 +43,9 @@
 				var current = parentNode.children[name];
 				if (current == undefined || current == null) {
 					parentNode.children[name] = new node(name, depth);
-					if (depth > Config.ProjectViewIgnoreDepth) { // hide some directories from view
+					if (depth > ProjectFile.ignoreDepth) { // hide some directories from view
 						//var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
-						var fileName = [new Array(parentNode.children[name].depth-Config.ProjectViewIgnoreDepth).join('\xa0'), name].join('');
+						var fileName = [new Array(parentNode.children[name].depth-ProjectFile.ignoreDepth).join('\xa0'), name].join('');
 						var fnSplits = fileName.split(/[.]/g);
 						var ext = fnSplits[fnSplits.length - 1];
 						console.log(ext);
@@ -222,11 +222,28 @@
 			console.log("project file saved?!");
 		});
 	};
+	
+	ProjectsRender.prototype.addFile = function(path) {
+		var self = this;
+		console.log("adding %s to project file", path);
+		if (path.length > 2) {
+			for(var i = 0; i < ProjectFile.files.length; i++) {
+				if (ProjectFile.files[i] == path) {
+					return console.log("this file is already part of the project");
+				}
+			}
+			ProjectFile.files.push(path);
+		}
+		this.fnRebuildFileExplorerList();
+	};
 	ProjectsRender.prototype.onContextMenu = function(context, data) {
 		var self = this;
 		var details = data.details;
-		context.add("Add file to project", "" , "").onclick = function() {
-			console.log("adding %s to project file", details.datum.path);
+		if (data.details.datum.path)
+			context.add("Add file to project", "" , "").onclick = function() {
+				self.addFile(data.details.datum.path);
+			};
+			/*console.log("adding %s to project file", details.datum.path);
 			if (details.datum.path.length > 2) {
 				for(var i = 0; i < ProjectFile.files.length; i++) {
 					if (ProjectFile.files[i] == details.datum.path) {
@@ -235,8 +252,8 @@
 				}
 				ProjectFile.files.push(details.datum.path);
 			}
-			self.fnRebuildFileExplorerList();
-		};
+			self.fnRebuildFileExplorerList();*/
+		//};
 	};
 	
 	new ProjectsRender();
