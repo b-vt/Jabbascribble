@@ -249,7 +249,9 @@ function EditorWindow(opts) {
 						return column.editor.tabs.getActive();
 			}
 		}
+		return null;
 	};
+	this.getActiveTabEditor = GetActiveTabEditor;
 
 	this.head = UI.make("thead", "");//, "", table1);
 	this.body = UI.make("tbody", "ui-row-columns");//, table1);

@@ -660,10 +660,20 @@ details > .ui-context-menu {
 	width: auto;
 	height: auto;
 	resize: both;
-	background-color: rgb(100, 100, 100);
-	border: 1px solid #000;
+	background-color: #11111f;
+	color: #0f0;
+	/*background-color: rgb(100, 100, 100);*/
+	/*border: 1px solid #fff;*/
 	z-index: 1100;
+	/*color: #ff8c00;*/
+	/*text-shadow: 1px 1px 1px #000 !important;*/
+	margin: 1px;
 }
 .popup:focus {
 	border: 1px solid #f00;
+}
+.popup-option-autocomplete {
+	padding: 1px 10px 1px 10px;
+	font-family: monospace;
+	/*font-weight: 900;*/
 }

@@ -1,10 +1,10 @@
 // todo: this is a copy paste from editor.window.js and is just plain uggo
 (() => {
-	var ProjectFile = {files:[], columns: 1, active_files: [], type: ""}; // active_files: [{file: "", column: 1}]
+	var ProjectFile = {files:[], columns: 1, active_files: [], ignoreDepth: 3,  type: ""}; // active_files: [{file: "", column: 1}]
 	function ProjectsRender() {
 		var self = this;
 		this.pluginName = "projectview";
-		window.editor.plugins[this.name] = this;
+		window.editor.plugins[this.pluginName] = this;
 		this.projectFile = ProjectFile;
 		// todo: project files list needs to be sorted
 		function fnGetProject(filename) {
@@ -26,6 +26,7 @@
 				//window.api.getProjectFile();
 		};
 		function fnRebuildFileExplorerList() {
+			console.log("rebuilding file list");
 			fileExplorerList.remove();
 			fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 			function node(name, depth) {
@@ -43,13 +44,13 @@
 				var current = parentNode.children[name];
 				if (current == undefined || current == null) {
 					parentNode.children[name] = new node(name, depth);
-					if (depth > ProjectFile.ignoreDepth) { // hide some directories from view
-						//var classNames = ["ui-select-icon ui-treeview-item", (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
-						var fileName = [new Array(parentNode.children[name].depth-ProjectFile.ignoreDepth).join('\xa0'), name].join('');
+					var ignoreDepth = ProjectFile.ignoreDepth || 0;
+					if (depth > ignoreDepth) { // hide some directories from view
+						var fileName = [new Array(parentNode.children[name].depth-ignoreDepth).join('\xa0'), name].join('');
 						var fnSplits = fileName.split(/[.]/g);
 						var ext = fnSplits[fnSplits.length - 1];
 						console.log(ext);
-						var classNames = ["ui-select-icon ui-treeview-item"]//, (separator != -1) ? "ui-icon-folder" : "ui-icon-script"];
+						var classNames = ["ui-select-icon ui-treeview-item"];
 						if (separator != -1) {
 							classNames.push("ui-icon-folder");
 						}
@@ -123,6 +124,7 @@
 			// todo: sort projectFile.files
 			var root = new node("");
 			for(var i = 0; i < ProjectFile.files.length; i++) {
+				console.log("parsing %s", ProjectFile.files[i]);
 				parsed(ProjectFile.files[i], root, 0, 0, i);
 			}
 		}
@@ -133,41 +135,42 @@
 				ProjectFile.projectFile = event.detail.path;
 				var projectsplits = ProjectFile.projectFile.split(/[\\\/]/g);
 				var basedir = projectsplits[projectsplits.length - 2];
-				// sort the files by directory
-				var sorts = [];
-
 				if (ProjectFile.columns != 1) {
 					window.editor.fnCreateEditorColumns(ProjectFile.columns); // todo: this is a terrible hack to fix column and the position of the project viewer
 					window.editor.fnResizeEditorColumns(null, ProjectFile.columns);
-					project.visible = true;
-					project.setAttribute("data-show", "1");
+					//project.visible = true;
+					//project.setAttribute("data-show", "1");
+					fnToggleProjectViewer(true);diab
 				}
 				ProjectFile.active_files.forEach(function(item) {
 					console.log("todo:", item);
 				});
 
-				fnRebuildFileExplorerList(ProjectFile.files);
+				fnRebuildFileExplorerList();//ProjectFile.files);
 			}
 			catch(e) {
 				console.trace(e);
 			}
 		};
 		function fnToggleProjectViewer(v) {
-			if (v == undefined)
-				if (project.visible) {
-					project.visible = false;
-					project.setAttribute("data-show", "0");
-				}
-				else {
-					project.visible = true;
-					project.setAttribute("data-show", "1");
-					//window.api.getCurrentProject({path: projectFileInput.value});
-				}
-			else
+			if (v == true || v == false) {
 				project.visible = v;
-				project.setAttribute("data-show", v.toString());
+				project.setAttribute("data-show", v ? "true" : "false");
+				return;
+			}
+			if (project.visible) {
+				console.log("???");
+				project.visible = false;
+				project.setAttribute("data-show", "0");
+			}
+			else {
+				console.log("!!!");
+				project.visible = true;
+				project.setAttribute("data-show", "1");
+			}
+			
 		};
-		
+				
 		console.log(window.editor);
 		var project = UI.make("td", "ui-column-folders", null, null, true);
 		window.editor.columns.container.parentElement.children[0].prepend(project); // force the view tree thing to appear on the left side
@@ -202,6 +205,18 @@
 			});
 			console.log(ProjectFile);
 		};
+		menu.add(Lang.Menu.ProjectFileAdd, "", "Add the active file to project").onclick = function() {
+			var edit = window.editor.getActiveTabEditor();
+			if (edit && edit.datum) {
+				self.addFile(edit.datum.path);
+			}
+			//self.addFile();
+		};
+		menu.add(Lang.Menu.ProjectFileRemove, "", "Remove the active file from project").onclick = function() {
+			var edit = window.editor.getActiveTabEditor();
+			if (edit && edit.datum)
+				self.removeFile(edit.datum.path);
+		};
 		
 		/*var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
 		projectFileInput.value = ".scribble";
@@ -222,10 +237,20 @@
 			console.log("project file saved?!");
 		});
 	};
-	
+	ProjectsRender.prototype.removeFile = function(path) {
+		var swap = ProjectFile.files[ProjectFile.files.length - 1];
+		for(var i = 0; i < ProjectFile.files.length; i++) {
+			var filename = ProjectFile.files[i];
+			if (filename == path) {
+				ProjectFile.files[i] = swap;
+				ProjectFile.files.pop();
+				return this.fnRebuildFileExplorerList();
+			}
+		}
+	};
 	ProjectsRender.prototype.addFile = function(path) {
 		var self = this;
-		console.log("adding %s to project file", path);
+		console.log("adding %s to project file", path, ProjectFile);
 		if (path.length > 2) {
 			for(var i = 0; i < ProjectFile.files.length; i++) {
 				if (ProjectFile.files[i] == path) {
@@ -233,6 +258,7 @@
 				}
 			}
 			ProjectFile.files.push(path);
+			console.log("did the thing");
 		}
 		this.fnRebuildFileExplorerList();
 	};
@@ -240,20 +266,9 @@
 		var self = this;
 		var details = data.details;
 		if (data.details.datum.path)
-			context.add("Add file to project", "" , "").onclick = function() {
+			context.add(Lang.Menu.ProjectFileAdd, "" , "").onclick = function() {
 				self.addFile(data.details.datum.path);
 			};
-			/*console.log("adding %s to project file", details.datum.path);
-			if (details.datum.path.length > 2) {
-				for(var i = 0; i < ProjectFile.files.length; i++) {
-					if (ProjectFile.files[i] == details.datum.path) {
-						return console.log("this file is already part of the project");
-					}
-				}
-				ProjectFile.files.push(details.datum.path);
-			}
-			self.fnRebuildFileExplorerList();*/
-		//};
 	};
 	
 	new ProjectsRender();

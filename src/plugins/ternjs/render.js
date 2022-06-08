@@ -11,7 +11,7 @@ function ElementCompletionsPopup(completions) {
 	//this.select.setAttribute("name", "autocomplete");
 	this.select.setAttribute("multiple", "");
 	for(var i = 0; i < completions.length; i++) {
-		var opt = UI.make("option", "", this.select, completions[i]);
+		var opt = UI.make("option", "popup-option-autocomplete", this.select, completions[i]);
 		opt.isPopup = true;
 	}
 
@@ -113,7 +113,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 						}
 						popup.container.ondblclick = function(event) {
 							var opt = popup.select.options[popup.select.selectedIndex];
-							cm.replaceRange(`${opt.value}${String.fromCharCode(127)}`, response.start, response.end);
+							cm.replaceRange(opt.value, response.start, response.end);
 							popup.destroy();
 							cm.focus();
 						}

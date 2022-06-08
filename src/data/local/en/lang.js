@@ -39,9 +39,11 @@ var Lang = {
 		Project: "Project",
 		ToggleProjectView: "Toggle Project View",
 		SaveProject: "Save Project File",
-		SaveProjectHint: "Save the current project state to a .scribble file",
+		SaveProjectHint: "Save the current project state to a file",
 		OpenProject: "Open Project File",
-		OpenProjectHint: "Open a project .scribble file",
+		OpenProjectHint: "Open a project previously saved project file",
+		ProjectFileAdd: "Add file to project",
+		ProjectFileRemove: "Remove file from project",
 		// plugins
 		Plugins: "Plugins",
 		ViewPlugins: "View Active Plugins"
