@@ -133,6 +133,7 @@
 			try {
 				ProjectFile = JSON.parse(event.detail.value);
 				ProjectFile.projectFile = event.detail.path;
+				self.projectFile = ProjectFile;
 				var projectsplits = ProjectFile.projectFile.split(/[\\\/]/g);
 				var basedir = projectsplits[projectsplits.length - 2];
 				if (ProjectFile.columns != 1) {
@@ -140,7 +141,7 @@
 					window.editor.fnResizeEditorColumns(null, ProjectFile.columns);
 					//project.visible = true;
 					//project.setAttribute("data-show", "1");
-					fnToggleProjectViewer(true);diab
+					fnToggleProjectViewer(true);
 				}
 				ProjectFile.active_files.forEach(function(item) {
 					console.log("todo:", item);

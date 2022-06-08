@@ -1,5 +1,6 @@
 var child = require("child_process");
 var path = require("path");
+var fs = require("fs");
 
 var {PluginMain} = require(path.normalize(path.join(__dirname, "../../src/shared/plugin.js")));
 var Common = require(path.normalize(path.join(__dirname, "../../src/shared/common.js")));
@@ -15,6 +16,7 @@ function TernPluginMain(app, pluginConf, appWindow) {
 	this.pluginEventName = "plugin-event-ternjs";
 	this.pluginConf = pluginConf;
 	this.port = 49000;
+	this.hasAddedProject = false;
 	console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
 };
 
@@ -22,18 +24,23 @@ TernPluginMain.prototype = Object.create(PluginMain.prototype);
 TernPluginMain.prototype.constructor = TernPluginMain;
 TernPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
-	function fnRequestAddFiles(evt) {
+	/*function fnRequestAddFiles(evt) {
 		var post = { files: []};
-		for(var i = 0; i < evt.request.files.length; i++) {
-			var file = evt.request.files[i];
-			//file.text = OpenFile();
-			post.files.push({name: file.name, text: file.text, type: "part"});
-		}
+		if (evt.request.files && evt.request.files.length > 0)
+			for(var i = 0; i < evt.request.files.length; i++) {
+				var file = evt.request.files[i];
+				//file.text = OpenFile();
+				var stat = fs.statSync(file);
+				var buff = Buffer.alloc(stat.size+1);
+				var fd = fs.openSync(file);
+				var bytes = fs.readSync(fd, buff);
+				post.files.push({name: file.name, text: file.text, type: "full"});
+			}
 		console.log("am I here?", post);
 		return post;
-	}
+	}*/
 	function fnRequestCompletions(evt) {
-		return {
+		var p = {
 			query: {
 				type: "completions",
 				expandWordForward: false,
@@ -47,6 +54,31 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 				type: "full"
 			}]
 		};
+		
+		if (!self.hasAddedProject && evt.request.files && evt.request.files.length > 1) {
+			console.log("doing once..");
+			for(var i = 0; i < evt.request.files.length; i++) {
+				var file = evt.request.files[i];
+				console.log("adding file", file);
+				try {
+					var stat = fs.statSync(file);
+					var buff = Buffer.alloc(stat.size+1);
+					var fd = fs.openSync(file);
+					var bytes = fs.readSync(fd, buff);
+					p.files.push({
+						name: file, 
+						text: buff.toString('utf8', 0, bytes), 
+						type: "full"
+					});
+				}
+				catch(e) {
+					console.log("error reading project file:\n", e);
+				}
+			}
+			self.hasAddedProject = true;
+			console.log("done things", p);
+		}
+		return p;
 	}
 	var post = {};
 	switch(event.request.type) {
@@ -54,10 +86,10 @@ TernPluginMain.prototype.onRendererEvent = function(event) {
 			post = fnRequestCompletions(event);
 			break;
 		}
-		case "add": {
-			post = fnRequestAddFiles(evt);
+		/*case "add": {
+			post = fnRequestAddFiles(event);
 			break;
-		}
+		}*/
 		default: {
 			break;
 		}

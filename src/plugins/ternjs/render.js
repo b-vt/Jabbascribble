@@ -17,7 +17,6 @@ function ElementCompletionsPopup(completions) {
 
 	this.rect = this.container.getClientRects()[0];
 	this.container.focus();
-
 };
 
 ElementCompletionsPopup.prototype.move = function(x, y) {
@@ -73,7 +72,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 					if (datum) {
 						var cm = datum.codemirror;
 						console.log(cm);
-						if (!cm.hasFocus()) return;
+						if (!cm.hasFocus() || !response.completions) return;
 						var popup = new ElementCompletionsPopup(response.completions);
 						if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
 							return popup.destroy();
@@ -135,22 +134,26 @@ ElementCompletionsPopup.prototype.destroy = function() {
 				if (datum && datum.mode == "javascript") {
 					var cursor = datum.codemirror.getCursor();
 					var text = datum.codemirror.getValue();
-					var prj = window.editor.plugins["project"];
+					var prj = window.editor.plugins["projectview"];
+					var files = [];
+					console.log(prj.projectFile);
 					if (prj && prj.projectFile)
-						window.api.plugin({
+						files = prj.projectFile.files;
+						/*window.api.plugin({
 							pluginName: self.pluginName, event: "render", 
 							request: {
 								type: "add",
-								files: prj.files,
+								files: prj.projectFile.files,
 							}
-						});
+						});*/
 					window.api.plugin({
 						pluginName: self.pluginName, event: "render", request: {
 							type: "completes",
 							file: datum.path || `new_file_${Math.floor(Math.random() * 10000)}`, 
 							ch: cursor.ch, 
 							line: cursor.line, 
-							text: text
+							text: text,
+							files: files
 						}
 					});
 				}
