@@ -2,7 +2,6 @@ tmp/
 src/data/debug/
 bin/
 .scribble
-.tern-project
 build.js
 merge.sh
 test.sh

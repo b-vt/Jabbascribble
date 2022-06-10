@@ -3,7 +3,7 @@
 		"browser",
 		"ecmascript"
 	],
-	"loadEagerly": [],
+	"loadEagerly": ["*/*.js"],
 	"plugins": {
 		"node": {},
 		"commonjs": {}
