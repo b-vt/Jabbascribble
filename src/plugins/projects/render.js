@@ -160,12 +160,10 @@
 				return;
 			}
 			if (project.visible) {
-				console.log("???");
 				project.visible = false;
 				project.setAttribute("data-show", "0");
 			}
 			else {
-				console.log("!!!");
 				project.visible = true;
 				project.setAttribute("data-show", "1");
 			}

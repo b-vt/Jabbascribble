@@ -1,22 +1,98 @@
 // auto compete thing
 function ElementCompletionsPopup(completions) {
 	var self = this;
-	this.container = UI.makeUnique("popup", "div", "absolute popup", document.body);
-	this.container.isPopup = true;
-	
-	//this.label = UI.make("label", "", this.container);
-	//this.label.setAttribute("for", "autocomplete");
-	this.select = UI.make("select", "popup", this.container);
-	this.select.isPopup = true;
-	//this.select.setAttribute("name", "autocomplete");
-	this.select.setAttribute("multiple", "");
-	for(var i = 0; i < completions.length; i++) {
-		var opt = UI.make("option", "popup-option-autocomplete", this.select, completions[i]);
-		opt.isPopup = true;
-	}
+	if (completions.length > 0) {
+		this.container = UI.makeUnique("popup", "div", "absolute popup", document.body);
+		this.container.isPopup = true;
 
-	this.rect = this.container.getClientRects()[0];
-	this.container.focus();
+		//this.label = UI.make("label", "", this.container);
+		//this.label.setAttribute("for", "autocomplete");
+		//this.select = UI.make("select", "popup", this.container);
+		this.select = UI.make("div", "", this.container);
+		this.select.hiddenField = UI.make("button", "hiddenfield", this.select); // this hidden field is used to focus the autocomplete popup for keyboard events
+		this.select.options = [];
+		this.select.selectedIndex = -1;
+		this.select.isPopup = true;
+		this.select.prev = null;
+		//this.select.setAttribute("name", "autocomplete");
+		//this.select.setAttribute("multiple", "");
+
+		function scroll(event) {
+			var dto = new InputEventDto(event);
+			var redraw = false;
+			if (dto.key == InputEventDto.prototype.KEY_UP || dto.key == InputEventDto.prototype.KEY_DOWN) {
+				if (dto.key == InputEventDto.prototype.KEY_UP) {
+					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
+					self.select.selectedIndex = (self.select.selectedIndex-1+self.select.options.length) % self.select.options.length;
+				}
+				else {
+					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
+					self.select.selectedIndex = self.select.selectedIndex+1 % self.select.options.length;
+				}
+
+				var item = self.select.options[self.select.selectedIndex];
+				item.setAttribute("data-selected", "1");
+				console.log(self.container, item);
+				self.container.scrollTo(0, item.scrollHeight * self.select.selectedIndex);
+				self.select.hiddenField.focus();
+				event.stopPropagation();
+				event.preventDefault();
+
+			}
+		}
+		function matchText(text, match) {
+			for(var i = 0; i < match.length; i++) {
+				if (text[i] != match[i]) 
+					return false;
+			}
+			return true;
+		}
+		this.select.hiddenField.onkeydown = scroll;
+		this.select.focus = function() {
+			self.select.hiddenField.focus();
+		}
+	
+		var offset = 0;
+		var hasListItem = false;
+		for(var i = 0; i < completions.length; i++) {
+			//var opt = UI.make("option", "popup-option-autocomplete", this.select, textStuff.join(""));
+			((_item, _i) => {
+				if (_item.depth == 0) {
+					offset+=1;
+					return;
+				}
+				hasListItem = true;
+				var index = _i - offset;
+				var opt = UI.make("div", "popup-option popup-option-autocomplete", self.select, _item.name);
+
+				//var textStuff =	[_item.name];
+				if (_item.type) {
+					if (matchText(_item.type, "fn(")) {
+						//textStuff.push(`\t${_item.type}`);
+						UI.make("span", "right autocomplete-descriptor", opt, `\t\t${_item.type}`)
+					}
+				}
+				//textStuff.push("\n");
+				opt.onkeydown = scroll;
+				opt.onclick = function() {
+					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
+					self.select.selectedIndex = index;
+					opt.setAttribute("data-selected", "1");
+					self.select.focus();
+				}
+				opt.name = _item.name;
+				opt.isPopup = true;
+				//self.select.selectedIndex = index;
+				self.select.options[index] = opt;//.push(opt);
+			})(completions[i], i);
+		}
+		if (!hasListItem)
+			this.destroy();
+		this.select.selectedIndex = 0;
+		this.select.options[0].setAttribute("data-selected", "1");
+		this.rect = this.container.getClientRects()[0];
+		this.container.focus();
+	}
 };
 
 ElementCompletionsPopup.prototype.move = function(x, y) {
@@ -74,50 +150,52 @@ ElementCompletionsPopup.prototype.destroy = function() {
 						console.log(cm);
 						if (!cm.hasFocus() || !response.completions) return;
 						var popup = new ElementCompletionsPopup(response.completions);
-						if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
-							return popup.destroy();
+						if (popup) {
+							if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
+								return popup.destroy();
 
-						var rect = cm.display.cursorDiv.children[0].getClientRects()[0];
-						var x = rect.x;
-						var y = rect.y + 20;
+							var rect = cm.display.cursorDiv.children[0].getClientRects()[0];
+							var x = rect.x;
+							var y = rect.y + 20;
 
-						x = Clamp(x, 0, window.innerWidth - (popup.rect.width * 2));
-						y = Clamp(y, 0, window.innerHeight - (popup.rect.height));
+							x = Clamp(x, 0, window.innerWidth - (popup.rect.width))
+							y = Clamp(y, 0, window.innerHeight - (popup.rect.height));
 
-						popup.move(x, y);
+							popup.move(x, y);
 
-						if (!autoRequest) {
-							cm.display.input.blur();
-							popup.select.focus();
-						}
-						popup.container.onkeyup = function(event, prevent) {
-							var dto = new InputEventDto(event);
-							console.log(cm);
-							event.preventDefault();
-							event.stopPropagation();
-							if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
-								var index = popup.select.selectedIndex >=0 ? popup.select.selectedIndex : 0;
-								var opt = popup.select.options[index];
-								prevent = prevent || 0;
+							if (!autoRequest) {
+								cm.display.input.blur();
+								popup.select.focus();
+							}
+							popup.container.onkeyup = function(event, prevent) {
+								var dto = new InputEventDto(event);
+								console.log(cm);
+								event.preventDefault();
+								event.stopPropagation();
+								if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
+									var index = popup.select.selectedIndex >=0 ? popup.select.selectedIndex : 0;
+									var opt = popup.select.options[index];
+									prevent = prevent || 0;
+									popup.destroy();
+									cm.focus();
+									if (prevent) response.end.ch += 1; // handle the inserted tab
+									cm.replaceRange(opt.name, response.start, response.end);
+
+								}
+								else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
+									popup.destroy();
+									cm.focus();
+								}
+							}
+							popup.container.ondblclick = function(event) {
+								var opt = popup.select.options[popup.select.selectedIndex];
+								cm.replaceRange(opt.name, response.start, response.end);
 								popup.destroy();
 								cm.focus();
-								if (prevent) response.end.ch += 1; // handle the inserted tab
-								cm.replaceRange(opt.value, response.start, response.end);
-								
 							}
-							else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
-								popup.destroy();
-								cm.focus();
-							}
-						}
-						popup.container.ondblclick = function(event) {
-							var opt = popup.select.options[popup.select.selectedIndex];
-							cm.replaceRange(opt.value, response.start, response.end);
-							popup.destroy();
-							cm.focus();
-						}
 
-						window.popups[self.pluginName] = popup;
+							window.popups[self.pluginName] = popup;
+						}
 					}
 				}
 			}

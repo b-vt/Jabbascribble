@@ -68,7 +68,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		electron.ipcMain.on('renderer-plugin', function(event, data) {
 
 			(() => {
-				console.log("received plugin: ", data);
+				console.log("received plugin event");
 				var web = electron.BrowserWindow.fromId(data.uuid);
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");
 				if (self.plugins == null) return;
