@@ -27,7 +27,7 @@ function ElementCompletionsPopup(completions) {
 				}
 				else {
 					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
-					self.select.selectedIndex = self.select.selectedIndex+1 % self.select.options.length;
+					self.select.selectedIndex = (self.select.selectedIndex+1) % self.select.options.length;
 				}
 
 				var item = self.select.options[self.select.selectedIndex];
@@ -55,35 +55,31 @@ function ElementCompletionsPopup(completions) {
 		var offset = 0;
 		var hasListItem = false;
 		for(var i = 0; i < completions.length; i++) {
-			//var opt = UI.make("option", "popup-option-autocomplete", this.select, textStuff.join(""));
 			((_item, _i) => {
-				if (_item.depth == 0) {
+				/*if (_item.depth == 0) {
 					offset+=1;
 					return;
-				}
+				}*/
 				hasListItem = true;
-				var index = _i - offset;
+				var index = _i;// - offset;
 				var opt = UI.make("div", "popup-option popup-option-autocomplete", self.select, _item.name);
-
-				//var textStuff =	[_item.name];
 				if (_item.type) {
 					if (matchText(_item.type, "fn(")) {
-						//textStuff.push(`\t${_item.type}`);
-						UI.make("span", "right autocomplete-descriptor", opt, `\t\t${_item.type}`)
+						UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.type}`)
+						//UI.make("div", "", opt, "blargle");
 					}
 				}
-				//textStuff.push("\n");
 				opt.onkeydown = scroll;
 				opt.onclick = function() {
 					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
 					self.select.selectedIndex = index;
 					opt.setAttribute("data-selected", "1");
 					self.select.focus();
+					self.container.scrollTo(0, opt.scrollHeight * self.select.selectedIndex);
 				}
 				opt.name = _item.name;
 				opt.isPopup = true;
-				//self.select.selectedIndex = index;
-				self.select.options[index] = opt;//.push(opt);
+				self.select.options[index] = opt;
 			})(completions[i], i);
 		}
 		if (!hasListItem)
