@@ -691,7 +691,15 @@ details > .ui-context-menu {
 	font-family: monospace;
 	/*font-weight: 900;*/
 }
-.autocomplete-fn {
+.popup-option:nth-child(2)>div {
+	background-color:blue;
+	/*visibility: hidden !important;*/
+	/*display: none;*/
+}
+.popup-option[data-selected="1"]:nth-child(2)>div {
+	background-color:red;
+	/*visibility: visible !important;*/
+	
 }
 .autocomplete-descriptor {
 	color: #909090;
