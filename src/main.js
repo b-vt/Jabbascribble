@@ -36,6 +36,10 @@ var {Plugins} = require("./src/shared/plugins.js");
 						console.trace(msg);
 					});
 				}, 1000);
+			}).add("-x", function(arg) {
+				Config.window.X = parseInt(arg);
+			}).add("-y", function(arg) {
+				Config.window.Y  = parseInt(arg);
 			});
 			var app = new ApplicationClass().init();
 		}
@@ -148,7 +152,9 @@ var {Plugins} = require("./src/shared/plugins.js");
 			icon: "./data/icon-32.ico",
 			width: Config.window.Width,
 			height: Config.window.Height,
-			openTools: Config.EnableDevTools
+			openTools: Config.EnableDevTools,
+			x: Config.window.X,
+			y: Config.window.Y
 		});
 		//appWindow.webContents.send('main-init', { uuid: appWindow.id });
 		appWindow.show();
@@ -167,10 +173,16 @@ var {Plugins} = require("./src/shared/plugins.js");
 	};
 
 	function CreateWindow(instance, src, opt) {
+		if (opt.x || opt.y) {
+			opt.x = opt.x || 1;
+			opt.y = opt.y || 1;
+		}
 		var appWindow = new electron.BrowserWindow({
 			title: opt.title || ["jabbascribble", (Config.Debug==true?"(debug)":"")].join(" "),
 			width: opt.width || 350, 
-			height: opt.height || 200, 
+			height: opt.height || 200,
+			x: opt.x,
+			y: opt.y,
 			minWidth: 350,
 			minHeight: 200,
 			transparent: false, 
