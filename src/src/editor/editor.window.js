@@ -320,6 +320,7 @@ function EditorWindow(opts) {
 	activeFileExtension.name = "activeFileExtension";
 	activeFileExtension.onchange = fnEditorTabMode;
 	UI.make("option", "", activeFileExtension, "Raw");
+	UI.makeUnique("modetest", "option", "", activeFileExtension, "Mode test");
 	UI.makeUnique("javascript", "option", "", activeFileExtension, "JavaScript");
 	UI.makeUnique("text/x-c++src", "option", "", activeFileExtension, "C/C++");
 	UI.makeUnique("xml", "option", "", activeFileExtension, "HTML");

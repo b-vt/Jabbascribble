@@ -87,6 +87,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 		tab.fnRefreshCallback = function(data) {
 			datum.update(data);
 			tab.tab.firstChild.nodeValue = [datum.modifier, datum.name ].join("");
+			tab.tab.title = datum.path;
 		}
 
 		function onContextMenu(event, isTab) {
@@ -162,7 +163,6 @@ ElementTabEditorData.prototype.destroy = function() {
 	this.codemirror = null;
 };
 ElementTabEditorData.prototype.update = function(data) {
-	
 	if (data)
 		if (data.name !== undefined) {
 			this.name = data.name.split("\\").pop().split("/").pop(); // todo: this is gross

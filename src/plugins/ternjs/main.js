@@ -176,7 +176,8 @@ TernPluginMain.prototype.start = function(inc) {
 			console.log("-------TernPluginMain stderr-------\n", 
 						parseData(data), 
 						"\n----------------------------");
-			try {
+			/*try {
+				//console.log(data);
 				var msg = JSON.parse(data);
 				switch(msg.code.toLowerCase()) {
 					case "eaddrinuse": {
@@ -191,8 +192,8 @@ TernPluginMain.prototype.start = function(inc) {
 				}
 			}
 			catch (e) {
-				console.log(e);
-			}
+				//console.log(e);
+			}*/
 		});
 		this.server.on("close", function(data) {
 			console.log("-------TernPluginMain close-------\n", 
