@@ -39,12 +39,12 @@
 		console.log(container);
 		var containers = new UI.make("div", "", container);
 		for(var i = 0; i < ProjectFile.runCommands.length; i++) {
-			((index) => {
+			((index, _input) => {
 				var indexItem = ProjectFile.runCommands[index];
 				var itemContainer = new UI.make("div", "ui-list-item", containers);
 				var item = new UI.make("div", "", itemContainer, indexItem);
 				item.onmouseup = function() {
-					input.value = indexItem;
+					_input.value = indexItem;
 				};
 				var itemBtn = new ElementIconButton(item, "ui-icon-reddelete", "Remove this run command");
 				itemBtn.container.className = `${itemBtn.container.className} ui-input-rbutton2 absolute`;
@@ -53,10 +53,10 @@
 					if (!(rmIndex >= 0)) return;
 					ProjectFile.runCommands = RemoveIndex(ProjectFile.runCommands, rmIndex);
 					containers.remove();
-					createRunCommandElements(container);
+					createRunCommandElements(container, _input);
 				};
 				new UI.make("span", "clearfix", item);
-			})(i);
+			})(i, input);
 		};
 	};
 	
@@ -117,7 +117,7 @@
 			contentItemDepth.value = ProjectFile.ignoreDepth;*/
 			//files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []
 		};
-		var defaultView = new ElementModalTabPane(this, "Project View");
+		var defaultView = new ElementModalTabPane(this, "View");
 		defaultView.fnActivate = function(element) {
 			var contents = new UI.make("div", "padded", self.right); // i get deleted
 			var contentItemColumnsLabel = new UI.make("div", "ui-label", contents, "Number of editor columns:\n");
@@ -157,7 +157,7 @@
 				if (!(contentItemCmd.value.length > 0)) return;
 				ProjectFile.runCommands.push(contentItemCmd.value);
 				paneTableRowData1.children[0].remove();
-				createRunCommandElements(paneTableRowData1);
+				createRunCommandElements(paneTableRowData1, contentItemCmd);
 				contentItemCmd.value = "";
 			};
 			contentItemCmd.onkeyup = function(event) {
