@@ -1,8 +1,20 @@
 // vanilla javascript
+function RemoveIndex(arr, index) {
+	var r = [];
+	var offset = 0;
+	for(var i = 0; i < arr.length; i++) {
+		if (i == index) {
+			offset++;
+			continue;
+		}
+		r[i-offset] = arr[i];
+	};
+	return r;
+};
 function NormalizePath(path) {
 	var p = path.replace('\\', '/');
 	return p;
-}
+};
 /* dynamically modifier css per selector with
 	for example, InjectCSS(".CodeMirror", "font-size", 25, "px");
 */
@@ -616,6 +628,7 @@ if (typeof module!=="undefined") {
 		ArrayToUnsignedInt,
 		ArrayToUnsignedLongInt,
 		LoadScript,
+		RemoveIndex,
 
 		// nodejs dependencies
 		Configure,

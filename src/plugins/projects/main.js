@@ -1,6 +1,9 @@
 var path = require("path");
 var electron = require("electron");
+var child = require("child_process");
 var {PluginMain} = require(path.normalize(path.join(__dirname, "../../src/shared/plugin.js")));
+var Common = require(path.normalize(path.join(__dirname, "../../src/shared/common.js")));
+var Config = require(path.normalize(path.join(__dirname, "../../src/shared/config.js")));
 function ProjectPluginMain(app, conf, window) {
 	PluginMain.call(this);
 	this.pluginName = "projectview";
@@ -16,6 +19,48 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
 	var data = event.request;
 	switch(data.type) {
+		case "spawn": {
+			function runCommand(cmd, args, fnOnNext) {
+				try {
+					//this.server = child.spawn(nodePath, cmd, {cwd: __dirname, env: {"ELECTRON_RUN_AS_NODE": 1}});
+
+					//var proc = child.spawn(cmd, args, {cwd: __dirname});
+					console.log(cmd);
+					var proc = child.exec(cmd, {cwd: __dirname});
+					proc.on("close", function(data) {
+						//data = data.toString('utf8', 0, data.length + 1);
+						console.log("-------ProjectPluginMain process on close-------\n", 
+									data,
+									"\n----------------------------");
+					});
+					proc.stdout.on("data", function(data) {
+						data = data.toString('utf8', 0, data.length + 1);
+						console.log("-------ProjectPluginMain stdout-------\n", 
+									data,
+									"\n----------------------------");
+						var web = self.window;
+						if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", data: data, cmd: cmd});
+					});
+					proc.stderr.on("data", function(data) {
+						data = data.toString('utf8', 0, data.length + 1);
+						console.log("-------ProjectPluginMain stderr-------\n", 
+									data,
+									"\n----------------------------");
+					});
+					proc.stdout.on('err', function(err) {
+						data = data.toString('utf8', 0, data.length + 1);
+						console.log("-------ProjectPluginMain err-------\n", 
+									data,
+									"\n----------------------------");
+					});
+				}
+				catch(e) {
+					console.log(e);
+				};
+			};
+			runCommand(data.projectFile.runCommands.join(" && "));
+			break;
+		}
 		case "save": {
 			console.log("received plugin projectview save: ", event);
 			var web = electron.BrowserWindow.fromId(event.uuid);
@@ -27,7 +72,7 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 			console.log(pf);
 			this.app.saveFile(pf, undefined, JSON.stringify(data.project), undefined, event.uuid, function(file, tabId, windowId) {
 				var web = electron.BrowserWindow.fromId(windowId);
-				if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "save",});
+				if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "save"});
 			}, function(msg) {
 				console.log("save project file error: ", msg);
 			});

@@ -294,6 +294,7 @@ function EditorWindow(opts) {
 				find.search(from, this.value, false, wcase);
 		}
 	};
+	new UI.make("span", "", footerContents, " ");
 	var searchReplace = UI.make("input", "ui-input", footerContents);
 	searchReplace.placeholder = Lang.EditSearchReplacePlaceholder;
 	searchReplace.title = Lang.EditSearchReplaceHint;
@@ -379,7 +380,9 @@ function EditorWindow(opts) {
 	};
 	
 	this.menu.project = menu.add(Lang.Menu.Project);
+	this.menu.project.add();
 	this.menu.plugins = menu.add(Lang.Menu.Plugins);
+	this.menu.plugins.add();
 	// initialize the editor
 	this.columns = new ElementColumns(columnsTableBody);
 	//this.project = new ElementColumn(this.columns, this.columns.container);
@@ -480,7 +483,7 @@ function EditorWindow(opts) {
 	});
 	window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
-		console.log(event.target)
+		//console.log(event.target)
 		//find.reset();
 		if (!event.target.isPopup)
 			fnClearPopups();

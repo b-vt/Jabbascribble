@@ -27,6 +27,10 @@ var Config = {
 			renderer: "projects/render.js"
 		},
 		{
+			main: "cstuff/main.js",
+			renderer: "cstuff/render.js"
+		},
+		{
 			main: "ternjs/main.js",
 			renderer: "ternjs/render.js",
 			config: {

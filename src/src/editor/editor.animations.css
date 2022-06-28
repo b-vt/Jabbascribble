@@ -2,3 +2,23 @@
 	from { opacity: 0; }
 	to { opacity: 1; }
 }
+@keyframes shine {
+	0%{border-color: red;}
+	15%{border-color: violet;}
+	30%{border-color: indigo;}
+	45%{border-color: blue;}
+	60%{border-color: green;}
+	75%{border-color: yellow;}
+	90%{border-color: orange;}
+	100%{border-color: red;}
+}
+@keyframes shine2 {
+	0%{background-color: red;}
+	15%{background-color: violet;}
+	30%{background-color: indigo;}
+	45%{background-color: blue;}
+	60%{background-color: green;}
+	75%{background-color: yellow;}
+	90%{background-color: orange;}
+	100%{background-color: red;}
+}

@@ -1,4 +1,4 @@
-/* todo: this file is monolithic. classes should eventually seperated into their own source files */
+/* todo: this file is bad. really bad */
 
 /* on instance it adds a new div to DOM to be container of containers/elements 
 provides some probably bad UI utility
@@ -46,7 +46,7 @@ WindowBuilder.prototype.make = function(type, classNames, parent, innerText, noA
 	if (classNames !== undefined && classNames !== null && classNames.length > 0)
 		element.className = classNames;
 	if (innerText !== undefined && innerText !== null && innerText.length > 0) {
-		if (innerText.toLowerCase() === "&nbsp;")
+		if (innerText.toLowerCase() === "&nbsp;" || innerText.toLowerCase() === " ")
 			innerText = '\xa0';
 		element.append(document.createTextNode(innerText));
 	}
@@ -246,7 +246,7 @@ function ElementIconButton(parentElement, classNames, hint, labelFor, noAppend, 
 	this.container.onclick = function(event) {
 		if (self.onclick !== undefined && self.onclick !== null)
 			self.onclick(event);
-	}	
+	}
 }
 
 //

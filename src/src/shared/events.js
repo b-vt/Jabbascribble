@@ -2,7 +2,7 @@
 		todo: multitouch, keyboard, mouse, controller support?
 	*/
 function InputEventDto(event, keymap, noDefaultPropagation) {
-	console.log(event);
+	//console.log(event);
 	this.x = 0; // mouse cursor position
 	this.y = 0;
 	this.key = -1; // key or mouse keyCode
@@ -18,7 +18,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 	this.deltaY = 0;
 	this.deltaZ = 0;
 	this.target = null; // element that the event happened in?
-	console.log(event);
+	//console.log(event);
 
 	switch(event.type) {
 
