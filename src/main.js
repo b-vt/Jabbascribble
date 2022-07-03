@@ -28,9 +28,28 @@
 		};
 	};*/
 	if (process.argv.length == 2) {
-		var filename = path.normalize(path.join(process.cwd(), process.argv[1]));
-		console.log(" redirecting from default script ");
-		require(filename);
+		console.log(path.extname(process.argv[1]).toLowerCase());
+		switch (path.extname(process.argv[1]).toLowerCase()) {
+			case ".htm":
+			case ".html": {
+				(() => {
+					var filename = path.normalize(path.join(process.cwd(), process.argv[1]));
+					console.log(" redirecting to an html page.. opening electron window ");
+					electron.app.whenReady().then((e) => {
+						var window = new electron.BrowserWindow({width: 800, height: 600});
+						window.loadFile(filename);
+					});
+				})();
+				break;	
+			}
+			default: {
+				var filename = path.normalize(path.join(process.cwd(), process.argv[1]));
+				console.log(" redirecting from default script ");
+				require(filename);
+				break;
+			}
+		};
+		
 		return;
 	}
 	console.log(" launching default script ");
