@@ -13,7 +13,7 @@ function TernPluginMain(app, pluginConf, appWindow) {
 	this.server = null;
 	this.pluginName = "ternjs";
 	this.pluginConf = pluginConf;
-	this.port = 49000;
+	this.port = Math.floor(Math.random() * 40000) + 20000;
 	this.hasAddedProject = false;
 	console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
 	
@@ -151,7 +151,7 @@ TernPluginMain.prototype.start = function(inc) {
 	console.log(`-- TernPluginMain has started --`);
 	var self = this;
 	inc = inc || 0;
-	this.port = this.port + inc;
+	this.port = Math.floor(Math.random() * 40000) + 20000;
 	if (this.server != null) this.destroy();
 	var nodePath = process.argv[0];
 	var ternPath = path.normalize(path.join(__dirname, this.pluginConf.config.bin));//"/ternjs/bin/tern"));
