@@ -6,11 +6,34 @@ var Common = require(path.normalize(path.join(__dirname, "../../src/shared/commo
 var Config = require(path.normalize(path.join(__dirname, "../../src/shared/config.js")));
 function ProjectPluginMain(app, conf, window) {
 	PluginMain.call(this);
+	var self = this;
 	this.pluginName = "projectview";
 	this.pluginEventName = "plugin-event-projectview";
 	this.app = app;
 	this.conf = conf;
-	this.window = window;	
+	this.window = window;
+	this.spawnedProcess = null;
+	this.aborted = false;
+	process.on("SIGINT", function(data) {
+		console.log("-------ProjectPluginMain process on SIGINT -------\n", 
+						data,
+						"\n----------------------------");
+		if (self.spawnedProcess != null) {
+			self.spawnedProcess.kill(1);
+			self.spawnedProcess = null;
+		}
+		process.exit();
+	});
+	process.on("SIGTERM", function(data) {
+		console.log("-------ProjectPluginMain process on SIGTERM -------\n", 
+						data,
+						"\n----------------------------");
+		if (self.spawnedProcess != null) {
+			self.spawnedProcess.kill(1);
+			self.spawnedProcess = null;
+		}
+		process.exit();
+	});
 }
 ProjectPluginMain.prototype = Object.create(PluginMain.prototype);
 ProjectPluginMain.prototype.constructor = ProjectPluginMain;
@@ -19,46 +42,93 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
 	var data = event.request;
 	switch(data.type) {
+		case "spawn-kill": {
+			if (this.spawnedProcess != null) {
+				console.log("this thing exists!!!");
+				this.spawnedProcess.kill(1);
+				this.aborted = true;
+			}
+			else {
+				console.log("nothing to kill");
+			}
+			break;
+		}
 		case "spawn": {
-			function runCommand(cmd, args, fnOnNext) {
+			function runCommand(cmd, printSpam) {
 				try {
-					//this.server = child.spawn(nodePath, cmd, {cwd: __dirname, env: {"ELECTRON_RUN_AS_NODE": 1}});
-
-					//var proc = child.spawn(cmd, args, {cwd: __dirname});
-					console.log(cmd);
-					var proc = child.exec(cmd, {cwd: __dirname});
+					if (self.spawnedProcess != null) {
+						console.log("this thing exists!!!");
+						self.spawnedProcess.kill(1);
+					}
+					var proc = child.exec(cmd, {cwd: process.cwd()});
+					self.spawnedProcess = proc;
+					
+					
+					
+					var web = self.window;
+					if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", cmd: cmd});
+					// send some of stdout back to renderer
+					//
 					proc.on("close", function(data) {
 						//data = data.toString('utf8', 0, data.length + 1);
-						console.log("-------ProjectPluginMain process on close-------\n", 
-									data,
-									"\n----------------------------");
+						if (self.spawnedProcess == null) return;
+						if (printSpam) {
+							console.log("-------ProjectPluginMain process on close-------\n", 
+										data,
+										"\n----------------------------");
+						}
+						//proc.exit();
+						self.spawnedProcess.kill(1);
+						self.spawnedProcess = null;
+						if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", data: self.aborted ? `( process forcefully aborted: ${data || 0} )`:`( process terminated: ${data} )`});
 					});
+					//
 					proc.stdout.on("data", function(data) {
+						if (self.spawnedProcess == null) return;
 						data = data.toString('utf8', 0, data.length + 1);
-						console.log("-------ProjectPluginMain stdout-------\n", 
-									data,
-									"\n----------------------------");
-						var web = self.window;
-						if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", data: data, cmd: cmd});
+						if (printSpam) {
+							console.log("-------ProjectPluginMain stdout-------\n", 
+										data,
+										"\n----------------------------");
+						}
+						if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", data: data});
 					});
+					//
 					proc.stderr.on("data", function(data) {
+						if (self.spawnedProcess == null) return;
 						data = data.toString('utf8', 0, data.length + 1);
-						console.log("-------ProjectPluginMain stderr-------\n", 
-									data,
-									"\n----------------------------");
+						if (printSpam) {
+							console.log("-------ProjectPluginMain stderr-------\n", 
+										data,
+										"\n----------------------------");
+						}
+						if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", data: `error: ${data}\nrun command: ${cmd}`});
 					});
-					proc.stdout.on('err', function(err) {
+					//
+					proc.stdout.on('err', function(data) {
+						if (self.spawnedProcess == null) return;
 						data = data.toString('utf8', 0, data.length + 1);
-						console.log("-------ProjectPluginMain err-------\n", 
-									data,
-									"\n----------------------------");
+						if (printSpam) {
+							console.log("-------ProjectPluginMain err-------\n", 
+										data,
+										"\n----------------------------");
+						}
+						if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", data: data, cmd: cmd});
 					});
 				}
 				catch(e) {
 					console.log(e);
 				};
 			};
-			runCommand(data.projectFile.runCommands.join(" && "));
+			if (!data.projectFile.runCommands.length) {
+				console.log("but the event was WORTHLESS!");
+				break;
+			}
+			data.projectFile.runCommands.push(`export HOST_PROC=${process.argv[0]}`);
+			var arr = data.projectFile.runCommands;
+			var arr = Common.ArrayMoveIndex(arr, arr.length - 1, 0);
+			//runCommand(data.projectFile.runCommands.join(" && "), true);
+			runCommand(arr.join(" && "), true);
 			break;
 		}
 		case "save": {

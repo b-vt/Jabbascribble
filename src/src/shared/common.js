@@ -1,7 +1,27 @@
-// vanilla javascript
-function RemoveIndex(arr, index) {
+/* this is all very cursed */
+
+// all vanilla 
+function ArrayMoveIndex(arr, index, to, before) {
 	var r = [];
-	var offset = 0;
+	before = before || 0; //
+	var swap = arr[index];
+	for (var i = 0; i < arr.length; i++) {
+		if (i == index) {
+			continue;
+		};
+		if (swap !== null && i == before + to) {
+			r[r.length] = swap;
+			i--;
+			swap = null;
+			continue;
+		};
+		r[r.length] = arr[i];
+	};
+	return r;
+};
+function ArrayRemoveIndex(arr, index) {
+	var r = [];
+	var offset = 0; // todo: multiple indices
 	for(var i = 0; i < arr.length; i++) {
 		if (i == index) {
 			offset++;
@@ -628,7 +648,8 @@ if (typeof module!=="undefined") {
 		ArrayToUnsignedInt,
 		ArrayToUnsignedLongInt,
 		LoadScript,
-		RemoveIndex,
+		ArrayRemoveIndex,
+		ArrayMoveIndex,
 
 		// nodejs dependencies
 		Configure,

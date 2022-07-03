@@ -406,6 +406,9 @@ details > .ui-context-menu {
 .ui-icon-reddelete {
 	background-image: url("../../data/icons/delete.png");
 }
+.ui-icon-cancel {
+	background-image: url("../../data/icons/cancel.png");
+}
 .clearfix::after {
 	content: "";
 	display:block;
@@ -712,12 +715,12 @@ details > .ui-context-menu {
 	/*font-weight: 900;*/
 }
 .popup-option:nth-child(2)>div {
-	background-color:blue;
+	/*background-color:blue;*/
 	/*visibility: hidden !important;*/
 	/*display: none;*/
 }
 .popup-option[data-selected="1"]:nth-child(2)>div {
-	background-color:red;
+	/*background-color:red;*/
 	/*visibility: visible !important;*/
 	
 }
@@ -795,6 +798,8 @@ details > .ui-context-menu {
 	border-right: 0px solid #000000ff;
 }
 .ui-modal-button[data-dir="1"]:active {
+	border-left: 2px solid #000000ff;
+	border-right: 0px solid #000000ff;
 }
 .ui-modal-button[data-dir="2"]:active {
 	border-left: 2px solid #000000ff;
@@ -888,11 +893,14 @@ details > .ui-context-menu {
 .ui-output {
 	background-color: #0f0f0f;
 	overflow: scroll;
-	max-height: 100px;
+	max-height: 350px;
+	height: auto;
 	padding: 0px 0px 0px 0px !important;
+	user-select: text;
 }
 .ui-output > div {
-	padding-left: 5px;
+	/*padding-left: 5px;*/
+	padding: 1px 1px 1px 5px;
 }
 .ui-output > div:nth-child(even) {
 	background-color: #191919;

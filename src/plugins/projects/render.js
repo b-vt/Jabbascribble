@@ -1,195 +1,202 @@
 // todo: this is a copy paste from editor.window.js and is just plain uggo
 (() => {
 	
+	
 	var ProjectFile = {projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
-	function ElementModalTabPane(context, text) {
-		var self = this;
-		this.select = UI.make("div", "ui-list-item", context.left);
-		this.fnActivate = null;
-		UI.make("div", "", this.select, text);
-		this.select.onmouseup = function(event) {
-			((ctx) => {
-			var prev = ctx.selected;
-			if (ctx.selected) {
-				ctx.selected.setAttribute("data-highlighted", "0");
-				ctx.selected = null;
-			}
-			if (prev != self.select) {
-				self.select.setAttribute("data-highlighted", "1");
-				ctx.selected = self.select;
-			}
-			if (ctx.right.children.length > 0)
-				ctx.right.removeChild(ctx.right.children[0]);
-			/*console.log(ctx.right.children);
-			for(var i = 0; i < ctx.right.children.length; i++) {
-				ctx.right.children[i].remove();
-			};*/
-			console.log(ctx.right.children);
-			//self.contents = new UI.make("div", "", context.right, "?!?"); // i get cleaned up
-			
-			if (typeof self.fnActivate == "function")
-				self.fnActivate();
-				
-			})(context);
-		}
-	};
-	
-	var selectedRunCommand = null;
-	function createRunCommandElements(container, input) {
-		console.log(container);
-		var containers = new UI.make("div", "", container);
-		for(var i = 0; i < ProjectFile.runCommands.length; i++) {
-			((index, _input) => {
-				var indexItem = ProjectFile.runCommands[index];
-				var itemContainer = new UI.make("div", "ui-list-item", containers);
-				var item = new UI.make("div", "", itemContainer, indexItem);
-				item.onmouseup = function() {
-					_input.value = indexItem;
-				};
-				var itemBtn = new ElementIconButton(item, "ui-icon-reddelete", "Remove this run command");
-				itemBtn.container.className = `${itemBtn.container.className} ui-input-rbutton2 absolute`;
-				itemBtn.onclick = function() {
-					var rmIndex = ProjectFile.runCommands.indexOf(indexItem);
-					if (!(rmIndex >= 0)) return;
-					ProjectFile.runCommands = RemoveIndex(ProjectFile.runCommands, rmIndex);
-					containers.remove();
-					createRunCommandElements(container, _input);
-				};
-				new UI.make("span", "clearfix", item);
-			})(i, input);
-		};
-	};
-	
-	function ElementModalProjectOptions() {
-		var self = this;
-		this.container = UI.make("div", "absolute modal", document.body);
-		this.popup = UI.make("div", "bordered child-window child-window-project-settings", this.container);
-		//popupContents = UI.make("div", "child-window-project-settings", this.popup);
-		
-		var table1_1 = UI.make("table", "absolute collapsed full-width full-height", this.popup);//popupContents);
-		var tbody1_1 = UI.make("tbody", "", table1_1);
-		var tr1_1 = UI.make("tr", "", tbody1_1);
-		var td1_1 = UI.make("td", "", tr1_1);
-		var td2_1 = UI.make("td", "full-width", tr1_1);
-		var tr2_1 = UI.make("tr", "ui-modal-footer", tbody1_1);
-		var td3_1 = UI.make("td", "", tr2_1);
-		td3_1.setAttribute("colspan", "3");
-		
-		this.left = UI.make("div", "bordered full-height ui-container-resizable ui-container-projectsettings", td1_1);
-		this.right = UI.make("div", "bordered full-height ui-scrollable", td2_1);
-		//var rightContents = UI.make("div", "", right);
-		
-		var footer = new UI.make("div", "full-width", td3_1);
-		var buttons = new UI.make("div", "", footer, "");
-		
-		var close = new UI.make("span", "ui-modal-button right", buttons, "close");
-		/*var nothin = UI.make("div", "ui-modal-button right", buttons, "blah");
-		nothin.setAttribute("data-dir", "1");*/
-		var save = new UI.make("span", "ui-modal-button right", buttons, "save");
-		close.setAttribute("data-dir", "2");
-		save.setAttribute("data-dir", "0");
-		this.selected = null;
-		var projectSettings = new ElementModalTabPane(this, "Settings");
-		projectSettings.fnActivate = function(element) {
-			var contents = new UI.make("div", "padded", self.right); // i get deleted
-			var contentProjectPathLabel = new UI.make("div", "ui-label", contents, "Project File path:\n");
-			var contentProjectPath = new UI.make("input", "ui-input ui-input right", contentProjectPathLabel);//, ProjectFile.columns);
-			contentProjectPath.value = ProjectFile.projectFile;
-			var defaultProjectDefaults = new UI.make("div", "ui-label", contents, "Create default project:\n");
-			
-			var contentProjectPathLabel = new UI.make("br", "", defaultProjectDefaults, "");
-			// some buttons to make default projects
-			var projectDefaultsJavascript = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "Javascript");
-			projectDefaultsJavascript.setAttribute("data-dir", "2");
-			var projectDefaultsC = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "C/C++");
-			projectDefaultsC.setAttribute("data-dir", "0");
-			
-			projectDefaultsJavascript.onmouseup = function() {
-				ProjectFile.runCommands = [];
-				ProjectFile.runCommands.push("echo \"hello world\"");
-			};
-			projectDefaultsC.onmouseup = function() {
-				ProjectFile.runCommands = [];
-				ProjectFile.runCommands.push("gcc -o3 -g -o my_program my_source.c");
-			};
-			
-			/*var contentItemDepth = new UI.make("input", "ui-input ui-input-number right", contentItemDepthLabel);//, ProjectFile.ignoreDepth);
-			contentItemDepth.value = ProjectFile.ignoreDepth;*/
-			//files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []
-		};
-		var defaultView = new ElementModalTabPane(this, "View");
-		defaultView.fnActivate = function(element) {
-			var contents = new UI.make("div", "padded", self.right); // i get deleted
-			var contentItemColumnsLabel = new UI.make("div", "ui-label", contents, "Number of editor columns:\n");
-			var contentItemColumns = new UI.make("input", "ui-input ui-input-number right", contentItemColumnsLabel);//, ProjectFile.columns);
-			contentItemColumns.value = ProjectFile.columns;
-			var contentItemDepthLabel = new UI.make("div", "ui-label", contents, "Ignore first #n directories in file path:\n");
-			var contentItemDepth = new UI.make("input", "ui-input ui-input-number right", contentItemDepthLabel);//, ProjectFile.ignoreDepth);
-			contentItemDepth.value = ProjectFile.ignoreDepth;
-			contentItemDepth.onkeyup = function(event) {
-				ProjectFile.ignoreDepth = parseInt(this.value);
-			};
-			contentItemColumns.onkeyup = function(event) {
-				ProjectFile.columns = parseInt(this.value);
-			};
-			//files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []
-		};
-		//defaultView.select.onmouseup();
-		var runCommands = new ElementModalTabPane(this, "Run Commands");
-		runCommands.fnActivate = function(element) {
-			var paneTable = new UI.make("table", "full-width ", self.right); // i get deleted
-			var paneTableHeader = new UI.make("thead", "bordered", paneTable);
-			var paneTableHeaderRow = new UI.make("tr", "bordered", paneTableHeader);
-			var paneTableHeaderRowData = new UI.make("td", "bordered", paneTableHeaderRow);
-			var paneTableBody = new UI.make("tbody", "", paneTable);
-			
-			var paneTableRow1 = new UI.make("tr", "bordered", paneTableBody);
-			var paneTableRowData1 = new UI.make("td", "bordered", paneTableRow1);
-			
-			var contentItemCmdLabel = new UI.make("div", "relative full-width ui-input-button", paneTableHeaderRowData);
-			var contentItemCmd = new UI.make("input", "relative ui-input full-width", contentItemCmdLabel);//, ProjectFile.columns)
-			contentItemCmd.placeholder = "Add new command to the run list";
-			
-			createRunCommandElements(paneTableRowData1, contentItemCmd);
-			
-			var addBtn = new ElementIconButton(contentItemCmdLabel, "ui-icon-greenadd", "Add a new run command");
-			addBtn.onclick = function() {
-				if (!(contentItemCmd.value.length > 0)) return;
-				ProjectFile.runCommands.push(contentItemCmd.value);
-				paneTableRowData1.children[0].remove();
-				createRunCommandElements(paneTableRowData1, contentItemCmd);
-				contentItemCmd.value = "";
-			};
-			contentItemCmd.onkeyup = function(event) {
-				var dto = new InputEventDto(event);
-				if (dto.key == InputEventDto.prototype.KEY_ENTER)
-					addBtn.onclick();
-			};
-			console.log(addBtn);
-			addBtn.container.className = `${addBtn.container.className} absolute ui-input-rbutton`;
-			
-		};
-		projectSettings.select.onmouseup(); // sets the default activated pane
-		new UI.make("span", "", buttons);
-		
-		close.onmouseup = function (event) {
-			self.container.remove();
-		};
-		
-		save.onmouseup = function(event) {
-			console.log("saving project file", ProjectFile);
-			window.api.plugin({
-				pluginName: "projectview", event: "render", request: {
-					type: "save",
-					project: ProjectFile
-				}
-			});
-		};
-		
-	};
-
 	function ProjectsRender() {
-		
+		function ElementModalTabPane(context, text) {
+			var self = this;
+			this.select = UI.make("div", "ui-list-item", context.left);
+			this.fnActivate = null;
+			UI.make("div", "", this.select, text);
+			this.select.onmouseup = function(event) {
+				((ctx) => {
+				var prev = ctx.selected;
+				if (ctx.selected) {
+					ctx.selected.setAttribute("data-highlighted", "0");
+					ctx.selected = null;
+				}
+				if (prev != self.select) {
+					self.select.setAttribute("data-highlighted", "1");
+					ctx.selected = self.select;
+				}
+				if (ctx.right.children.length > 0)
+					ctx.right.removeChild(ctx.right.children[0]);
+				/*console.log(ctx.right.children);
+				for(var i = 0; i < ctx.right.children.length; i++) {
+					ctx.right.children[i].remove();
+				};*/
+				console.log(ctx.right.children);
+				//self.contents = new UI.make("div", "", context.right, "?!?"); // i get cleaned up
+
+				if (typeof self.fnActivate == "function")
+					self.fnActivate();
+
+				})(context);
+			}
+		};
+
+		var selectedRunCommand = null;
+		function createRunCommandElements(container, input) {
+			var containers = new UI.make("div", "", container);
+			for(var i = 0; i < ProjectFile.runCommands.length; i++) {
+				((index, _input) => {
+					var indexItem = ProjectFile.runCommands[index];
+					var itemContainer = new UI.make("div", "ui-list-item", containers);
+					var item = new UI.make("div", "", itemContainer, indexItem);
+					item.onmouseup = function() {
+						_input.value = indexItem;
+					};
+					var itemBtn = new ElementIconButton(item, "ui-icon-reddelete", "Remove this line");
+					itemBtn.container.className = `${itemBtn.container.className} ui-input-rbutton2 absolute`;
+					itemBtn.onclick = function() {
+						var rmIndex = ProjectFile.runCommands.indexOf(indexItem);
+						if (!(rmIndex >= 0)) return;
+						ProjectFile.runCommands = ArrayRemoveIndex(ProjectFile.runCommands, rmIndex);
+						containers.remove();
+						createRunCommandElements(container, _input);
+					};
+					new UI.make("span", "clearfix", item);
+				})(i, input);
+			};
+		};
+
+		function ElementModalProjectOptions() {
+			var self = this;
+			this.container = UI.make("div", "absolute modal", document.body);
+			this.popup = UI.make("div", "bordered child-window child-window-project-settings", this.container);
+
+			var table1_1 = UI.make("table", "absolute collapsed full-width full-height", this.popup);//popupContents);
+			var tbody1_1 = UI.make("tbody", "", table1_1);
+			var tr1_1 = UI.make("tr", "", tbody1_1);
+			var td1_1 = UI.make("td", "", tr1_1);
+			var td2_1 = UI.make("td", "full-width", tr1_1);
+			var tr2_1 = UI.make("tr", "ui-modal-footer", tbody1_1);
+			var td3_1 = UI.make("td", "", tr2_1);
+			td3_1.setAttribute("colspan", "3");
+
+			this.left = UI.make("div", "bordered full-height ui-container-resizable ui-container-projectsettings", td1_1);
+			this.right = UI.make("div", "bordered full-height ui-scrollable", td2_1);
+			//var rightContents = UI.make("div", "", right);
+
+			var footer = new UI.make("div", "full-width", td3_1);
+			var buttons = new UI.make("div", "", footer, "");
+
+			var close = new UI.make("span", "ui-modal-button right", buttons, "close");
+			var load = UI.make("div", "ui-modal-button right", buttons, "load");
+			load.setAttribute("data-dir", "1");
+			var save = new UI.make("span", "ui-modal-button right", buttons, "save");
+			close.setAttribute("data-dir", "2");
+			save.setAttribute("data-dir", "0");
+			this.selected = null;
+			var projectSettings = new ElementModalTabPane(this, "Settings");
+			projectSettings.fnActivate = function(element) {
+				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				var contentProjectPathLabel = new UI.make("div", "ui-label", contents, "Currently loaded project file:");
+				var contentProjectPath = new UI.make("input", "ui-input ui-input right", contentProjectPathLabel);//, ProjectFile.columns);
+				contentProjectPath.value = ProjectFile.projectFile;
+				var defaultProjectDefaults = new UI.make("div", "ui-label", contents, "Use example run command as default:");
+				var contentProjectPathLabel = new UI.make("br", "", defaultProjectDefaults, "");
+				defaultProjectDefaults.title = "These examples will most likely require editing in Run Command tab";
+
+
+				/* some default project things go here
+				*/
+				var projectDefaultsJavascript = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "Javascript");
+				projectDefaultsJavascript.setAttribute("data-dir", "2");
+				var projectDefaultsCpp = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "C++");
+				projectDefaultsCpp.setAttribute("data-dir", "1");
+				var projectDefaultsC = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "C");
+				projectDefaultsC.setAttribute("data-dir", "0");
+
+				projectDefaultsJavascript.onmouseup = function() {
+					ProjectFile.runCommands = [];
+					ProjectFile.runCommands.push(`echo \"$HOST_PROC\"`);
+				};
+				projectDefaultsC.onmouseup = function() {
+					ProjectFile.runCommands = [];
+					ProjectFile.runCommands.push("gcc -o3 -g -o my_program my_source.c");
+					ProjectFile.runCommands.push("./my_program");
+				};
+				projectDefaultsCpp.onmouseup = function() {
+					ProjectFile.runCommands = [];
+					ProjectFile.runCommands.push(`echo \"no default run command available for c++\"`);
+				};
+			};
+			var defaultView = new ElementModalTabPane(this, "View");
+			defaultView.fnActivate = function(element) {
+				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				var contentItemColumnsLabel = new UI.make("div", "ui-label", contents, "Number of editor columns:");
+				var contentItemColumns = new UI.make("input", "ui-input ui-input-number right", contentItemColumnsLabel);//, ProjectFile.columns);
+				contentItemColumns.value = ProjectFile.columns;
+				var contentItemDepthLabel = new UI.make("div", "ui-label", contents, "Ignore first #n directories in file path:\n");
+				var contentItemDepth = new UI.make("input", "ui-input ui-input-number right", contentItemDepthLabel);//, ProjectFile.ignoreDepth);
+				contentItemDepth.value = ProjectFile.ignoreDepth;
+				contentItemDepth.onkeyup = function(event) {
+					ProjectFile.ignoreDepth = parseInt(this.value);
+				};
+				contentItemColumns.onkeyup = function(event) {
+					ProjectFile.columns = parseInt(this.value);
+				};
+				//files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []
+			};
+			var runCommands = new ElementModalTabPane(this, "Run Commands");
+			runCommands.fnActivate = function(element) {
+				var paneTable = new UI.make("table", "full-width ", self.right); // i get deleted
+				var paneTableHeader = new UI.make("thead", "bordered", paneTable);
+				var paneTableHeaderRow = new UI.make("tr", "bordered", paneTableHeader);
+				var paneTableHeaderRowData = new UI.make("td", "bordered", paneTableHeaderRow);
+				var paneTableBody = new UI.make("tbody", "", paneTable);
+
+				var paneTableRow1 = new UI.make("tr", "bordered", paneTableBody);
+				var paneTableRowData1 = new UI.make("td", "bordered", paneTableRow1);
+
+				var contentItemCmdLabel = new UI.make("div", "relative full-width ui-input-button", paneTableHeaderRowData);
+				var contentItemCmd = new UI.make("input", "relative ui-input full-width", contentItemCmdLabel);//, ProjectFile.columns)
+				contentItemCmd.placeholder = "Add new command to the run list";
+
+				createRunCommandElements(paneTableRowData1, contentItemCmd);
+
+				var addBtn = new ElementIconButton(contentItemCmdLabel, "ui-icon-greenadd", "Add a new run command");
+				addBtn.onclick = function() {
+					if (!(contentItemCmd.value.length > 0)) return;
+					ProjectFile.runCommands.push(contentItemCmd.value);
+					paneTableRowData1.children[0].remove();
+					createRunCommandElements(paneTableRowData1, contentItemCmd);
+					contentItemCmd.value = "";
+				};
+				contentItemCmd.onkeyup = function(event) {
+					var dto = new InputEventDto(event);
+					if (dto.key == InputEventDto.prototype.KEY_ENTER)
+						addBtn.onclick();
+				};
+				console.log(addBtn);
+				addBtn.container.className = `${addBtn.container.className} absolute ui-input-rbutton`;
+
+			};
+			projectSettings.select.onmouseup(); // sets the default activated pane
+			new UI.make("span", "", buttons);
+
+			close.onmouseup = function (event) {
+				self.container.remove();
+			};
+
+			save.onmouseup = function(event) {
+				console.log("saving project file", ProjectFile);
+				window.api.plugin({
+					pluginName: "projectview", event: "render", request: {
+						type: "save",
+						project: ProjectFile
+					}
+				});
+			};
+			load.onmouseup = function(event) {
+				fnGetProject();
+				fnToggleProjectViewer(true);
+				self.container.remove();
+			};
+
+		};
 		new ElementModalProjectOptions();
 		
 		var self = this;
@@ -215,6 +222,7 @@
 				});
 				//window.api.getProjectFile();
 		};
+		this.fnGetProject = fnGetProject;
 		function fnRebuildFileExplorerList() {
 			console.log("rebuilding file list");
 			fileExplorerList.remove();
@@ -365,8 +373,6 @@
 				project.setAttribute("data-show", "1");
 			}
 		};
-				
-		console.log(window.editor);
 		var project = UI.make("td", "ui-column-folders", null, null, true);
 		window.editor.columns.container.parentElement.children[0].prepend(project); // force the view tree thing to appear on the left side
 		project.setAttribute("data-show", "0");
@@ -450,36 +456,58 @@
 		window.addEventListener('app-plugin-projectview-output', function(data) {
 			var d = data.detail;
 			var p = window.editor.footerContents.parentElement;
-			if (output == null) {
-				output = new UI.make("div", "bordered ui-output relative full-width", p);
-				var btnContainer = new UI.make("div", "ui-output-button fixed", output);
-				outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
-				outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Close this output window");
+			function fnForceOutputRepaint(output) {
+				// force a repaint...
+				window.resizeTo(window.outerWidth, window.outerHeight-1);
+				window.resizeTo(window.outerWidth, window.outerHeight+1);
+				// and scroll to the bottom of the output
+				
 			}
-			var lines = d.data.split(/[\n]/g);
-			
-			//for(var i = lines.length; i >= 0; i--) {
-			new UI.make("div", "color-lime", output, `> ${d.cmd}`);
+			function fnCreateOutput(fromClear) {
+				if (output == null) {
+					output = new UI.make("div", "bordered ui-output relative full-width", p);
+					var btnContainer = new UI.make("div", "ui-output-button fixed", output);
+					outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
+					outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Clear contents of output window");
+					outputStopBtn = new ElementIconButton(btnContainer, "ui-icon-cancel ", "Stop any spawned process");
+					outputDestroyBtn.onclick =function() {
+						output.remove();
+						output = null;
+						//setTimeout(function () {
+						window.api.plugin({
+							pluginName: self.pluginName, event: "render", request: {
+								type: "spawn-kill"
+							}
+						});
+						setTimeout(fnForceOutputRepaint, 100);
+					};
+					outputStopBtn.onclick = function() {
+						window.api.plugin({
+							pluginName: self.pluginName, event: "render", request: {
+								type: "spawn-kill"
+							}
+						});
+					};
+					outputClearBtn.onclick = function() {
+						output.remove();
+						output = null;
+						fnCreateOutput(true);
+						new UI.make("div", "", output, "cleared");
+					}
+					return true;
+				};
+				return false;
+			};
+			fnCreateOutput();
+			if (d.cmd) new UI.make("div", "color-lime", output, `> ${d.cmd}`);
+			if (d.data)
+				var lines = d.data.split(/[\n]/g) || [];
+			else
+				var lines = [];
 			for(var i = 0; i < lines.length; i++)
 				if (lines[i].length > 0)
-					new UI.make("div", "", output, lines[i]);//, true);
-			outputDestroyBtn.onclick = function() {
-				console.log("fuck shit");
-				output.remove();
-				output = null;
-			};
-			outputClearBtn.onclick = function() {
-				output.remove();
-				output = new UI.make("div", "bordered ui-output relative full-width", p);
-				var btnContainer = new UI.make("div", "ui-output-button fixed", output);
-				outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
-				outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Close this output window");
-				new UI.make("div", "", output, "cleared");
-			}
-			// force a repaint...
-			window.resizeTo(window.outerWidth, window.outerHeight-1);
-			window.resizeTo(window.outerWidth, window.outerHeight+1);
-			// and scroll to the bottom of the output
+					new UI.make("div", "", output, lines[i]);
+			fnForceOutputRepaint();
 			output.scrollTo(0, output.scrollHeight);
 		});
 	};
