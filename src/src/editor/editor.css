@@ -48,14 +48,6 @@
 .CodeMirror-selected {
 	background-color: #475284 !important;
 }
-.CodeMirror-matchingbracket {
-	background-color: #00f !important;
-	color: #f00 !important;
-}
-.CodeMirror-nonmatchingbracket {
-	background-color: #f00 !important;
-	color: #00f !important;
-}
 .CodeMirror-scrollbar-filler {
 	background-color: #383933 !important;
 }
@@ -167,6 +159,34 @@
 	font-weight: 900;
 	background-color: #734d72;
 }
+.CodeMirror-matchingbracket {
+	/*background-color: blue !important;*/
+	/*animation: shine3 1s forwards;*/
+	/*animation-iteration-count: infinite;*/
+	color: #7dff2c !important;
+	font-weight: bolder;
+}
+.CodeMirror-nonmatchingbracket {
+	/*background-color: red !important;*/
+	color: red !important;
+	font-weight: bolder;
+}
+/*.CodeMirror-matchingbracket {*/
+	/*background-color: red !important;*/
+	/*color: purple !important;*/
+/*}*/
+/*.CodeMirror-nonmatchingbracket {*/
+	/*background-color: red !important;*/
+	/*color: purple !important;*/
+/*}*/
+/*.CodeMirror-matchingbracket {*/
+	/*background-color: #00f !important;*/
+	/*color: #f00 !important;*/
+/*}*/
+/*.CodeMirror-nonmatchingbracket {*/
+	/*background-color: #f00 !important;*/
+	/*color: #00f !important;*/
+/*}*/
 /* app data */
 body {
 	background-color: rgb(0, 0, 0);

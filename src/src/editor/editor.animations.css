@@ -22,3 +22,13 @@
 	90%{background-color: orange;}
 	100%{background-color: red;}
 }
+@keyframes shine3 {
+	0%{color: red;}
+	15%{color: violet;}
+	30%{color: indigo;}
+	45%{color: blue;}
+	60%{color: green;}
+	75%{color: yellow;}
+	90%{color: orange;}
+	100%{color: red;}
+};
