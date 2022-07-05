@@ -111,7 +111,7 @@
 
 				projectDefaultsJavascript.onmouseup = function() {
 					ProjectFile.runCommands = [];
-					ProjectFile.runCommands.push(`echo \"$HOST_PROC\"`);
+					ProjectFile.runCommands.push(`$ELECTRON test.html`);
 				};
 				projectDefaultsC.onmouseup = function() {
 					ProjectFile.runCommands = [];
