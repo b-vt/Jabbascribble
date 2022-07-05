@@ -10,6 +10,7 @@ function CodeMirrorFactory(element, extension, data) {
 	var cm = new CodeMirror(element, {
 		mode: mode,
 		theme: editTheme,
+		matchBrackets: true,
 		lineNumbers: Config.editor.LineNumbers,
 		tabSize: Config.editor.TabSize,
 		indentUnit: Config.editor.IndentUnit,
