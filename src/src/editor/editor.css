@@ -931,3 +931,6 @@ details > .ui-context-menu {
 .color-lime {
 	color: lime;
 }
+.ui-output-resizer {
+	background-color: red;
+}

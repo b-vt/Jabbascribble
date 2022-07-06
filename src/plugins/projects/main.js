@@ -20,20 +20,12 @@ function ProjectPluginMain(app, conf, window) {
 		console.log("-------ProjectPluginMain process on SIGINT -------\n", 
 					data,
 					"\n----------------------------");
-		/*if (self.spawnedProcess != null) {
-			self.spawnedProcess.kill('SIGINT');
-			self.spawnedProcess = null;
-		}*/
 		process.exit();
 	});
 	process.on("SIGTERM", function(data) {
 		console.log("-------ProjectPluginMain process on SIGTERM -------\n", 
 					data,
 					"\n----------------------------");
-		/*if (self.spawnedProcess != null) {
-			self.spawnedProcess.kill('SIGTERM');
-			self.spawnedProcess = null;
-		}*/
 		process.exit();
 	});
 }
@@ -54,15 +46,17 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 						"\n----------------------------");
 		return data;
 	}
-	function cleanChildren() {
+	function cleanChildren(aborted) {
+		self.aborted = aborted || false;
 		for(var i = 0; i < self.spawnedProcessList.length; i++) {
 			var sp = self.spawnedProcessList[i];
 			if (sp != null) {
-				sp.kill('SIGTERM');
+				sp.kill('SIGTERM'); // todo which
 				sp.kill('SIGINT');
 				self.spawnedProcessList[i] = null;
 			}
 		};
+		self.spawnedProcessList = [];
 	};
 	function runCommand(cmd, printSpam, fnOnExit) {
 		try {
@@ -81,11 +75,8 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 			};
 			var args = Common.ArrayRemoveIndex(mix, 0);
 			var proc = child.spawn(rc, args, {cwd: process.cwd()});//HOST_PROC: process.argv[0]}});
-			console.log("process.pid: ", proc.pid, proc.on);
 			self.spawnedProcessList[self.spawnedProcessList.length] = proc;
 			//self.spawnedProcess = proc;
-
-
 			var web = self.window;
 			if (web) web.webContents.send("main-plugin", {pluginName: self.pluginName, type: "output", cmd: cmd});
 			// send some of stdout back to renderer
@@ -94,11 +85,16 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 				data = slapData(data, "process on close", true);
 				if (fnOnExit != undefined && fnOnExit != null)
 					fnOnExit();
-				if (web) web.webContents.send("main-plugin", {
+				if (web /*&& web.webContents*/) web.webContents.send("main-plugin", {
 					pluginName: self.pluginName, 
 					type: "output", 
-					data: self.aborted ? `( ${cmd} forcefully aborted: ${data || 0} )`:`( ${cmd} terminated: ${data} )`
+					data: self.aborted == true ? `( ${cmd} forcefully aborted: ${data || 0} )`:`( ${cmd} terminated: ${data} )`
 				});
+				console.log("OMFGG %i", self.spawnedProcessList.length);
+				if (self.spawnedProcessList.length == 0) {
+					console.log("RESET");
+					self.aborted = false; // reset
+				};
 			});
 			//
 			proc.stdout.on("data", function(data) {
@@ -124,8 +120,7 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 	switch(data.type) {
 		case "spawn-kill": {
 			console.log("we need to kill this thing RITE NIOW");
-			self.aborted = true;
-			cleanChildren();
+			cleanChildren(true);
 			break;
 		}
 		case "spawn": {
@@ -134,30 +129,9 @@ ProjectPluginMain.prototype.onRendererEvent = function(event) {
 				console.log("but the event was WORTHLESS!");
 				break;
 			}
-			//data.projectFile.runCommands.push(`export HOST_PROC=${process.argv[0]}`);
-			//data.projectFile.runCommands.push(`export HAX='nooo'`);
-			//var arr = Common.ArrayMoveIndex(arr, arr.length - 1, 0);
-			//var arr = data.projectFile.runCommands;
-			//runCommand(arr.join(" && "), true);
-			//var env = Object.create(process.env);
-			//env.HOST_PROC = process.argv[0];
-			//runCommand(`${process.argv[0]} test.html`, env, true);
-			//data.projectFile.runCommands.forEach(function(item) {
-			//var arr = data.projectFile.runCommands;
-			//for(var index = 0; index < arr.length; index++) {
-			/*var lastIndex = 0;
-			function createChild() {
-				runCommand(arr[lastIndex], env, true, function() {
-					lastIndex++;
-					if (lastIndex < arr.length) runCommand(arr[lastIndex], env, true, createChild);
-				});
-			};
-			createChild();*/
 			var lastIndex = 0;
 			function spawnNext() {
-				console.log("??");
 				if (lastIndex+1 <= data.projectFile.runCommands.length) {
-					console.log("!!");
 					runCommand(data.projectFile.runCommands[lastIndex], true, spawnNext);
 					lastIndex++;
 				}

@@ -466,6 +466,7 @@
 			function fnCreateOutput(fromClear) {
 				if (output == null) {
 					output = new UI.make("div", "bordered ui-output relative full-width", p);
+					outputResize = new UI.make("div", "output-resizer bordered full-width", output);
 					var btnContainer = new UI.make("div", "ui-output-button fixed", output);
 					outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
 					outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Clear contents of output window");
