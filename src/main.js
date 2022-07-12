@@ -15,13 +15,13 @@
 	
 	electron.app.whenReady().then((e) => {
 		process.on("SIGINT", function(data) {
-			console.log(`------- redirected process (${process.pid}) received SIGINT -------\n`, 
+			console.log(`------- process (${process.pid}) received SIGINT -------\n`, 
 							data,
 							"\n----------------------------");
 			process.exit();
 		});
 		process.on("SIGTERM", function(data) {
-			console.log(`------- redirected process (${process.pid}) received SIGTERM -------\n`, 
+			console.log(`------- process (${process.pid}) received SIGTERM -------\n`, 
 							data,
 							"\n----------------------------");
 			process.exit();
@@ -43,7 +43,7 @@
 
 								var window = new electron.BrowserWindow({width: 800, height: 600});
 								window.removeMenu();
-								var menu = electron.Menu.buildFromTemplate([{label: "File", submenu: [{role: "close"}]}]);
+								var menu = electron.Menu.buildFromTemplate([{label: "Options", submenu: [{role: "close"}, {role: "forceReload"}, {role: "toggleDevTools"}]}]);
 								electron.Menu.setApplicationMenu(menu);
 								window.loadFile(filename);
 

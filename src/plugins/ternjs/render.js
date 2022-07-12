@@ -21,19 +21,24 @@ function ElementCompletionsPopup(completions) {
 			var dto = new InputEventDto(event);
 			var redraw = false;
 			if (dto.key == InputEventDto.prototype.KEY_UP || dto.key == InputEventDto.prototype.KEY_DOWN) {
+				var prv = self.select.options[self.select.selectedIndex];
+				prv.setAttribute("data-selected", "0");
+				if (prv.docs != null) 
+						prv.docs.setAttribute("data-show", "0");
 				if (dto.key == InputEventDto.prototype.KEY_UP) {
-					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
 					self.select.selectedIndex = (self.select.selectedIndex-1+self.select.options.length) % self.select.options.length;
 				}
 				else {
-					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
 					self.select.selectedIndex = (self.select.selectedIndex+1) % self.select.options.length;
 				}
-
 				var item = self.select.options[self.select.selectedIndex];
+				var h = item.scrollHeight;
 				item.setAttribute("data-selected", "1");
+				if (item.docs != null) {
+					item.docs.setAttribute("data-show", "1");
+				}
 				console.log(self.container, item);
-				self.container.scrollTo(0, item.scrollHeight * self.select.selectedIndex);
+				self.container.scrollTo(0, h * self.select.selectedIndex);
 				self.select.hiddenField.focus();
 				event.stopPropagation();
 				event.preventDefault();
@@ -65,18 +70,35 @@ function ElementCompletionsPopup(completions) {
 				var opt = UI.make("div", "popup-option popup-option-autocomplete", self.select, _item.name);
 				if (_item.type) {
 					if (matchText(_item.type, "fn(")) {
-						UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.type}`)
+						new UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.type}`)
 						//UI.make("div", "", opt, "blargle");
 					}
 				}
-				opt.onkeydown = scroll;
-				opt.onclick = function() {
+				if (_item.doc) {
+					opt.docs = new UI.make("div", "autocomplete-docs", opt, _item.doc);
+					opt.docs.setAttribute("data-show", "0");
+				};
+				function fnActivate() {
 					self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
+					if (self.select.options[self.select.selectedIndex].docs != null) {
+						self.select.options[self.select.selectedIndex].docs.setAttribute("data-show", "0");;//classList.add("hidden");
+					}
+					if (opt.docs != null) {
+						opt.docs.setAttribute("data-show", "1");
+						//h = opt.docs.scrollHeight;
+					}
 					self.select.selectedIndex = index;
 					opt.setAttribute("data-selected", "1");
+					//if (opt.docs != null) opt.docs.remove(); 
+					var h = opt.scrollHeight;
+					
 					self.select.focus();
-					self.container.scrollTo(0, opt.scrollHeight * self.select.selectedIndex);
+					self.container.scrollTo(0, h * self.select.selectedIndex);
 				}
+				opt.onkeydown = function(e) {
+					scroll(e);
+				}
+				opt.onclick = fnActivate;
 				opt.name = _item.name;
 				opt.isPopup = true;
 				self.select.options[index] = opt;
@@ -238,7 +260,7 @@ ElementCompletionsPopup.prototype.destroy = function() {
 			var dto = new InputEventDto(event);
 			console.log(dto);
 			// skip this routine if auto send is disabled or if this press was the hotkey
-			var bf = (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.CTRL);
+			var bf = (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.CTRL) || (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.SHIFT);
 			if (!autoRequest || bf==true) return console.log("returned because no autorequest or ctrl key was held"); 
 			var editor =  window.editor.columns.active().editor;
 			var active = editor.tabs.getActive();

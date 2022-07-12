@@ -19,18 +19,6 @@ function ArrayMoveIndex(arr, index, to, before) {
 	};
 	return r;
 };
-function ArrayRemoveIndex(arr, index) {
-	var r = [];
-	var offset = 0; // todo: multiple indices
-	for(var i = 0; i < arr.length; i++) {
-		if (i == index) {
-			offset++;
-			continue;
-		}
-		r[i-offset] = arr[i];
-	};
-	return r;
-};
 function NormalizePath(path) {
 	var p = path.replace('\\', '/');
 	return p;
@@ -648,7 +636,7 @@ if (typeof module!=="undefined") {
 		ArrayToUnsignedInt,
 		ArrayToUnsignedLongInt,
 		LoadScript,
-		ArrayRemoveIndex,
+		//ArrayRemoveIndex,
 		ArrayMoveIndex,
 
 		// nodejs dependencies

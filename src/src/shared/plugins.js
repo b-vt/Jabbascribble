@@ -85,7 +85,9 @@ Plugins.prototype.doTask = function(item, event) {
 };
 
 Plugins.prototype.destroy = function() {
-
+	for(var i = 0; i < this.activePlugins.length; i++) {
+		this.activePlugins[i].destroy();
+	}
 };
 
 if (typeof module!=="undefined")

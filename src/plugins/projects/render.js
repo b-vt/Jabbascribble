@@ -3,6 +3,15 @@
 	
 	
 	var ProjectFile = {projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
+	function fnRunCommands() {
+		//if (ProjectFile.projectFile.length > 0)
+		window.api.plugin({
+			pluginName: "projectview", event: "render", request: {
+				type: "spawn",
+				projectFile: ProjectFile
+			}
+		});
+	};
 	function ProjectsRender() {
 		function ElementModalTabPane(context, text) {
 			var self = this;
@@ -52,7 +61,8 @@
 					itemBtn.onclick = function() {
 						var rmIndex = ProjectFile.runCommands.indexOf(indexItem);
 						if (!(rmIndex >= 0)) return;
-						ProjectFile.runCommands = ArrayRemoveIndex(ProjectFile.runCommands, rmIndex);
+						//ProjectFile.runCommands = ArrayRemoveIndex(ProjectFile.runCommands, rmIndex);
+						ProjectFile.runCommands.splice(rmIndex, 1);
 						containers.remove();
 						createRunCommandElements(container, _input);
 					};
@@ -110,17 +120,14 @@
 				projectDefaultsC.setAttribute("data-dir", "0");
 
 				projectDefaultsJavascript.onmouseup = function() {
-					ProjectFile.runCommands = [];
-					ProjectFile.runCommands.push(`$ELECTRON test.html`);
+					ProjectFile.runCommands = [`$ELECTRON test.html`];
 				};
 				projectDefaultsC.onmouseup = function() {
-					ProjectFile.runCommands = [];
-					ProjectFile.runCommands.push("gcc -o3 -g -o my_program my_source.c");
-					ProjectFile.runCommands.push("./my_program");
+					ProjectFile.runCommands = ["gcc -o3 -g -o my_program my_source.c", "./my_program"];
 				};
 				projectDefaultsCpp.onmouseup = function() {
-					ProjectFile.runCommands = [];
-					ProjectFile.runCommands.push(`echo \"no default run command available for c++\"`);
+					ProjectFile.runCommands = ["echo \"1\"", "echo \"2\"", "echo \"3\"", "echo \"4\""];
+					//ProjectFile.runCommands.push(`echo \"no default run command available for c++\"`);
 				};
 			};
 			var defaultView = new ElementModalTabPane(this, "View");
@@ -390,7 +397,7 @@
 		var projectTableHeadRowContentDiv = new UI.make("div", "full-width", projectTableHeadRowContent);
 		
 		var menu = window.editor.menu.project;
-		menu.add("Launch Run Commnads");
+		menu.add("Run Commands").onclick = fnRunCommands;
 		menu.add("Project Settings", "", "Open the project file editor").onclick = function() {
 			new ElementModalProjectOptions();
 		};
@@ -437,15 +444,7 @@
 		}*/
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
-		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_R], function(a, b, c) {
-			//if (ProjectFile.projectFile.length > 0)
-				window.api.plugin({
-					pluginName: self.pluginName, event: "render", request: {
-						type: "spawn",
-						projectFile: ProjectFile
-					}
-				});
-		});
+		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_R], fnRunCommands);
 		window.addEventListener('app-plugin-projectview-open', fnOnGetProjectFile);
 		window.addEventListener('app-plugin-projectview-save', function() {
 			console.log("project file saved?!");
@@ -465,14 +464,29 @@
 			}
 			function fnCreateOutput(fromClear) {
 				if (output == null) {
+					var outputResize = new UI.make("div", "ui-output-resizer full-width", p);
+					outputResize.onmousedown = function(e) {
+						var dto = new InputEventDto(e);
+						var init = {y: dto.y, height: output.clientHeight};
+						window.onmousemove = function(evt) {
+							var dto = new InputEventDto(evt);
+							output.style.height = `${(init.y - dto.y) + init.height + 10}px`;
+							fnForceOutputRepaint();
+						};
+						window.onmouseup = function(evt) {
+							window.onmousemove = null;
+							window.onmouseup = null;
+							console.log("cleaned up the thing");
+						};
+					};
 					output = new UI.make("div", "bordered ui-output relative full-width", p);
-					outputResize = new UI.make("div", "output-resizer bordered full-width", output);
-					var btnContainer = new UI.make("div", "ui-output-button fixed", output);
+					var btnContainer = new UI.make("div", "", outputResize);
 					outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
 					outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Clear contents of output window");
 					outputStopBtn = new ElementIconButton(btnContainer, "ui-icon-cancel ", "Stop any spawned process");
 					outputDestroyBtn.onclick =function() {
 						output.remove();
+						outputResize.remove();
 						output = null;
 						//setTimeout(function () {
 						window.api.plugin({
@@ -491,6 +505,7 @@
 					};
 					outputClearBtn.onclick = function() {
 						output.remove();
+						outputResize.remove();
 						output = null;
 						fnCreateOutput(true);
 						new UI.make("div", "", output, "cleared");
@@ -500,6 +515,8 @@
 				return false;
 			};
 			fnCreateOutput();
+			var classname = "";
+			if (d.isError) classname = "color-red";
 			if (d.cmd) new UI.make("div", "color-lime", output, `> ${d.cmd}`);
 			if (d.data)
 				var lines = d.data.split(/[\n]/g) || [];
@@ -507,7 +524,7 @@
 				var lines = [];
 			for(var i = 0; i < lines.length; i++)
 				if (lines[i].length > 0)
-					new UI.make("div", "", output, lines[i]);
+					new UI.make("div", classname, output, lines[i]);
 			fnForceOutputRepaint();
 			output.scrollTo(0, output.scrollHeight);
 		});
