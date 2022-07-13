@@ -114,13 +114,18 @@
 				*/
 				var projectDefaultsJavascript = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "Javascript");
 				projectDefaultsJavascript.setAttribute("data-dir", "2");
+				var projectDefaultsElectron = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "Electron");
+				projectDefaultsElectron.setAttribute("data-dir", "1");
 				var projectDefaultsCpp = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "C++");
 				projectDefaultsCpp.setAttribute("data-dir", "1");
 				var projectDefaultsC = new UI.make("span", "ui-modal-button right", defaultProjectDefaults, "C");
 				projectDefaultsC.setAttribute("data-dir", "0");
 
 				projectDefaultsJavascript.onmouseup = function() {
-					ProjectFile.runCommands = [`$ELECTRON test.html`];
+					ProjectFile.runCommands = [`node my_file.js`];
+				};
+				projectDefaultsElectron.onmouseup = function() {
+					ProjectFile.runCommands = [`electron my_page.html`, `electron my_file.js`];
 				};
 				projectDefaultsC.onmouseup = function() {
 					ProjectFile.runCommands = ["gcc -o3 -g -o my_program my_source.c", "./my_program"];
