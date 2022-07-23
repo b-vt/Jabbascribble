@@ -10,7 +10,7 @@ function Plugins(appClass, window) {
 	for(var i = 0; i < Config.plugins.length; i++) {
 		try {
 			((_i, _window) => {
-				console.log(Config.plugins[_i].main);
+				//console.log(Config.plugins[_i].main);
 				var conf = Config.plugins[_i];
 				var main = path.normalize(path.join(__dirname, `../../plugins/${conf.main}`));
 				var renderer = path.normalize(path.join(__dirname, `../../plugins/${conf.renderer}`));
@@ -18,7 +18,7 @@ function Plugins(appClass, window) {
 				fs.access(main, fs.constants.F_OK, function(err) {
 					if (err) return console.log(`- Plugins.js error could not find plugin:\n\t${main} ${err}`);	
 					var MyPlugin = require(main);
-					console.log(main, MyPlugin);
+					//console.log(main, MyPlugin);
 					var plugin = new MyPlugin(appClass, conf, _window).start();
 					self.activePlugins[plugin.pluginName] = plugin;
 				});

@@ -209,7 +209,7 @@
 			};
 
 		};
-		new ElementModalProjectOptions();
+		//new ElementModalProjectOptions();
 		
 		var self = this;
 		this.pluginName = "projectview";
@@ -331,11 +331,10 @@
 				if (separator != -1)
 					parsed(path, parentNode.children[name], separator+1, depth+1, index);
 			}
-			// todo: sort projectFile.files
 			var root = new node("");
-			for(var i = 0; i < ProjectFile.files.length; i++) {
-				console.log("parsing %s", ProjectFile.files[i]);
-				parsed(ProjectFile.files[i], root, 0, 0, i);
+			var files = ArrayAlphabeticalSort(ProjectFile.files);
+			for(var i = 0; i < files.length; i++) {
+				parsed(files[i], root, 0, 0, i);
 			}
 		}
 		this.fnRebuildFileExplorerList = fnRebuildFileExplorerList;
@@ -486,8 +485,8 @@
 					};
 					output = new UI.make("div", "bordered ui-output relative full-width", p);
 					var btnContainer = new UI.make("div", "", outputResize);
-					outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
 					outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Clear contents of output window");
+					outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
 					outputStopBtn = new ElementIconButton(btnContainer, "ui-icon-cancel ", "Stop any spawned process");
 					outputDestroyBtn.onclick =function() {
 						output.remove();

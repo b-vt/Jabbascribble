@@ -31,7 +31,7 @@ function EditorWindow(opts) {
 		var edit = GetActiveTabEditor();
 		if (edit) {	
 			var cm = edit.datum.codemirror;
-			cm.scrollIntoView({line: next.startLine, ch: 0});//0, item.startLine * 15);
+			cm.scrollIntoView({line: next.startLine, ch: 0}, 10);//0, item.startLine * 15);
 			var mark1 = cm.doc.findMarksAt({line: next.startLine, ch: next.startCh})[0];
 			var mark2 = cm.doc.findMarksAt({line: prev.startLine, ch: prev.startCh})[0];
 			if (mark1) mark1.clear();
@@ -385,45 +385,7 @@ function EditorWindow(opts) {
 	this.menu.plugins.add();
 	// initialize the editor
 	this.columns = new ElementColumns(columnsTableBody);
-	//this.project = new ElementColumn(this.columns, this.columns.container);
-	//this.project.table.classList.remove("full-width");
-	//this.project.container.style.width = "1px";
-	
-	/*
-	
-	from
-	
-	/jabbascribble/src/file.js
-	/jabbascribble/.scribble
-	/jabbascribble/bin/test.js
-	/jabbascribble/src/blah.css
-	/jabbascribble/src/src/something.js
-	
-	to
-	
-	/jabbascribble
-		/src
-			/src
-				something.js
-			file.js
-			blah.css
-		/bin
-			test.js
-		.scribble
-	
-	*/
-	
-	
-	/*var fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectTableBodyRowContent);
-	fileExplorerList.setAttribute("multiple", true);*/
-	/*var projectContents = new UI.make("div", "full-height", this.project);
-	this.fileExplorerList = new UI.make("select", "ui-select-multi full-width full-height", projectContents);
-	this.fileExplorerList.setAttribute("multiple", true);*/
-	
-	//var bleh = new ElementColumn(null, this.project.content);
-	//var label = new UI.make("div", "ui-column-folders", bleh.content, "blah");
-	
-	
+
 	new ElementIconButton(this.rowTools, "ui-icon-open", Lang.Menu.OpenHint).onclick = fnOpenFile;
 	new ElementIconButton(this.rowTools, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile
 	new ElementIconButton(this.rowTools, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
@@ -470,6 +432,41 @@ function EditorWindow(opts) {
 		searchInput.focus();
 		searchInput.select();
 		find.search(from, searchInput.value, true);
+	});
+	globalHotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_G], function() {
+		if (window.popups["gotoprompt"])
+			window.popups["gotoprompt"].destroy();
+		var p = UI.make("span", "", null, null, true);
+		window.popups["gotoprompt"] = p;
+		var fc = footerContents.children[0];
+		footerContents.insertBefore(p, fc);
+		footerContents.insertBefore(UI.make("span", "", p, " ", true), fc);
+		var input = UI.make("input", "ui-input ui-input-number", p);
+
+		p.isPopup = true;
+		input.isPopup = true;
+
+		p.destroy = function() {
+			this.remove();
+		};
+		/*p.style.x = "-10px";
+		p.style.y = "-50px";*/
+		input.onkeyup = function(event) {
+			var dto = new InputEventDto(event);
+			if (dto.key == InputEventDto.prototype.KEY_RETURN) {
+				var from = "";
+				p.destroy();
+			}
+			var edit = GetActiveTabEditor();
+			if (edit) {
+				var cm = edit.datum.codemirror;
+				var v = parseInt(this.value);
+				if (isNaN(v)) v = 0;
+				cm.scrollIntoView({line: Clamp(v - 1, 0, cm.lineCount() - 1), ch: 0}, 10);
+			}
+		};
+		input.focus();
+		input.select();
 	});
 	// cleanup temporary elements on escape and mouse clicks
 	window.addEventListener('keyup', function(event) {

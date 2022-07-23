@@ -37,7 +37,7 @@ function IPCSend(msgType, data) {
 
 /* ApiInit must be called before any of the other functions work */
 function ApiInit() {
-	console.log("preload: ApiInit");
+	console.log("preload: ApiInit !");
 	electron.ipcRenderer.on('main-init', function(event, data) {
 		console.log("preload: received main-init with uuid: ", data.uuid);
 		API_Blob.uuid = data.uuid;

@@ -8,7 +8,7 @@ var Common = require("./src/shared/common.js");
 var {Plugins} = require("./src/shared/plugins.js");
 
 (() => {
-
+	
 	var APP_VERSION_MAJOR = 0;
 	var APP_VERSION_MINOR = 0;
 	var APP_VERSION_PATCH = 0x07062022; // the date of modification
@@ -17,9 +17,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 	/*electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
 	electron.app.commandLine.appendSwitch('enable-gpu-rasterization');
 	electron.app.commandLine.appendSwitch('force_high_performance_gpu"');*/
-	
+	console.log("dirname2: ", __dirname);
 	electron.app.whenReady().then((e) => { // entry point
-		console.log(__dirname, process.cwd());
 		try {
 			new Common.Configure().add("-d -debug", function(v) {
 				Config.Debug = true;
@@ -147,9 +146,9 @@ var {Plugins} = require("./src/shared/plugins.js");
 	
 	ApplicationClass.prototype.init = function() {
 		// create the default/previous environment here I guess
-		var appWindow = CreateWindow(this, "./src/editor/editor.html", {
-			preload: './src/editor/editor.preload.js',
-			icon: "./data/icon-32.ico",
+		var appWindow = CreateWindow(this, path.normalize(path.join(__dirname, "src/editor/editor.html")), {
+			preload: path.normalize('src/editor/editor.preload.js'),
+			icon: path.normalize(path.join(__dirname, "data/icon-32.ico")),
 			width: Config.window.Width,
 			height: Config.window.Height,
 			openTools: Config.EnableDevTools,

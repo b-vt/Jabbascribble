@@ -2,7 +2,7 @@
 function PluginMain(app, conf, appWindow) {
 	// inheritance
 	//PluginMain.call(this);
-	console.log("PluginMain constructor");
+	//console.log("PluginMain constructor");
 	this.pluginName = typeof GetRandomString === "function" ? GetRandomString() : "*";
 };
 // inheritance  

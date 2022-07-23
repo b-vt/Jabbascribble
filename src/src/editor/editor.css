@@ -891,7 +891,7 @@ details > .ui-context-menu {
 }
 .ui-input-number {
 	width: 16px;
-	height: 14px;
+	/*height: 14px;*/
 }
 .ui-label {
 	height: 20px;
@@ -950,4 +950,10 @@ details > .ui-context-menu {
 	border-top: 1px solid #909090;
 	border-right: 1px solid #909090;
 	border-left: 1px solid #909090;
+}
+
+.popup-goto {
+	width: 100px;
+	height: 50px;
+	
 }

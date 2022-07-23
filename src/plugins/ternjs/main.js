@@ -15,7 +15,7 @@ function TernPluginMain(app, pluginConf, appWindow) {
 	this.pluginConf = pluginConf;
 	this.port = Math.floor(Math.random() * 40000) + 20000;
 	this.hasAddedProject = false;
-	console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
+	//console.log(`-- TernPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
 	
 };
 

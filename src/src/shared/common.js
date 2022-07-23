@@ -1,6 +1,39 @@
 /* this is all very cursed */
 
 // all vanilla 
+function ArrayAlphabeticalSort(xa) {
+	var start1 = new Date().getTime();
+	xa = xa.sort(function(a, b) {
+		if (a.toLowerCase() < b.toLowerCase())
+			return -1;
+		if (a.toLowerCase() > b.toLowerCase())
+			return 1;
+		return 0;
+	});
+	return xa;
+};
+//console.log(ArrayAlphabeticalSort(test1, test2));
+/*var profilefor = 100000;
+var test3 = [];
+for(var i = 0; i < profilefor; i++) {
+	test3[test3.length] = test1.slice();
+};
+//console.log(test1);
+var start1 = new Date().getTime();
+for(var i = 0; i < profilefor; i++) {
+	ArrayAlphabeticalSort(test3.pop());
+};
+//console.log(test3);
+console.log("sort sort elapsed time: %i",(new Date().getTime() - start1));
+//console.log(test1);
+var start2 = new Date().getTime();
+for(var i = 0; i < profilefor; i++)
+	var test5 = ArrayAlphabeticalSort(test2);
+console.log("crazy sort elapsed time: %i",(new Date().getTime() - start2));*/
+
+//console.log("ree", Bytes2Hex(["abc".charCodeAt(0)]), "abc".charCodeAt(0));
+
+// reorder an array element to another position
 function ArrayMoveIndex(arr, index, to, before) {
 	var r = [];
 	before = before || 0; //
@@ -638,6 +671,7 @@ if (typeof module!=="undefined") {
 		LoadScript,
 		//ArrayRemoveIndex,
 		ArrayMoveIndex,
+		ArrayAlphabeticalSort,
 
 		// nodejs dependencies
 		Configure,
