@@ -484,6 +484,7 @@
 						};
 					};
 					output = new UI.make("div", "bordered ui-output relative full-width", p);
+					output.style.height = `100px`;
 					var btnContainer = new UI.make("div", "", outputResize);
 					outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Clear contents of output window");
 					outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
