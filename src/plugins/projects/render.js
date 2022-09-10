@@ -3,6 +3,19 @@
 	
 	
 	var ProjectFile = {projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
+	
+	// is filename.txt in project file and if so what is the absolute path?
+	function fnIsProjectFile(name) {
+		for(var i = 0; i < ProjectFile.files.length; i++) {
+			var item = ProjectFile.files[i];
+			var itemSplits = item.split(/[\\\/]/g);
+			if (itemSplits.pop() == name) {
+				return item;
+			}
+		};
+		return name;
+	};
+	
 	function fnRunCommands() {
 		//if (ProjectFile.projectFile.length > 0)
 		window.api.plugin({
@@ -61,7 +74,6 @@
 					itemBtn.onclick = function() {
 						var rmIndex = ProjectFile.runCommands.indexOf(indexItem);
 						if (!(rmIndex >= 0)) return;
-						//ProjectFile.runCommands = ArrayRemoveIndex(ProjectFile.runCommands, rmIndex);
 						ProjectFile.runCommands.splice(rmIndex, 1);
 						containers.remove();
 						createRunCommandElements(container, _input);
@@ -520,6 +532,7 @@
 				return false;
 			};
 			fnCreateOutput();
+
 			var classname = "";
 			if (d.isError) classname = "color-red";
 			if (d.cmd) new UI.make("div", "color-lime", output, `> ${d.cmd}`);
@@ -528,8 +541,68 @@
 			else
 				var lines = [];
 			for(var i = 0; i < lines.length; i++)
-				if (lines[i].length > 0)
-					new UI.make("div", classname, output, lines[i]);
+				if (lines[i].length > 0) {
+					((_line)=> {
+						var hasClick = false;
+						var ns = _line.split(/:/g);
+						if (ns.length > 3) { // is this a gcc style error?
+							var msgType = ns[3].toLowerCase().trim();
+							if (msgType.match(/(error)/g).length > 0) {// is this an error?
+								//console.log("this is an error line");
+								hasClick = true;
+								classname += " pointer-link";
+							};
+							var item = new UI.make("div", classname, output, _line);
+							if (hasClick)
+								item.onclick = function() {
+									// check if tab contains filename
+									// if not, open
+									// then scroll?
+									var errfile = ns[0].trim();
+									var errLine = parseInt(ns[1].trim());
+									var errCh = parseInt(ns[2].trim());
+									var errFilenameSplits = errfile.split(/[\\\/]/g);
+									var errFilename = errFilenameSplits.pop();
+									var columns = window.editor.columns.get();
+									for(var i = 0; i < columns.length; i++) { // walk through all the columns
+										var tabs = window.editor.columns.get(i).editor.tabs.get();
+										for(var z = 0; z < tabs.length; z++) { // walk through all the tabs in column i
+											var openTabName = tabs[z].datum.name;
+											//console.log("this one is: %s", tabs[z].datum.path, tabs[z].datum.name);
+											if (openTabName == errFilename) {
+												var edit = window.editor.getActiveTabEditor();
+												if (edit) {
+													var cm = edit.datum.codemirror;
+													tabs[z].activate();
+													window.editor.scrollActiveTab(errLine);
+													cm.doc.markText({line: errLine-1, ch: 0},
+																	{line: errLine-1, ch: errCh},
+																	{className: "cm-highlight-focused"});
+
+												};
+												return;
+											};
+										};
+									};
+									// file isn't already open, so open and then dothe thing?
+									var absFilePath = fnIsProjectFile(errfile);
+									window.api.open({path: absFilePath});
+									setTimeout(function() { // a stinky timeout because opening a file is an asynchronous action
+										var edit = window.editor.getActiveTabEditor();
+										if (edit) {
+											var cm = edit.datum.codemirror;
+											edit.activate();
+											window.editor.scrollActiveTab(errLine);
+											cm.doc.markText({line: errLine-1, ch: 0},
+															{line: errLine-1, ch: errCh},
+															{className: "cm-highlight-focused"});
+											
+										};
+									}, 500);
+								};
+						};
+					})(lines[i]);
+				}
 			fnForceOutputRepaint();
 			output.scrollTo(0, output.scrollHeight);
 		});

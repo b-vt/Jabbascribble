@@ -253,6 +253,18 @@ function EditorWindow(opts) {
 	};
 	this.getActiveTabEditor = GetActiveTabEditor;
 
+	function ScrollActiveTab(v) {
+		var edit = GetActiveTabEditor();
+		if (edit) {
+			var cm = edit.datum.codemirror;
+			//var v = parseInt(this.value);
+			if (isNaN(v)) v = 0;
+			cm.scrollIntoView({line: Clamp(v - 1, 0, cm.lineCount() - 1), ch: 0}, 10);
+		}
+	};
+	
+	this.scrollActiveTab = ScrollActiveTab;
+
 	this.head = UI.make("thead", "");//, "", table1);
 	this.body = UI.make("tbody", "ui-row-columns");//, table1);
 	this.footer = UI.make("tfoot");//, "", table1);
@@ -457,13 +469,14 @@ function EditorWindow(opts) {
 				var from = "";
 				p.destroy();
 			}
-			var edit = GetActiveTabEditor();
+			ScrollActiveTab(parseInt(this.value));
+			/*var edit = GetActiveTabEditor();
 			if (edit) {
 				var cm = edit.datum.codemirror;
 				var v = parseInt(this.value);
 				if (isNaN(v)) v = 0;
 				cm.scrollIntoView({line: Clamp(v - 1, 0, cm.lineCount() - 1), ch: 0}, 10);
-			}
+			}*/
 		};
 		input.focus();
 		input.select();
