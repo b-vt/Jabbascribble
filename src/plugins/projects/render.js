@@ -578,7 +578,6 @@
 													cm.doc.markText({line: errLine-1, ch: 0},
 																	{line: errLine-1, ch: errCh},
 																	{className: "cm-highlight-focused"});
-
 												};
 												return;
 											};
