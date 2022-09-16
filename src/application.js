@@ -189,7 +189,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 				nodeIntegration: false, 
 				worldSafeExecuteJavaScript: true,
 				contextIsolation: true,
-				sandbox: true,
+				//sandbox: true,
 				preload: (opt.preload!==undefined ? path.normalize(path.join(__dirname, opt.preload)) : undefined)
 			}, 
 			icon: (opt.icon!==undefined ? path.normalize(path.join(__dirname, opt.icon)) : undefined),
