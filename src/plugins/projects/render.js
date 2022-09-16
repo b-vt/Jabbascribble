@@ -542,7 +542,7 @@
 				var lines = [];
 			for(var i = 0; i < lines.length; i++)
 				if (lines[i].length > 0) {
-					((_line)=> {
+					((_line) => {
 						var hasClick = false;
 						var ns = _line.split(/:/g);
 						if (ns.length > 3) { // is this a gcc style error?
@@ -552,53 +552,54 @@
 								hasClick = true;
 								classname += " pointer-link";
 							};
-							var item = new UI.make("div", classname, output, _line);
-							if (hasClick)
-								item.onclick = function() {
-									// check if tab contains filename
-									// if not, open
-									// then scroll?
-									var errfile = ns[0].trim();
-									var errLine = parseInt(ns[1].trim());
-									var errCh = parseInt(ns[2].trim());
-									var errFilenameSplits = errfile.split(/[\\\/]/g);
-									var errFilename = errFilenameSplits.pop();
-									var columns = window.editor.columns.get();
-									for(var i = 0; i < columns.length; i++) { // walk through all the columns
-										var tabs = window.editor.columns.get(i).editor.tabs.get();
-										for(var z = 0; z < tabs.length; z++) { // walk through all the tabs in column i
-											var openTabName = tabs[z].datum.name;
-											//console.log("this one is: %s", tabs[z].datum.path, tabs[z].datum.name);
-											if (openTabName == errFilename) {
-												var edit = window.editor.getActiveTabEditor();
-												if (edit) {
-													var cm = edit.datum.codemirror;
-													tabs[z].activate();
-													window.editor.scrollActiveTab(errLine);
-													cm.doc.markText({line: errLine-1, ch: 0},
-																	{line: errLine-1, ch: errCh},
-																	{className: "cm-highlight-focused"});
-												};
-												return;
+						};
+						var item = new UI.make("div", classname, output, _line);
+						if (hasClick) {
+							item.onclick = function() {
+								// check if tab contains filename
+								// if not, open
+								// then scroll?
+								var errfile = ns[0].trim();
+								var errLine = parseInt(ns[1].trim());
+								var errCh = parseInt(ns[2].trim());
+								var errFilenameSplits = errfile.split(/[\\\/]/g);
+								var errFilename = errFilenameSplits.pop();
+								var columns = window.editor.columns.get();
+								for(var i = 0; i < columns.length; i++) { // walk through all the columns
+									var tabs = window.editor.columns.get(i).editor.tabs.get();
+									for(var z = 0; z < tabs.length; z++) { // walk through all the tabs in column i
+										var openTabName = tabs[z].datum.name;
+										//console.log("this one is: %s", tabs[z].datum.path, tabs[z].datum.name);
+										if (openTabName == errFilename) {
+											var edit = window.editor.getActiveTabEditor();
+											if (edit) {
+												var cm = edit.datum.codemirror;
+												tabs[z].activate();
+												window.editor.scrollActiveTab(errLine);
+												cm.doc.markText({line: errLine-1, ch: 0},
+																{line: errLine-1, ch: errCh},
+																{className: "cm-highlight-focused"});
 											};
+											return;
 										};
 									};
-									// file isn't already open, so open and then dothe thing?
-									var absFilePath = fnIsProjectFile(errfile);
-									window.api.open({path: absFilePath});
-									setTimeout(function() { // a stinky timeout because opening a file is an asynchronous action
-										var edit = window.editor.getActiveTabEditor();
-										if (edit) {
-											var cm = edit.datum.codemirror;
-											edit.activate();
-											window.editor.scrollActiveTab(errLine);
-											cm.doc.markText({line: errLine-1, ch: 0},
-															{line: errLine-1, ch: errCh},
-															{className: "cm-highlight-focused"});
-											
-										};
-									}, 500);
 								};
+								// file isn't already open, so open and then dothe thing?
+								var absFilePath = fnIsProjectFile(errfile);
+								window.api.open({path: absFilePath});
+								setTimeout(function() { // a stinky timeout because opening a file is an asynchronous action
+									var edit = window.editor.getActiveTabEditor();
+									if (edit) {
+										var cm = edit.datum.codemirror;
+										edit.activate();
+										window.editor.scrollActiveTab(errLine);
+										cm.doc.markText({line: errLine-1, ch: 0},
+														{line: errLine-1, ch: errCh},
+														{className: "cm-highlight-focused"});
+
+									};
+								}, 500);
+							};
 						};
 					})(lines[i]);
 				}
