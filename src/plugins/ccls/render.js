@@ -1,9 +1,9 @@
-// auto compete thing
 
 
 (() => {
-
-	function ElementCompletionsPopup(completions) {
+	
+	// auto compete thing
+	function ElementCCLSCompletionsPopup(completions) {
 		var self = this;
 		if (completions.length > 0) {
 			this.container = UI.makeUnique("popup", "div", "absolute popup", document.body);
@@ -117,15 +117,16 @@
 		}
 	};
 
-	ElementCompletionsPopup.prototype.move = function(x, y) {
+	ElementCCLSCompletionsPopup.prototype.move = function(x, y) {
 		this.container.style.left = `${x}px`;
 		this.container.style.top = `${y}px`;
 	};
-	ElementCompletionsPopup.prototype.destroy = function() {
+	ElementCCLSCompletionsPopup.prototype.destroy = function() {
 		this.select.onkeyup = null;
 		this.container.remove();
 		window.popups["ternjs"] = null;
 	};
+
 	//var tools = window.editor.rowTools
 	//new ElementIconButton(tools, "ui-icon-open", "").onclick = function() {
 	//	console.log("hello plugin world?");
@@ -168,7 +169,7 @@
 						var cm = datum.codemirror;
 						console.log(cm);
 						if (!cm.hasFocus() || !response.completions) return;
-						var popup = new ElementCompletionsPopup(response.completions);
+						var popup = new ElementCCLSCompletionsPopup(response.completions);
 						if (popup) {
 							if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
 								return popup.destroy();
