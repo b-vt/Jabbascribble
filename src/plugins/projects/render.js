@@ -547,7 +547,8 @@
 						var ns = _line.split(/:/g);
 						if (ns.length > 3) { // is this a gcc style error?
 							var msgType = ns[3].toLowerCase().trim();
-							if (msgType.match(/(error)/g).length > 0) {// is this an error?
+							var errMatch = msgType.match(/(error)/g);
+							if (errMatch != null && errMatch.length > 0) {// is this an error?
 								//console.log("this is an error line");
 								hasClick = true;
 								classname += " pointer-link";
