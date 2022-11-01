@@ -229,7 +229,7 @@
 			var active = editor.tabs.getActive();
 			if (active) {
 				var datum = editor.tabs.getActive().datum;
-				if (datum && datum.mode == "javascript") {
+				if (datum && datum.mode == "text/x-c++src" ) {
 					var cursor = datum.codemirror.getCursor();
 					var text = datum.codemirror.getValue();
 					var prj = window.editor.plugins["projectview"];

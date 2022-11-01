@@ -87,10 +87,13 @@ function GetModeFromExtension(extension) {
 				json: true}
 	}
 	else if (ext=="java") {
-		return {name: "java"}
+		return {name: "text/x-java"}
 	}
-	else if (ext=="c" || ext=="cpp" || ext=="h" || ext=="hpp" || ext=="cs") {
-		return { name: "text/x-c++src"};
+	else if (ext=="c" || ext=="cpp" || ext=="h" || ext=="hpp" || ext=="cs" || ext == "cc" || ext == "hh") {
+		return { name: "text/x-c++srcx"};
+	}
+	else if (ext=="php") {
+		return {name: "text/x-php"}
 	}
 	/*else if (ext=="") {
 		name = "";

@@ -153,7 +153,12 @@ function EditorWindow(opts) {
 			var tab = activeEditor.tabs.getActive();
 			tab.datum.mode = this.selectedOptions[0].id;
 			//console.log(this.selectedOptions);
-			tab.datum.codemirror.setOption("mode", {name: tab.datum.mode});
+			var mode = tab.datum.mode;
+			console.log("mode is: ", mode);
+			/*if (mode == "java"){// || mode == "php") {
+				mode = "text/x-c++src";
+			}*/
+			tab.datum.codemirror.setOption("mode", {name: mode});//tab.datum.mode});
 		}
 	};
 	function fnEditorTabActivate(activator) {
@@ -338,8 +343,8 @@ function EditorWindow(opts) {
 	UI.makeUnique("text/x-c++src", "option", "", activeFileExtension, "C/C++");
 	UI.makeUnique("xml", "option", "", activeFileExtension, "HTML");
 	UI.makeUnique("css", "option", "", activeFileExtension, "CSS");
-	UI.makeUnique("java", "option", "", activeFileExtension, "Java");
-	UI.makeUnique("php", "option", "", activeFileExtension, "Gross, PHP");
+	UI.makeUnique("text/x-java", "option", "", activeFileExtension, "Java");
+	UI.makeUnique("text/x-php", "option", "", activeFileExtension, "Gross, PHP");
 	UI.makeUnique("shell", "option", "", activeFileExtension, "Shell");
 
 	// indentation space or tabs toggle
