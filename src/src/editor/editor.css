@@ -919,7 +919,8 @@ details > .ui-context-menu {
 }
 .ui-output {
 	background-color: #0f0f0f;
-	overflow: scroll;
+	overflow-y: scroll;
+	overflow-wrap: break-word;
 	height: auto;
 	min-height: 30px;
 	padding: 0px 0px 0px 0px !important;
@@ -929,6 +930,7 @@ details > .ui-context-menu {
 .ui-output > div {
 	/*padding-left: 5px;*/
 	padding: 1px 1px 1px 5px;
+	overflow-wrap: break-word;
 }
 .ui-output > div:nth-child(even) {
 	background-color: #191919;

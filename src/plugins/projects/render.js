@@ -2,7 +2,7 @@
 (() => {
 	
 	
-	var ProjectFile = {projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
+	var ProjectFile = {projectDirectory: "", projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
 	
 	// is filename.txt in project file and if so what is the absolute path?
 	function fnIsProjectFile(name) {
@@ -117,10 +117,20 @@
 				var contentProjectPathLabel = new UI.make("div", "ui-label", contents, "Currently loaded project file:");
 				var contentProjectPath = new UI.make("input", "ui-input ui-input right", contentProjectPathLabel);//, ProjectFile.columns);
 				contentProjectPath.value = ProjectFile.projectFile;
+				
+				// 
+				var currentProjectDirectoryLabel = new UI.make("div", "ui-label", contents, "Working project directory:");
+				var currentProjectDirectory = new UI.make("input", "ui-input ui-input right", currentProjectDirectoryLabel);//, 
+				currentProjectDirectory.value = ProjectFile.projectDirectory;
+				currentProjectDirectory.onkeyup = function () {
+					ProjectFile.projectDirectory = currentProjectDirectory.value;
+				};
+				
+				// last elements due 
 				var defaultProjectDefaults = new UI.make("div", "ui-label", contents, "Use example run command as default:");
 				var contentProjectPathLabel = new UI.make("br", "", defaultProjectDefaults, "");
 				defaultProjectDefaults.title = "These examples will most likely require editing in Run Command tab";
-
+				
 
 				/* some default project things go here
 				*/
@@ -360,6 +370,7 @@
 				ProjectFile.columns = ProjectFile.columns || 1;
 				ProjectFile.active_files = ProjectFile.active_files || [];
 				ProjectFile.ignoreDepth = ProjectFile.ignoreDepth || 3;
+				ProjectFile.projectDirectory = ProjectFile.projectDirectory || "";
 				
 				self.projectFile = ProjectFile;
 				var projectsplits = ProjectFile.projectFile.split(/[\\\/]/g);
