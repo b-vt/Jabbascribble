@@ -920,8 +920,8 @@ details > .ui-context-menu {
 .ui-output {
 	background-color: #0f0f0f;
 	overflow-y: scroll;
-	overflow-wrap: break-word;
 	height: auto;
+	width: 100%;
 	min-height: 30px;
 	padding: 0px 0px 0px 0px !important;
 	user-select: text;
@@ -930,7 +930,8 @@ details > .ui-context-menu {
 .ui-output > div {
 	/*padding-left: 5px;*/
 	padding: 1px 1px 1px 5px;
-	overflow-wrap: break-word;
+	word-break: break-all;
+	width: 100%;
 }
 .ui-output > div:nth-child(even) {
 	background-color: #191919;

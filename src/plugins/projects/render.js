@@ -479,11 +479,18 @@
 		
 		var output = null;
 		var outputDestroyBtn = null;
+		
+		function fnAddOutput(style, msg) {
+			if (output != null)
+				return new UI.make("div", style, output, msg);
+		};
+
 		window.addEventListener('app-plugin-projectview-output', function(data) {
 			var d = data.detail;
 			var p = window.editor.footerContents.parentElement;
 			function fnForceOutputRepaint(output) {
 				// force a repaint...
+				//window.resizeTo(window.outerWidth, window.outerHeight);
 				window.resizeTo(window.outerWidth, window.outerHeight-1);
 				window.resizeTo(window.outerWidth, window.outerHeight+1);
 				// and scroll to the bottom of the output
@@ -536,21 +543,25 @@
 						outputResize.remove();
 						output = null;
 						fnCreateOutput(true);
-						new UI.make("div", "", output, "cleared");
+						fnAddOutput("color-lime", "output cleared");//new UI.make("div", "", output, "cleared");
 					}
+					
+					//fnAddOutput("", `stderr 00:12:50 ccls           initialize.cc:298 I initializationOptions: {"compilationDatabaseCommand":"","compilationDatabaseDirectory":"","cache":{"directory":".ccls-cache","format":"binary","hierarchicalPath":false,"retainInMemory":2},"capabilities":{"documentOnTypeFormattingProvider":{"firstTriggerCharacter":"}","moreTriggerCharacter":[]},"foldingRangeProvider":true,"workspace":{"workspaceFolders":{"supported":true,"changeNotifications":true}}},"clang":{"excludeArgs":[],"extraArgs":[],"pathMappings":[],"resourceDir":""},"client":{"diagnosticsRelatedInformation":true,"hierarchicalDocumentSymbolSupport":true,"linkSupport":true,"snippetSupport":true},"codeLens":{"localVariables":true},"completion":{"caseSensitivity":2,"detailedLabel":true,"dropOldRequests":true,"duplicateOptional":true,"filterAndSort":true,"include":{"blacklist":[],"maxPathSize":30,"suffixWhitelist":[".h",".hpp",".hh",".inc"],"whitelist":[]},"maxNum":100,"placeholder":true},"diagnostics":{"blacklist":[],"onChange":1000,"onOpen":0,"onSave":0,"spellChecking":true,"whitelist":[]},"highlight":{"largeFileSize":2097152,"lsRanges":false,"blacklist":[],"whitelist":[]},"index":{"blacklist":[],"comments":2,"initialNoLinkage":false,"initialBlacklist":[],"initialWhitelist":[],"maxInitializerLines":5,"multiVersion":0,"multiVersionBlacklist":[],"multiVersionWhitelist":[],"name":{"suppressUnwrittenScope":false},"onChange":false,"parametersInDeclarations":true,"threads":0,"trackDependency":2,"whitelist":[]},"request":{"timeout":5000},"session":{"maxNum":10},"workspaceSymbol":{"caseSensitivity":1,"maxNum":1000,"sort":true},"xref":{"maxNum":2000}}`);
 					return true;
 				};
 				return false;
 			};
+
 			fnCreateOutput();
 
 			var classname = "";
 			if (d.isError) classname = "color-red";
-			if (d.cmd) new UI.make("div", "color-lime", output, `> ${d.cmd}`);
+			if (d.cmd) fnAddOutput("color-lime", `> ${d.cmd}`);//new UI.make("div", "color-lime", output, `> ${d.cmd}`);
 			if (d.data)
 				var lines = d.data.split(/[\n]/g) || [];
 			else
 				var lines = [];
+
 			for(var i = 0; i < lines.length; i++)
 				if (lines[i].length > 0) {
 					((_line) => {
@@ -565,7 +576,8 @@
 								classname += " pointer-link";
 							};
 						};
-						var item = new UI.make("div", classname, output, _line);
+						var item = fnAddOutput(classname, _line);//new UI.make("div", classname, output, _line);
+						// todo: this is horrible and can lead to disasters
 						if (hasClick) {
 							item.onclick = function() {
 								// check if tab contains filename
