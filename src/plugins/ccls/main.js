@@ -13,8 +13,8 @@ function CCLSPluginMain(app, pluginConf, appWindow) {
 	this.server = null;
 	this.pluginName = "ccls_client";
 	this.pluginConf = pluginConf;
+	this.sendID = 0;
 	//this.port = Math.floor(Math.random() * 40000) + 20000;
-	this.hasAddedProject = false;
 	//console.log(`-- CCLSPluginMain constructor --\nport:%i\n`,this.port,  pluginConf);
 	
 };
@@ -23,7 +23,53 @@ CCLSPluginMain.prototype = Object.create(PluginMain.prototype);
 CCLSPluginMain.prototype.constructor = CCLSPluginMain;
 CCLSPluginMain.prototype.onRendererEvent = function(event) {
 	var self = this;
-	switch(event.request.type) {
+	
+	console.log(`-- CCLSPluginMain has received event --`, event);
+	/*uri: event.uri, 
+	ch: event.ch, 
+	line: event.line, 
+	text: event.text*/
+	function fnCCLSGetMethod(event) {
+		switch (event.type) {
+			case "completes": {
+				sendID = parseInt(sendID++);
+				return "textDocument/completion";
+			}
+			
+			default: {
+				return "";
+			}
+		};
+	};
+	function fnCCLSMakeRequest(event) {
+		
+		switch (event.type) {
+			case "completes": {
+				sendID = parseInt(sendID++);
+				return "textDocument/completion";
+			}
+			
+			default: {
+				return "";
+			}
+		};
+		
+		var req = {
+			jsonrpc: "2.0",
+			method: fnCCLSGetMethod(event),
+			params: {}
+		}
+		if (!noId) req.id = parseInt(sendID++);
+		
+		
+		if (self.server == null) {
+			
+		};
+	};
+	
+	
+	
+	/*switch(event.request.type) {
 		case "completes": {
 			post = fnRequestCompletions(event);
 			break;
@@ -55,11 +101,13 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 		else {
 			self.window.webContents.send("main-plugin", { pluginName: self.pluginName, type: "completions", data: data });
 		}
-	});
+	});*/
 };
 CCLSPluginMain.prototype.start = function(inc) {
 	console.log(`-- CCLSPluginMain has started --`);
-	var self = this;
+	
+	
+	/*var self = this;
 	inc = inc || 0;
 	this.port = Math.floor(Math.random() * 40000) + 20000;
 	if (this.server != null) this.destroy();
@@ -99,16 +147,16 @@ CCLSPluginMain.prototype.start = function(inc) {
 	}
 	catch(e) {
 		console.log(e);
-	}
+	}*/
 	return this;
 };
 CCLSPluginMain.prototype.destroy = function() {
 	console.log("-- CCLSPluginMain cleanup! --");
-	if (this.server.exit)
+	/*if (this.server.exit)
 		this.server.exit('SIGINT');
 	else
 		this.server.kill();
-	this.server = null;
+	this.server = null;*/
 	return;
 };
 if (typeof module!=="undefined")

@@ -124,7 +124,7 @@
 	ElementCCLSCompletionsPopup.prototype.destroy = function() {
 		this.select.onkeyup = null;
 		this.container.remove();
-		window.popups["ternjs"] = null;
+		window.popups["ccls_client"] = null;
 	};
 
 	//var tools = window.editor.rowTools
@@ -134,16 +134,16 @@
 	var lastKeyStrokeTimer = null;
 	var autoRequest = true;
 	
-	function TernRender() { // todo: refactor
+	function CCLSRender() { // todo: refactor
 		//this.name = "ternjs";
 		var self = this;
-		this.pluginName = "ternjs";
-		this.pluginEventName = "plugin-event-ternjs";
+		this.pluginName = "ccls_client";
+		//this.pluginEventName = "plugin-event-ternjs";
 		
 		//var menu = window.editor.menu;
 		window.editor.plugins[this.pluginName] = this;  
 		var pluginsMenu = window.editor.menu.plugins;//add("Plugins");
-		var viewItem = pluginsMenu.add("Tern Request on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to Tern server if available with a 250ms keyup delay").onclick = function() {
+		var viewItem = pluginsMenu.add("CCLS Request on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to CCLS if available with a 250ms keyup delay").onclick = function() {
 			if (autoRequest) {
 				autoRequest = false;
 				this.container.children[0].classList.remove("ui-icon-plugin-enabled");
@@ -156,7 +156,7 @@
 			}
 
 		}
-		window.addEventListener('app-plugin-ternjs-completions', function(event) {
+		window.addEventListener('app-plugin-ccls-completions', function(event) {
 			if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function")) 
 				window.popups[self.pluginName].destroy();
 			try {
@@ -223,7 +223,8 @@
 				console.log(e);
 			}
 		});
-
+		
+		// client protocol
 		function fnGetCompletions() {
 			var editor =  window.editor.columns.active().editor;
 			var active = editor.tabs.getActive();
@@ -233,10 +234,10 @@
 					var cursor = datum.codemirror.getCursor();
 					var text = datum.codemirror.getValue();
 					var prj = window.editor.plugins["projectview"];
-					var files = [];
+					/*var files = [];
 					console.log(prj.projectFile);
 					if (prj && prj.projectFile)
-						files = prj.projectFile.files;
+						files = prj.projectFile.files;*/
 						/*window.api.plugin({
 							pluginName: self.pluginName, event: "render", 
 							request: {
@@ -246,12 +247,13 @@
 						});*/
 					window.api.plugin({
 						pluginName: self.pluginName, event: "render", request: {
+							
 							type: "completes",
-							file: datum.path || `new_file_${Math.floor(Math.random() * 10000)}`, 
+							uri: datum.path, 
 							ch: cursor.ch, 
 							line: cursor.line, 
-							text: text,
-							files: files
+							text: text/*,
+							files: files*/
 						}
 					});
 				}
@@ -316,6 +318,6 @@
 		};
 	};*/
 		
-	new TernRender();
+	new CCLSRender();
 	
 })();

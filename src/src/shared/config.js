@@ -27,16 +27,20 @@ var Config = {
 			renderer: "projects/render.js"
 		},
 		{
-			main: "cstuff/main.js",
-			renderer: "cstuff/render.js"
-		},
-		{
 			main: "ternjs/main.js",
 			renderer: "ternjs/render.js",
 			config: {
 				bin: "/bin/bin/tern"
 			}
+		},
+		{
+			main: "ccls/main.js",
+			renderer: "ccls/render.js",
+			config: {
+				bin: "{$HOME}/src/ccls/build/ccls"
+			}
 		}
+		
 	]
 };
 if (typeof module!=="undefined")

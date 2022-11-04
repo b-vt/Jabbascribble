@@ -90,7 +90,7 @@ function GetModeFromExtension(extension) {
 		return {name: "text/x-java"}
 	}
 	else if (ext=="c" || ext=="cpp" || ext=="h" || ext=="hpp" || ext=="cs" || ext == "cc" || ext == "hh") {
-		return { name: "text/x-c++srcx"};
+		return { name: "text/x-c++src"};
 	}
 	else if (ext=="php") {
 		return {name: "text/x-php"}
