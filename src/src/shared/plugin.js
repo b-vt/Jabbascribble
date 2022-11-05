@@ -4,12 +4,14 @@ function PluginMain(app, conf, appWindow) {
 	//PluginMain.call(this);
 	//console.log("PluginMain constructor");
 	this.pluginName = typeof GetRandomString === "function" ? GetRandomString() : "*";
+	this.pluginVersion = "0.0";
 };
 // inheritance  
 //MyPluginMain.prototype = Object.create(PluginMain.prototype);
 //MyPluginMain.prototype.constructor = MyPluginMain;
 //
 PluginMain.prototype.pluginName = ""; // required by Plugins, used as map key and event owner
+PluginMain.prototype.pluginVersion = ""; // used by external applications like ccls
 
 /* any event from renderer thread */
 PluginMain.prototype.onRendererEvent = function(message) {

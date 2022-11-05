@@ -2,7 +2,7 @@
 (() => {
 	
 	
-	var ProjectFile = {projectDirectory: "", projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
+	var ProjectFile = {projectLanguage: "", projectDirectory: "", projectFile: "", files:[], columns: 1, active_files: [], ignoreDepth: 3, runCommands: []}; // active_files: [{file: "", column: 1}]	
 	
 	// is filename.txt in project file and if so what is the absolute path?
 	function fnIsProjectFile(name) {

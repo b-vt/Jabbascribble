@@ -5,6 +5,7 @@
 	// auto compete thing
 	function ElementCCLSCompletionsPopup(completions) {
 		var self = this;
+		console.log("am i here", completions);
 		if (completions.length > 0) {
 			this.container = UI.makeUnique("popup", "div", "absolute popup", document.body);
 			this.container.isPopup = true;
@@ -65,23 +66,24 @@
 			var hasListItem = false;
 			for(var i = 0; i < completions.length; i++) {
 				((_item, _i) => {
+					console.log("i spy: ", _item);
 					/*if (_item.depth == 0) {
 						offset+=1;
 						return;
 					}*/
 					hasListItem = true;
 					var index = _i;// - offset;
-					var opt = UI.make("div", "popup-option popup-option-autocomplete", self.select, _item.name);
-					if (_item.type) {
+					var opt = UI.make("div", "popup-option popup-option-autocomplete", self.select, _item.textEdit.newText);
+					/*if (_item.type) {
 						if (matchText(_item.type, "fn(")) {
-							new UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.type}`)
+							new UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.label}`)
 							//UI.make("div", "", opt, "blargle");
 						}
 					}
 					if (_item.doc) {
-						opt.docs = new UI.make("div", "autocomplete-docs", opt, _item.doc);
+						opt.docs = new UI.make("div", "autocomplete-docs", opt, _item.documentation);
 						opt.docs.setAttribute("data-show", "0");
-					};
+					};*/
 					function fnActivate() {
 						self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
 						if (self.select.options[self.select.selectedIndex].docs != null) {
@@ -156,20 +158,36 @@
 			}
 
 		}
-		window.addEventListener('app-plugin-ccls-completions', function(event) {
+		
+		function fnTrimData(data) {
+			var nData = [];
+			var ready = false;
+			for(var i = 0; i < data.length; i++) {
+				
+				if (!ready && data[i] == "{") {
+					ready = true;
+				};
+				if (ready)
+					nData[i] = data[i];
+			}
+			return nData.join("");
+		};
+		window.addEventListener('app-plugin-ccls_client-completions', function(event) {
+			//console.log(event);
 			if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function")) 
 				window.popups[self.pluginName].destroy();
 			try {
-				var response = JSON.parse(event.detail.data);
+				var response = JSON.parse(fnTrimData(event.detail.data));//event.detail.data);
+				console.log("?!!? response!!?L:!", response.result.items);
 				var editor =  window.editor.columns.active().editor;
 				var active = editor.tabs.getActive();
 				if (active) {
 					var datum = editor.tabs.getActive().datum;
 					if (datum) {
 						var cm = datum.codemirror;
-						console.log(cm);
-						if (!cm.hasFocus() || !response.completions) return;
-						var popup = new ElementCCLSCompletionsPopup(response.completions);
+						//console.log(cm);
+						if (!cm.hasFocus() || !response.result.items) return;
+						var popup = new ElementCCLSCompletionsPopup(response.result.items);
 						if (popup) {
 							if (popup.select.options.length == 0 || cm.display.cursorDiv.children[0] == undefined || cm.display.cursorDiv.children[0] == null)
 								return popup.destroy();
@@ -189,7 +207,7 @@
 							}
 							popup.container.onkeyup = function(event, prevent) {
 								var dto = new InputEventDto(event);
-								console.log(cm);
+								//console.log(cm);
 								event.preventDefault();
 								event.stopPropagation();
 								if (dto.key == InputEventDto.prototype.KEY_RETURN || dto.key == InputEventDto.prototype.KEY_TAB) {
@@ -245,16 +263,20 @@
 								files: prj.projectFile.files,
 							}
 						});*/
+					var req = {
+						method: "completes",
+						projectDir: prj.projectFile.projectDirectory,
+						uri: datum.path, 
+						ch: cursor.ch, 
+						line: cursor.line, 
+						text: text/*,
+						files: files*/
+					}
+					// todo: there is no way to set this
+					if (prj.projectFile.projectLanguage && prj.projectFile.projectLanguage.length > 0)
+						req.projectLanguage = prj.projectFile.projectLanguage;
 					window.api.plugin({
-						pluginName: self.pluginName, event: "render", request: {
-							
-							type: "completes",
-							uri: datum.path, 
-							ch: cursor.ch, 
-							line: cursor.line, 
-							text: text/*,
-							files: files*/
-						}
+						pluginName: self.pluginName, event: "render", request: req
 					});
 				}
 			}
@@ -265,7 +287,7 @@
 			console.log(dto);
 			// skip this routine if auto send is disabled or if this press was the hotkey
 			var bf = (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.CTRL) || (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.SHIFT);
-			if (!autoRequest || bf==true) return console.log("returned because no autorequest or ctrl key was held"); 
+			if (!autoRequest || bf==true) return console.log("returned because no autorequest or ctrl key was held", autoRequest, bf, (!autoRequest || bf==true)); 
 			var editor =  window.editor.columns.active().editor;
 			var active = editor.tabs.getActive();
 			if (active) {
