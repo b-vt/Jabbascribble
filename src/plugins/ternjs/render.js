@@ -256,6 +256,8 @@
 				}
 			}
 		}
+		
+		window.editor.plugins[this.pluginName].fnGetCompletions = fnGetCompletions;
 
 		window.addEventListener('keyup', function(event) { // todo: refactor
 			var dto = new InputEventDto(event);
@@ -304,7 +306,9 @@
 			if (autoRequest && window.popups[self.pluginName])
 					window.popups[self.pluginName].select.focus();
 			else  {
-				fnGetCompletions();
+				//window.popups[self.pluginName].fnGetCompletions();//fnGetCompletions();
+				console.log("ternjs hot key");
+				window.editor.plugins[self.pluginName].fnGetCompletions();
 			}
 		});
 		

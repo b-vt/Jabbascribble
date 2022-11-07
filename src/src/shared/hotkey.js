@@ -13,11 +13,12 @@ function Hotkeys(element) {
 		self.onKeyDown(input);
 		self.keymap = input.keymap;
 		for(var i = 0; i < self.list.length; i++) {
+			console.log("am i here");
 			var hotkey = self.list[i];
 			if (hotkey.check(input, event)) {
-				self.canConsume = false;
+				//self.canConsume = false;
 				self.keymap = [];
-				break;
+				//break;
 			}
 		}
 	};
@@ -67,9 +68,10 @@ Hotkey.prototype.check = function(dto, event) {
 	});
 	if (sets==this.keys.length) {
 		this.callback(dto, event);
-		return true;
+		sets = 0;
+		//return true;
 	}
-	return false;
+	//return false;
 };
 Hotkeys.prototype.destroy = function() {
 	this.keys = null;

@@ -71,9 +71,22 @@
 						offset+=1;
 						return;
 					}*/
+					
 					hasListItem = true;
 					var index = _i;// - offset;
 					var opt = UI.make("div", "popup-option popup-option-autocomplete", self.select, _item.textEdit.newText);
+					opt.completeRange = {
+						start: {
+							line: _item.textEdit.range.start.line, 
+							ch: _item.textEdit.range.start.character
+						},
+						end: {
+							line: _item.textEdit.range.end.line, 
+							ch: _item.textEdit.range.end.character
+						}
+					};
+					var optLabel = new UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.label}`);
+					optLabel.style.paddingLeft = "10px";
 					/*if (_item.type) {
 						if (matchText(_item.type, "fn(")) {
 							new UI.make("div", "right autocomplete-descriptor", opt, `\t\t${_item.label}`)
@@ -87,7 +100,7 @@
 					function fnActivate() {
 						self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
 						if (self.select.options[self.select.selectedIndex].docs != null) {
-							self.select.options[self.select.selectedIndex].docs.setAttribute("data-show", "0");;//classList.add("hidden");
+							self.select.options[self.select.selectedIndex].docs.setAttribute("data-show", "0");//classList.add("hidden");
 						}
 						if (opt.docs != null) {
 							opt.docs.setAttribute("data-show", "1");
@@ -105,7 +118,7 @@
 						scroll(e);
 					}
 					opt.onclick = fnActivate;
-					opt.name = _item.name;
+					opt.name = _item.textEdit.newText;
 					opt.isPopup = true;
 					self.select.options[index] = opt;
 				})(completions[i], i);
@@ -143,7 +156,7 @@
 		//this.pluginEventName = "plugin-event-ternjs";
 		
 		//var menu = window.editor.menu;
-		window.editor.plugins[this.pluginName] = this;  
+		window.editor.plugins[this.pluginName] = this; 
 		var pluginsMenu = window.editor.menu.plugins;//add("Plugins");
 		var viewItem = pluginsMenu.add("CCLS Request on Keypress", "ui-icon-plugin-enabled", "Send an autocomplete request to CCLS if available with a 250ms keyup delay").onclick = function() {
 			if (autoRequest) {
@@ -216,8 +229,9 @@
 									prevent = prevent || 0;
 									popup.destroy();
 									cm.focus();
-									if (prevent) response.end.ch += 1; // handle the inserted tab
-									cm.replaceRange(opt.name, response.start, response.end);
+									if (prevent) opt.completeRange.end.ch += 1; // handle the inserted tab
+									console.log(opt.name, opt.completeRange.start, opt.completeRange.end);
+									cm.replaceRange(opt.name, opt.completeRange.start, opt.completeRange.end);
 
 								}
 								else if (dto.key == InputEventDto.prototype.KEY_ESCAPE) {
@@ -227,12 +241,13 @@
 							}
 							popup.container.ondblclick = function(event) {
 								var opt = popup.select.options[popup.select.selectedIndex];
-								cm.replaceRange(opt.name, response.start, response.end);
+								cm.replaceRange(opt.name, opt.completeRange.start, opt.completeRange.end);
 								popup.destroy();
 								cm.focus();
 							}
 
 							window.popups[self.pluginName] = popup;
+							console.log("hello world?", window.popups[self.pluginName]);
 						}
 					}
 				}
@@ -281,13 +296,15 @@
 				}
 			}
 		}
+		
+		window.editor.plugins[this.pluginName].fnGetCompletions = fnGetCompletions;
 
 		window.addEventListener('keyup', function(event) { // todo: refactor
 			var dto = new InputEventDto(event);
 			console.log(dto);
 			// skip this routine if auto send is disabled or if this press was the hotkey
 			var bf = (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.CTRL) || (new Bitfield(dto.modifiers)).compare(InputEventDto.prototype.SHIFT);
-			if (!autoRequest || bf==true) return console.log("returned because no autorequest or ctrl key was held", autoRequest, bf, (!autoRequest || bf==true)); 
+			if (!autoRequest || bf==true) return console.log("x returned because no autorequest or ctrl key was held", autoRequest, bf, (!autoRequest || bf==true)); 
 			var editor =  window.editor.columns.active().editor;
 			var active = editor.tabs.getActive();
 			if (active) {
@@ -326,10 +343,12 @@
 
 		});
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_SPACE], function() {
+			console.log("?!?!?");
 			if (autoRequest && window.popups[self.pluginName])
 					window.popups[self.pluginName].select.focus();
 			else  {
-				fnGetCompletions();
+				console.log("ccls hot key");
+				window.editor.plugins[self.pluginName].fnGetCompletions();
 			}
 		});
 		
