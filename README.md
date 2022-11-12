@@ -8,7 +8,7 @@ To use this application you will need to download **[ElectronJS v13.6.3 to v19.0
 
 This is a personal toy and a naive attempt at being a free clone of another very popular text editor.
 The following 'features' are provided:
-- Autocompletion currently only provided for Javascript through TernJS, a CCLS client is also provided for c/c++ but CCLS is not included.
+- Autocompletion currently only provided for Javascript through TernJS, a CCLS client is also provided for c/c++ but [CCLS](https://github.com/maskray/ccls) is not included.
 - Syntax highlighting for C/C++/Javascript/HTML/CSS and more are possible through CodeMirror modes
 - A simple project environment
 - Tabbed views and multiple column support
