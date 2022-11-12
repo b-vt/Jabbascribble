@@ -8,7 +8,7 @@ To use this application you will need to download **[ElectronJS v13.6.3 to v19.0
 
 This is a personal toy and a naive attempt at being a free clone of another very popular text editor.
 The following 'features' are provided:
-- Autocompletion currently only provided for Javascript through TernJS
+- Autocompletion currently only provided for Javascript through TernJS, a CCLS client is also provided for c/c++ but CCLS is not included.
 - Syntax highlighting for C/C++/Javascript/HTML/CSS and more are possible through CodeMirror modes
 - A simple project environment
 - Tabbed views and multiple column support
@@ -16,11 +16,10 @@ The following 'features' are provided:
 - A copy of every file is saved in the tmp folder in case of oopsies
 
 Todo:
-- Turns out not indicating a file or tab has been modified is really, really inconvenient but not yet inconvenient enough to implement
+- Turns out not indicating an unfocused file or tab has been modified is really, really inconvenient but not yet inconvenient enough to implement
 - Webserver support
 - Automatic javascript prototype syntax inheritance from file
 - Temp file does not support multiple files of the same filename
 - Refactoring, there's a lot of prototyping cheese
 - The project view list needs to be sorted and also it looks yucky
-- Ccls integration might be neato
 - Everything else
