@@ -38,6 +38,7 @@
 					}
 					var item = self.select.options[self.select.selectedIndex];
 					var h = item.scrollHeight;
+					console.log(h, item, item.scrollHeight);
 					item.setAttribute("data-selected", "1");
 					if (item.docs != null) {
 						item.docs.setAttribute("data-show", "1");
@@ -97,11 +98,16 @@
 						opt.docs = new UI.make("div", "autocomplete-docs", opt, _item.documentation);
 						opt.docs.setAttribute("data-show", "0");
 					};*/
+					if (_item.documentation) {
+						opt.docs = new UI.make("div", "autocomplete-docs", opt, _item.documentation);
+						opt.docs.setAttribute("data-show", "0");
+					}
 					function fnActivate() {
 						self.select.options[self.select.selectedIndex].setAttribute("data-selected", "0");
 						if (self.select.options[self.select.selectedIndex].docs != null) {
 							self.select.options[self.select.selectedIndex].docs.setAttribute("data-show", "0");//classList.add("hidden");
 						}
+						var h = opt.scrollHeight;
 						if (opt.docs != null) {
 							opt.docs.setAttribute("data-show", "1");
 							//h = opt.docs.scrollHeight;
@@ -109,8 +115,8 @@
 						self.select.selectedIndex = index;
 						opt.setAttribute("data-selected", "1");
 						//if (opt.docs != null) opt.docs.remove(); 
-						var h = opt.scrollHeight;
-
+						
+						console.log(h, opt, opt.scrollHeight);
 						self.select.focus();
 						self.container.scrollTo(0, h * self.select.selectedIndex);
 					}
@@ -171,26 +177,12 @@
 			}
 
 		}
-		
-		function fnTrimData(data) {
-			var nData = [];
-			var ready = false;
-			for(var i = 0; i < data.length; i++) {
-				
-				if (!ready && data[i] == "{") {
-					ready = true;
-				};
-				if (ready)
-					nData[i] = data[i];
-			}
-			return nData.join("");
-		};
 		window.addEventListener('app-plugin-ccls_client-completions', function(event) {
 			//console.log(event);
 			if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function")) 
 				window.popups[self.pluginName].destroy();
 			try {
-				var response = JSON.parse(fnTrimData(event.detail.data));//event.detail.data);
+				var response = JSON.parse(event.detail.data);//event.detail.data);
 				console.log("?!!? response!!?L:!", response.result.items);
 				var editor =  window.editor.columns.active().editor;
 				var active = editor.tabs.getActive();

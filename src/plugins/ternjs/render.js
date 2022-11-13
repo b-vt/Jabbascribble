@@ -87,6 +87,7 @@
 						if (self.select.options[self.select.selectedIndex].docs != null) {
 							self.select.options[self.select.selectedIndex].docs.setAttribute("data-show", "0");;//classList.add("hidden");
 						}
+						var h = opt.scrollHeight;
 						if (opt.docs != null) {
 							opt.docs.setAttribute("data-show", "1");
 							//h = opt.docs.scrollHeight;
@@ -94,7 +95,7 @@
 						self.select.selectedIndex = index;
 						opt.setAttribute("data-selected", "1");
 						//if (opt.docs != null) opt.docs.remove(); 
-						var h = opt.scrollHeight;
+						
 
 						self.select.focus();
 						self.container.scrollTo(0, h * self.select.selectedIndex);

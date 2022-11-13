@@ -31,6 +31,15 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 	
 	console.log(`-- CCLSPluginMain has received event --`, event);
 
+	function trimResponse(data) {
+		var nData = [];
+		var ready = false;
+		for(var i = 0; i < data.length; i++) {
+			if (data[i] == "{") {
+				return data.substring(i);
+			};
+		}
+	};
 	
 	function fnCCLSSpawnProcess() {
 		
@@ -51,11 +60,22 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 		self.server.stdout.on("data", function(data) {
 			//console.log("stdout", data.toString('utf8', 0, data.length + 1));
 			// send request to renderer?
-			self.window.webContents.send("main-plugin", { 
-				pluginName: self.pluginName, 
-				type: "completions", 
-				data: data.toString('utf8', 0, data.length + 1)//data 
-			});
+			var dstr = trimResponse(data.toString('utf8', 0, data.length + 1));
+			try {
+				console.log(dstr);
+				var dobj = JSON.parse(dstr);
+				if (dobj.result && dobj.result.items && dobj.result.items.length > 0) {
+					self.window.webContents.send("main-plugin", { 
+						pluginName: self.pluginName, 
+						type: "completions", 
+						data: dstr//data.toString('utf8', 0, data.length + 1)//data 
+					});
+				}
+			//}
+			}
+			catch (e) {
+				console.warn(e, dstr);
+			}
 		});
 		event.request.method = "init";
 		self.server.stdin.write(fnCCLSMakeRequest(event.request));
@@ -70,7 +90,8 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 					request.id = `${(self.sendID++)}`;
 					request.params = {
 						textDocument: {
-							uri: `file://${req.uri}`
+							uri: `file://${req.uri}`,
+							text: req.text
 						},
 						position: {
 							line: req.line,
@@ -103,9 +124,9 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 					request.params.textDocument = {};
 					request.params.textDocument.uri = `file://${req.uri}`;
 					request.params.textDocument.version = 1;
-					if (self.openFiles[req.uri]) {
+					/*if (self.openFiles[req.uri]) {
 						request.params.textDocument.version = self.openFiles[req.uri].version;
-					}
+					}*/
 					var langID = path.extname(req.uri);
 					// get language ID from project file
 					if (req.projectLanguage && req.projectLanguage.length > 0)
@@ -140,13 +161,19 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 	if (self.server == null) { // start and initialize ccls process
 		fnCCLSSpawnProcess();
 	}
-	if (!self.openFiles[event.request.uri]) {
-		console.log("opening file..");
+	else if (!self.openFiles[event.request.uri] || self.openFiles[event.request.uri].text != event.request.text) {
 		event.request.method = "open";
 		self.server.stdin.write(fnCCLSMakeRequest(event.request));
+		self.openFiles[event.request.uri] = {text: event.request.text}
+		setTimeout(() => {
+			event.request.method = "completes";
+			self.server.stdin.write(fnCCLSMakeRequest(event.request));
+		}, 500);
 	}
-	event.request.method = "completes";
-	self.server.stdin.write(fnCCLSMakeRequest(event.request));
+	else {
+		event.request.method = "completes";
+		self.server.stdin.write(fnCCLSMakeRequest(event.request));
+	}
 	
 	/*switch(event.request.type) {
 		case "completes": {
