@@ -60,6 +60,9 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 	function nextCommand(runCmds, i) {
 		if (i >= runCmds.length) return;
 		var args = runCmds[i].split(" ");
+		var nowait = false;
+		if (args.join(" ").match(/(&)/g) != null)
+			nowait = true;
 		var cmd = args[0];
 		args.splice(0, 1);
 		cmd = cmd.replace("electron", process.argv[0]);
@@ -68,7 +71,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 			return nextCommand(runCmds, i+1);
 		}
 		// set spawn callback scope
-		((_cmds, _cmd, _args, _index) => { 
+		((_cmds, _cmd, _args, _index, _nowait) => { 
 			//console.log("spawned process: %i\n%s\n%o\n%s", _index, _cmd, _args, _cmds);
 			try {
 				var proc = child.spawn(_cmd, _args, { cwd: cwd});
@@ -87,7 +90,10 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 								type: "output", 
 								data: terminateMessage
 							});
-							nextCommand(_cmds, _index+1);
+							if (!_nowait) { // only nextCommand here if waiting for previous process to end
+								console.log("spawned next after previous close");
+								nextCommand(_cmds, _index+1);
+							};
 						}
 						catch (e) { // the window was closed
 							console.log("something bad has happened", e);
@@ -127,6 +133,10 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 								data: `command ${_cmd} failed: ${data}`
 						});
 					});
+					if (_nowait == true) { // don't wait until the process has closed before running the next command
+						console.log("spawned next without waiting for previous close");
+						nextCommand(_cmds, _index+1);
+					};
 				};
 			}
 			catch (e) {
@@ -139,7 +149,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 						data: `command ${_cmd} failed`
 					});
 			}
-		})(cmds, cmd, args, i);
+		})(cmds, cmd, args, i, nowait);
 	};
 	
 	nextCommand(cmds, 0);
