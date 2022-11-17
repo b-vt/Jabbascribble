@@ -3,7 +3,7 @@ Bugs & Incomplete features:
 - Autocomplete has a tendency to add extra characters, also it's not easy to use.
 - Javascript inheritence shortcut does not work.
 - The goto element adds an invisible element when it's cleared.
-
+- cleanup console.log spam
 
 Things I want:
 - Renderer should indicate to main that it is fully loaded and ready.
