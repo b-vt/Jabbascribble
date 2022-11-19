@@ -2,7 +2,6 @@ Bugs & Incomplete features:
 - Tab dragging doesn't change tab to new column when released, also has incorrect position.
 - Autocomplete has a tendency to add extra characters, also it's not easy to use.
 - Javascript inheritence shortcut does not work.
-- The goto element adds an invisible element when it's cleared.
 - cleanup console.log spam
 
 Things I want:

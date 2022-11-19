@@ -457,13 +457,14 @@ function EditorWindow(opts) {
 		window.popups["gotoprompt"] = p;
 		var fc = footerContents.children[0];
 		footerContents.insertBefore(p, fc);
-		footerContents.insertBefore(UI.make("span", "", p, " ", true), fc);
+		var spacer = footerContents.insertBefore(UI.make("span", "", p, " ", true), fc);
 		var input = UI.make("input", "ui-input ui-input-number", p);
 
 		p.isPopup = true;
 		input.isPopup = true;
 
 		p.destroy = function() {
+			spacer.remove();
 			this.remove();
 		};
 		/*p.style.x = "-10px";
