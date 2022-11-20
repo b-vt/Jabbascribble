@@ -70,15 +70,19 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 			cwd = path.resolve(args.join(""));
 			return nextCommand(runCmds, i+1);
 		}
+		console.log("doing ", cmd);
 		// set spawn callback scope
 		((_cmds, _cmd, _args, _index, _nowait) => { 
 			//console.log("spawned process: %i\n%s\n%o\n%s", _index, _cmd, _args, _cmds);
 			try {
 				var proc = child.spawn(_cmd, _args, { cwd: cwd});
+				console.log("did ", _cmd);
 				if (proc) {
+					console.log("proc is not null");
 					self.spawnedProcessList[self.spawnedProcessList.length] = proc;
 					//var procMap = `${proc.pid}`;
 					proc.on("close", function(data) {
+						console.log("close?");
 						try {
 							var dats = slapData(data, "proc on close");
 							dats = data != null ? `: ${dats}` : "";
@@ -90,13 +94,14 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 								type: "output", 
 								data: terminateMessage
 							});
-							if (!_nowait) { // only nextCommand here if waiting for previous process to end
-								console.log("spawned next after previous close");
-								nextCommand(_cmds, _index+1);
-							};
+							
 						}
 						catch (e) { // the window was closed
 							console.log("something bad has happened", e);
+						};
+						if (_nowait==false) { // only nextCommand here if waiting for previous process to end
+							console.log("spawned next after previous close: ", _cmds[_index+1]);
+							nextCommand(_cmds, _index+1);
 						};
 					});
 					//
@@ -117,6 +122,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 					proc.on("spawn", function(data) {
 						console.log("tracking new spawned process", data);
 						self.spawnedProcessList[_index] = proc;
+						//nextCommand(_cmds, _index+1);
 					});
 					// on exit occurs before close, and stdio may still be active
 					proc.on("exit", function(data) {
@@ -133,8 +139,11 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 								data: `command ${_cmd} failed: ${data}`
 						});
 					});
+					proc.on("SIGINT", function(data) {
+						console.log("sigint?");
+					});
 					if (_nowait == true) { // don't wait until the process has closed before running the next command
-						console.log("spawned next without waiting for previous close");
+						console.log("spawned next without waiting for previous close: ", _cmds[_index+1]);
 						nextCommand(_cmds, _index+1);
 					};
 				};

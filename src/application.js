@@ -55,6 +55,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 		electron.ipcMain.on('main-close', function(event, data) {
 			console.log("received close", data);
+			process.kill(process.pid, "SIGINT");
 		});
 		// 
 		/*electron.ipcMain.on('renderer-inheritjavascript', function(event, data) {
@@ -216,6 +217,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		});
 		appWindow.on("close", function(event, data) { // todo: dont remember if this comes before or after the window has closed
 			console.log("bye");
+			process.kill(process.pid, "SIGINT");
 		});
 		return appWindow;
 	}
