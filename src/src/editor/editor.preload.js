@@ -1,20 +1,20 @@
 // renderer script
 var electron = require("electron");
-var {contextBridge} = require("electron");
-var dialog = require("electron").dialog;
+//var {contextBridge} = require("electron");
+/*var dialog = require("electron").dialog;
 var proc = require("process");
 var fs = require("fs");
 var path = require("path");
 
 var {SerializeObject, CloneObjectProperties} = require("../shared/common.js");
-var {Config} = require("../shared/config.js");
+var {Config} = require("../shared/config.js");*/
 
 var API_Blob = { // do not modify, contains persistent data to exchange between main and this renderer
 	ready: false, // todo: it should no longer be possible for ApiInit to be called after other preload functions
 	uuid: 0 // renderer UUID created by main thread
 };
 
-contextBridge.exposeInMainWorld('api', {
+electron.contextBridge.exposeInMainWorld('api', {
 	persist:			() => { return API_Blob; },
 	save: 					ApiSaveFile,//(data) 		=> ApiSaveFile(data),
 	plugin:					ApiPlugin,//(data) 		=> ApiPlugin(data),
