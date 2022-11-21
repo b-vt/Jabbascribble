@@ -10,8 +10,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 (() => {
 	
 	var APP_VERSION_MAJOR = 0;
-	var APP_VERSION_MINOR = 0;
-	var APP_VERSION_PATCH = 0x07062022; // the date of modification
+	var APP_VERSION_MINOR = 1;
+	var APP_VERSION_PATCH = 0x11212022; // the date of modification
 	var DEBUG = false;
 	
 	/*electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
@@ -253,6 +253,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		})(file, encoding ,uuid);
 	};
 	function SaveFile(file, encoding, data, id, uuid, fnDone, fnError) {
+		console.log("save file encoding: ", encoding);
 		((_file, _encoding, _data, _id, _uuid) => {
 			fnDone = fnDone || (() => {});
 			fnError = fnError || (() => {});

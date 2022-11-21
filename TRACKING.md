@@ -3,6 +3,7 @@ Bugs & Incomplete features:
 - Autocomplete has a tendency to add extra characters, also it's not easy to use.
 - Javascript inheritence shortcut does not work.
 - cleanup console.log spam
+- when project list view is open and columns are resized before going back to one column the project list view will take up more space
 
 Things I want:
 - Renderer should indicate to main that it is fully loaded and ready.
