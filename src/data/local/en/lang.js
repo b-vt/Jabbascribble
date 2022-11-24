@@ -17,6 +17,8 @@ var Lang = {
 		NewHint: "New tab",
 		Quit: "Quit",
 		QuitHint: "Close this window(without warning!)",
+		Preferences: "Preferences",
+		PreferencesHint: "Modify config file",
 		// view menu
 		View: "View",
 		OpenRenderConsole: "Open Render Console",

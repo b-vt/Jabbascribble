@@ -367,9 +367,6 @@ function EditorWindow(opts) {
 	file.add(Lang.Menu.New, "ui-icon-new", Lang.Menu.NewHint).onclick = fnNewFile;
 	file.add(Lang.Menu.Save, "ui-icon-save", Lang.Menu.SaveHint).onclick = fnSaveCurrent;
 	file.add();
-	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
-		window.api.quit();
-	};
 	
 	var edit = menu.add(Lang.Menu.Edit);
 	this.menu.edit = edit;
@@ -410,6 +407,11 @@ function EditorWindow(opts) {
 		window.api.gc();
 	};
 	fnCreateEditorColumns(Config.editor.Columns);
+
+
+	new WindowPrefs(this);
+
+
 	// these are global hotkeys i guess idk
 	this.hotkeys = new Hotkeys(); 
 	var globalHotkeys = this.hotkeys;
@@ -523,4 +525,8 @@ function EditorWindow(opts) {
 	window.addEventListener('app-pluginload', function(event) {
 		LoadScript(event.detail.script);
 	});
+	file.add();
+	file.add(Lang.Menu.Quit, "ui-icon-close", Lang.Menu.QuitHint).onclick = function() {
+		window.api.quit();
+	};
 };

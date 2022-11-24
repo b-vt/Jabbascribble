@@ -333,6 +333,9 @@ details > .ui-context-menu {
 .ui-icon-folder {
 	background-image: url("../../data/icons/folder.png");
 }
+.ui-icon-book {
+	background-image: url("../../data/icons/book.png");
+}
 .ui-icon-add {
 	background-image: url("../../data/icons/page_add.png");
 }
