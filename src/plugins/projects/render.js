@@ -225,6 +225,7 @@
 				});
 			};
 			load.onmouseup = function(event) {
+				console.log("TODO: load needs to repopulate fields with loaded values instead of forcing the user to reopen project settings");
 				fnGetProject();
 				fnToggleProjectViewer(true);
 				self.container.remove();
