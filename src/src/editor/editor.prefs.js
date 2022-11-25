@@ -59,7 +59,7 @@ WindowPrefs.prototype.openPrefsEditor = function() {
 			save.setAttribute("data-dir", "0");
 			this.selected = null;
 
-			var defaultTab = new ElementModalTabPane(this, "But what goes here!?");
+			var defaultTab = new ElementModalTabPane(this, "test");
 			defaultTab.fnActivate = function(element) {
 				var contents = new UI.make("div", "padded", self.right); // i get deleted
 				
