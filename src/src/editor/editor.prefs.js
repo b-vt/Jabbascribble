@@ -6,7 +6,23 @@ function WindowPrefs(editor) {
 }
 
 WindowPrefs.prototype.openPrefsEditor = function() {
-	console.log("didney worl");
+	// todo: this should be a class of its own probably
+	function AddCheckboxOption(parent, labelString, initialValue, onChange) {
+		var label = new UI.make("label", "ui-label", parent, labelString);
+		label.for = GetRandomString();
+		var checkbox = new UI.make("input", "ui-checkbox right", label);
+		checkbox.id = label.for;
+		checkbox.type = "checkbox";
+		checkbox.checked = initialValue;
+		checkbox.onchange = onChange;
+		var br = new UI.make("br", "clearfix", parent);
+	};
+	function AddInputOption(parent, className, labelString, initialValue, onChange) {
+		var label = new UI.make("div", "ui-label", parent, labelString);
+		var input = new UI.make("input", `ui-input right ${className}`, label);
+		input.value = initialValue;
+		input.onkeydown = onChange;
+	};
 	function ElementModalTabPane(context, text) {
 		var self = this;
 		this.select = UI.make("div", "ui-list-item", context.left);
@@ -59,9 +75,31 @@ WindowPrefs.prototype.openPrefsEditor = function() {
 			save.setAttribute("data-dir", "0");
 			this.selected = null;
 
-			var defaultTab = new ElementModalTabPane(this, "test");
-			defaultTab.fnActivate = function(element) {
+			var generalTab = new ElementModalTabPane(this, "General");
+			generalTab.fnActivate = function(element) {
 				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				AddInputOption(contents, "", "Temp directory path:", Config.TempDir, function() {
+					Config.TempDir = this.value;
+				});
+				AddInputOption(contents, "", "(unused?) Source directory path:", Config.SrcDir, function() {
+					Config.TempDir = this.value;
+				});
+				AddInputOption(contents, "", "Current Language: ", Config.Lang, function() {
+					Config.TempDir = this.value;
+				});
+				var todo1 = new UI.make("div", "ui-label", contents, "todo: array of languages for lang?");
+				AddCheckboxOption(contents, "Enable developers console on startup:", Config.EnableDevTools, function() {
+					Config.EnableDevTools = this.checked;
+				});
+				AddCheckboxOption(contents, "Enable debug flag:", Config.Debug, function() {
+					Config.Debug = this.checked;
+				});
+				AddInputOption(contents, "ui-input-number", "Tabs scroll speed:", Config.TabsScrollDelta, function() {
+					Config.TabsScrollDelta = this.value;
+				});
+				
+				
+				//var contentTestLabel = new UI.make("div", "ui-label", contents, "Something goes here");
 				
 				/*var contentProjectPathLabel = new UI.make("div", "ui-label", contents, "Currently loaded project file:");
 				var contentProjectPath = new UI.make("input", "ui-input ui-input right", contentProjectPathLabel);//, ProjectFile.columns);
@@ -106,8 +144,59 @@ WindowPrefs.prototype.openPrefsEditor = function() {
 					//ProjectFile.runCommands.push(`echo \"no default run command available for c++\"`);
 				};*/
 			};
-			
-			defaultTab.select.onmouseup(); // sets the default activated pane
+			var editorTab = new ElementModalTabPane(this, "Window");
+			editorTab.fnActivate = function(element) {
+				var contents = new UI.make("div", "padded", self.right); // i get deleted
+			};
+			var editorTab = new ElementModalTabPane(this, "Editor");
+			editorTab.fnActivate = function(element) {
+				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				AddCheckboxOption(contents, "Show line numbers?", Config.editor.LineNumbers, function() {
+					console.log(this.checked);
+					Config.editor.LineNumbers = this.checked;
+				});
+				AddCheckboxOption(contents, "Indentation uses tabs?", Config.editor.IndentWithTabs, function() {
+					Config.editor.IndentWithTabs = this.checked;
+				});
+				AddCheckboxOption(contents, "Use line wrapping?", Config.editor.LineWrapping, function() {
+					Config.editor.LineWrapping = this.checked;
+				});
+				AddInputOption(contents, "ui-input-number", "Tab size:", Config.editor.TabSize, function() {
+					Config.editor.TabSize = this.value;
+				});
+				AddInputOption(contents, "ui-input-number", "Indentation units:", Config.editor.IndentUnit, function() {
+					Config.editor.IndentUnit = this.value;
+				});
+				AddInputOption(contents, "ui-input-number", "Number of Columns:", Config.editor.Columns, function() {
+					Config.editor.Columns = this.value;
+				});
+				AddInputOption(contents, "ui-input-number", "Maximum number of columns:", Config.editor.MaxColumns, function() {
+					Config.editor.MaxColumns = this.value;
+				});
+				
+				/*var lineNumbersLabel = new UI.make("label", "ui-label", contents, "Show line numbers:");
+				lineNumbersLabel.for = "prefs-linenumbers";
+				var lineNumbers = new UI.make("input", "ui-checkbox right", lineNumbersLabel);//, 
+				lineNumbers.id = "prefs-linenumbers";
+				lineNumbers.type = "checkbox";
+				console.log("Config?", Config.editor.LineNumbers);
+				lineNumbers.checked = Config.editor.LineNumbers;
+				lineNumbers.onchange = function () {
+					console.log(this.checked);
+					Config.ProjectViewIgnoreDepth = lineNumbers.checked;
+				};*/
+				
+				
+				
+			}
+
+			var pluginsTab = new ElementModalTabPane(this, "Plugins");
+			pluginsTab.fnActivate = function(element) {
+				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				//var contentDefaultLabel = new UI.make("div", "ui-label", contents, "Something goes here");
+			}
+
+			generalTab.select.onmouseup(); // sets the default activated pane
 			new UI.make("span", "", buttons);
 
 			close.onmouseup = function (event) {

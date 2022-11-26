@@ -898,6 +898,7 @@ details > .ui-context-menu {
 }
 .ui-label {
 	height: 20px;
+	font-size: 14px;
 }
 .ui-scrollable {
 	overflow: scroll;
