@@ -147,6 +147,13 @@ WindowPrefs.prototype.openPrefsEditor = function() {
 			var editorTab = new ElementModalTabPane(this, "Window");
 			editorTab.fnActivate = function(element) {
 				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				AddInputOption(contents, "ui-input-number2", "Default window width:", Config.window.Width, function() {
+					console.log(this.value);
+					Config.window.Width = this.value;
+				});
+				AddInputOption(contents, "ui-input-number2", "Default window height:", Config.window.Height, function() {
+					Config.window.Height = this.value;
+				});
 			};
 			var editorTab = new ElementModalTabPane(this, "Editor");
 			editorTab.fnActivate = function(element) {
@@ -193,6 +200,13 @@ WindowPrefs.prototype.openPrefsEditor = function() {
 			var pluginsTab = new ElementModalTabPane(this, "Plugins");
 			pluginsTab.fnActivate = function(element) {
 				var contents = new UI.make("div", "padded", self.right); // i get deleted
+				var label = new UI.make("div", "ui-label", contents, "todo: active plugins");
+				for(var i = 0; i < Config.plugins.length; i++) {
+					AddInputOption(contents, "", "Main script: ", Config.plugins[i].main, function() {});
+					AddInputOption(contents, "", "Render script: ", Config.plugins[i].renderer, function() {});
+					var br = new UI.make("br", "clearfix", contents);
+				};
+
 				//var contentDefaultLabel = new UI.make("div", "ui-label", contents, "Something goes here");
 			}
 

@@ -896,6 +896,9 @@ details > .ui-context-menu {
 	width: 16px;
 	/*height: 14px;*/
 }
+.ui-input-number2 {
+	width: 30px;
+}
 .ui-label {
 	height: 20px;
 	font-size: 14px;
