@@ -20,7 +20,50 @@ var {Plugins} = require("./src/shared/plugins.js");
 	console.log("dirname2: ", __dirname);
 	electron.app.whenReady().then((e) => { // entry point
 		try {
-			new Common.Configure().add("-d -debug", function(v) {
+			//process.argv[i] == "filename.txt" 
+			//process.argv[i] == "-debug"
+			var tryOpen = [];
+			if (process.argv.length > 1) {
+				for(var i = 1; i < process.argv.length; i++) {
+					var arg = process.argv[i];
+					var argSet = process.argv[i+1];
+					if (arg == "-d" || arg == "-debug") {
+						Config.Debug = true;
+					}
+					else if (arg == "-v" || arg == "-version") {
+						console.log("Jabbascribble version:", [APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH].join("."));
+					}
+					else if (arg == "-x" && argSet) {
+						Config.window.X = parseInt(argSet);
+						i++;
+					}
+					else if (arg == "-y" && argSet) {
+						Config.window.Y = parseInt(argSet);
+						i++;
+					}/*
+					else if (arg == "" || arg == "") {
+						
+					}*/
+					else {
+						tryOpen.push(arg);
+					}
+				};
+				if (tryOpen.length > 0) {
+					setTimeout(() => {
+						tryOpen.forEach(function(item) {
+							var filename = path.normalize(path.join(process.cwd(), item));
+							console.log("opening with file: %s", filename);
+							OpenFile(filename, undefined, 1, function(file, content, windowId) {
+								var web = electron.BrowserWindow.fromId(windowId);
+								if (web) web.webContents.send('main-open', { path: file, value: content });
+							}, function(msg) {
+								console.trace(msg);
+							});
+						});
+					}, 1000);
+				};
+			};
+			/*new Common.Configure().add("-d -debug", function(v) {
 				Config.Debug = true;
 			}).add("-v -version", function() {
 				console.log("Jabbascribble version:", [APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH].join("."));
@@ -39,7 +82,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 				Config.window.X = parseInt(arg);
 			}).add("-y", function(arg) {
 				Config.window.Y  = parseInt(arg);
-			});
+			});*/
 			var app = new ApplicationClass().init();
 		}
 		catch(e) {
