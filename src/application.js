@@ -40,6 +40,10 @@ var {Plugins} = require("./src/shared/plugins.js");
 					else if (arg == "-y" && argSet) {
 						Config.window.Y = parseInt(argSet);
 						i++;
+					}
+					// fix to prevent electron instances from opening editor files on startup
+					else if (arg == "-e" || arg == "-electron") {
+						i++;
 					}/*
 					else if (arg == "" || arg == "") {
 						
