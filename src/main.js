@@ -87,7 +87,8 @@
 				};
 			}
 		}
-		defaultScript();
+		else
+			defaultScript();
 		//console.log(process.argv.length, process.argv);
 		/*if (process.argv.length > 1) {
 			var testFile = process.argv[1];
