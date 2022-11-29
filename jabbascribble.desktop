@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Jabbascribble
+Comment=A goofy text editor for goofy projects
+Encoding=UTF-8
+Version=0.0
+Type=Application
+Terminal=false
+Exec=/home/brett/bin/jabbascribble
+Icon=/home/brett/apps/jabbascribble/bin/release/linux/resources/app/data/icon-64.ico
