@@ -1,4 +1,4 @@
-# *A goofy multipurpose CodeMirror based text editor for goofy projects*
+# *A goofy text editor for goofy projects*
 
 The following libraries are included with this package: 
 - [CodeMirror5](https://github.com/codemirror/codemirror5)
