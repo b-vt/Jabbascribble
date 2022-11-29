@@ -8,6 +8,9 @@
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
 	electron.app.commandLine.appendSwitch('enable-gpu-rasterization');
 	electron.app.commandLine.appendSwitch('force_high_performance_gpu"');
+
+	var runDefault = true;
+
 	function defaultScript() {
 		console.log(" launching default script ");
 		console.log("cwd:", process.cwd());
@@ -26,12 +29,20 @@
 			window.on("close", function(a, b, c) {
 
 			});
+			
 			return;
 		}
+		/*try {
+			var fd = fs.openSync(file, 'r');
+			console.log(fd);
+		}
+		catch(e) {
+			runDefault = true;
+		}*/
 		fs.open(file, 'r', function(err, fd) {
 			if (err) {
 				console.log("this is not a file: ", file);
-				defaultScript();
+				//defaultScript();
 				return;
 			}
 			switch (path.extname(file).toLowerCase()) {
@@ -82,13 +93,15 @@
 				if (arg == "-e" || arg == "-electron" && process.argv[i+1]) {
 					console.log("spawning new instance of electron with some file");
 					console.log("new instance main script: ", process.argv[i+1]);
+					runDefault = false;
 					loadElectron(process.argv[i+1]);
 					return;
 				};
 			}
 		}
-		else
+		if (runDefault) {
 			defaultScript();
+		}
 		//console.log(process.argv.length, process.argv);
 		/*if (process.argv.length > 1) {
 			var testFile = process.argv[1];
