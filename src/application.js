@@ -55,7 +55,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 				if (tryOpen.length > 0) {
 					setTimeout(() => {
 						tryOpen.forEach(function(item) {
-							var filename = path.normalize(path.join(process.cwd(), item));
+							var filename = path.normalize(item);//path.join(process.cwd(), item));
 							console.log("opening with file: %s", filename);
 							OpenFile(filename, undefined, 1, function(file, content, windowId) {
 								var web = electron.BrowserWindow.fromId(windowId);
