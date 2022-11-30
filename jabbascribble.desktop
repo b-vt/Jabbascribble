@@ -5,5 +5,5 @@ Encoding=UTF-8
 Version=0.0
 Type=Application
 Terminal=false
-Exec=/home/brett/bin/jabbascribble
-Icon=/home/brett/apps/jabbascribble/bin/release/linux/resources/app/data/icon-64.ico
+Exec=/path/to/bin/jabbascribble
+Icon=/path/to/resources/app/data/icon-64.png
