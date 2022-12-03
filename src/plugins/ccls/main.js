@@ -90,7 +90,7 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 					request.id = `${(self.sendID++)}`;
 					request.params = {
 						textDocument: {
-							uri: `file://${req.uri}`,
+							uri: `file:///${req.uri}`,
 							text: req.text
 						},
 						position: {
@@ -105,7 +105,7 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 					request.params = {
 						processID: process.pid,
 						locale: Config.Lang,
-						rootUri: `file://${req.projectDir}`,
+						rootUri: `file:///${req.projectDir}`,
 						initializationOptions: {},
 						capabilities: {},
 						trace: "off",
@@ -122,7 +122,7 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 				case "open": {
 					request.method = "textDocument/didOpen";
 					request.params.textDocument = {};
-					request.params.textDocument.uri = `file://${req.uri}`;
+					request.params.textDocument.uri = `file:///${req.uri}`;
 					request.params.textDocument.version = 1;
 					/*if (self.openFiles[req.uri]) {
 						request.params.textDocument.version = self.openFiles[req.uri].version;
