@@ -5,6 +5,7 @@ Bugs & Incomplete features:
 - cleanup console.log spam
 - when project list view is open and columns are resized before going back to one column the project list view will take up more space
 
+
 Things I want:
 - Renderer should indicate to main that it is fully loaded and ready.
 - Project view folder collapse, and better indication of depth.
