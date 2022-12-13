@@ -71,7 +71,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 		args.splice(0, 1);
 		cmd = cmd.replace("electron", process.argv[0]);
 		if (cmd == "cd") {
-			cwd = path.resolve(args.join(""));
+			cwd = path.resolve(args.join("").replace("~", os.homedir()));
 			console.log("cwd is now: ", cwd);
 			return nextCommand(runCmds, i+1);
 		}
