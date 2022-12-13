@@ -1,4 +1,5 @@
 var path = require("path");
+var os = require("os");
 var electron = require("electron");
 var child = require("child_process");
 var {PluginMain} = require(path.normalize(path.join(__dirname, "../../src/shared/plugin.js")));
@@ -59,15 +60,18 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 	// runCmds = ProjectFile.runCommands array, current runCommands index
 	function nextCommand(runCmds, i) {
 		if (i >= runCmds.length) return;
-		var args = runCmds[i].split(" ");
+		//var args = runCmds[i].split(" ");
+		var args = Common.StringToArgs(runCmds[i]);
+		console.log("My args:", args);
 		var nowait = false;
-		if (args.join(" ").match(/(&)/g) != null)
+		if (args[args.length - 1].match(/&/g) != null) //(args.join(" ").match(/(&)/g) != null)
 			nowait = true;
 		var cmd = args[0];
 		args.splice(0, 1);
 		cmd = cmd.replace("electron", process.argv[0]);
 		if (cmd == "cd") {
-			cwd = path.resolve(args.join(""));
+			cwd = path.resolve(args.join("").replace("~", os.homedir()));
+			console.log("cwd is now: ", cwd);
 			return nextCommand(runCmds, i+1);
 		}
 		console.log("doing ", cmd);
