@@ -5,9 +5,7 @@ function StringToArgs(str) {
 	var delimiter = null;
 	var arg = [];
 	var args = [];
-
 	for(var i = 0; i <= str.length; i++) {
-		console.log(i, str.length);
 		if (str[i] == "`" || str[i] == "'" || str[i] == "\"") { // the character is a delimiter
 			if (delimiter == null) {// and there was no previous delimiter set
 				delimiter = str[i]; // set the delimiter and signal that spaces will not be the end of arg
