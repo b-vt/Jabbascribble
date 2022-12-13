@@ -6,7 +6,13 @@ function StringToArgs(str) {
 	var arg = [];
 	var args = [];
 	for(var i = 0; i <= str.length; i++) {
-		if (str[i] == "`" || str[i] == "'" || str[i] == "\"") { // the character is a delimiter
+		if (i == str.length || (delimiter == null && str[i] == " ")) { // the end of an arg has been reached because this space is not within a string 
+			if (arg.length > 0) // remove whitespace
+				args.push(arg.join(""));
+			arg = [];
+			continue;
+		}
+		else if (str[i] == "`" || str[i] == "'" || str[i] == "\"") { // the character is a delimiter
 			if (delimiter == null) {// and there was no previous delimiter set
 				delimiter = str[i]; // set the delimiter and signal that spaces will not be the end of arg
 				continue;
@@ -15,12 +21,6 @@ function StringToArgs(str) {
 				delimiter = null; // unset the signal to add spaces to the arg
 				continue;
 			}
-		}
-		else if ((delimiter == null && str[i] == " ") || i == str.length) { // the end of an arg has been reached because this space is not within a string 
-			if (arg.length > 0) // remove whitespace
-				args.push(arg.join(""));
-			arg = [];
-			continue;
 		}
 		arg[arg.length] = str[i];
 	};
