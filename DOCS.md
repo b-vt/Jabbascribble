@@ -18,3 +18,4 @@ commandline flags:
 extra:
 - run command `eletron -e filename` to use instance of electron
 - using {$HOME} in ccls plugin config bin path will be replaced with path to home, eg '{$HOME}/ccls' will become '/home/username/ccls'
+- run command will resolve ~ to homedir only when used with cd
