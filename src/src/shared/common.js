@@ -1,6 +1,33 @@
 /* this is all very cursed */
 
-// all vanilla 
+// all vanilla
+function StringToArgs(str) {
+	var delimiter = null;
+	var arg = [];
+	var args = [];
+
+	for(var i = 0; i <= str.length; i++) {
+		console.log(i, str.length);
+		if (str[i] == "`" || str[i] == "'" || str[i] == "\"") { // the character is a delimiter
+			if (delimiter == null) {// and there was no previous delimiter set
+				delimiter = str[i]; // set the delimiter and signal that spaces will not be the end of arg
+				continue;
+			}
+			else if (str[i] == delimiter) {// the character matches the previous delimiter
+				delimiter = null; // unset the signal to add spaces to the arg
+				continue;
+			}
+		}
+		else if ((delimiter == null && str[i] == " ") || i == str.length) { // the end of an arg has been reached because this space is not within a string 
+			if (arg.length > 0) // remove whitespace
+				args.push(arg.join(""));
+			arg = [];
+			continue;
+		}
+		arg[arg.length] = str[i];
+	};
+	return args;
+};
 function ArrayAlphabeticalSort(xa) {
 	var start1 = new Date().getTime();
 	xa = xa.sort(function(a, b) {
@@ -656,6 +683,7 @@ if (typeof module!=="undefined") {
 	module.exports = {
 
 		// no dependencies
+		StringToArgs,
 		Byte2Nibble,
 		Bytes2Hex,
 		Bytes2Ascii,
