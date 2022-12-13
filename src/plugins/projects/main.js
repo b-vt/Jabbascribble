@@ -61,6 +61,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 	function nextCommand(runCmds, i) {
 		if (i >= runCmds.length) return;
 		//var args = runCmds[i].split(" ");
+		//runCmds[i] = runCmds[i].replace("~", os.homedir()); // todo this should be properly escaped first otherwise all ~ becomes homedir
 		var args = Common.StringToArgs(runCmds[i]);
 		console.log("My args:", args);
 		var nowait = false;
@@ -70,7 +71,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 		args.splice(0, 1);
 		cmd = cmd.replace("electron", process.argv[0]);
 		if (cmd == "cd") {
-			cwd = path.resolve(args.join("").replace("~", os.homedir()));
+			cwd = path.resolve(args.join(""));
 			console.log("cwd is now: ", cwd);
 			return nextCommand(runCmds, i+1);
 		}
