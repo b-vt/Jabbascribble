@@ -386,7 +386,7 @@ function EditorWindow(opts) {
 		window.api.toggleConsole(true);
 	};
 	
-	this.menu.project = menu.add(Lang.Menu.Project);
+	this.menu.project = menu.add(Lang.Plugins.Projects.Project);
 	this.menu.project.add();
 	this.menu.plugins = menu.add(Lang.Menu.Plugins);
 	this.menu.plugins.add();

@@ -429,12 +429,14 @@
 		var projectTableFootRowContentDiv = new UI.make("div", "", projectTableFootRowContent);
 		projectTableFootRowContentDiv.style.padding = "0px 12px 0px 0px";
 		var filesSearch = new UI.make("input", "full-width ui-input", projectTableFootRowContentDiv);
+		filesSearch.placeholder = Lang.Plugins.Projects.ProjectFileSearch;
+		filesSearch.title = Lang.Plugins.Projects.ProjectFileSearchHint;
 		filesSearch.onkeyup = function(event) {
 			var tmpFiles = [];
 			for(var i = 0; i < ProjectFile.files.length; i++) {
 				var file = ProjectFile.files[i];
-				var exp = new RegExp(`(${this.value})`, "g");
-				if (file.match(exp)) {
+				var exp = new RegExp(`(${this.value.toLowerCase()})`, "g");
+				if (file.toLowerCase().match(exp)) {
 					tmpFiles.push(file);
 				}
 			};
@@ -449,11 +451,11 @@
 		menu.add("Project Settings", "", "Open the project file editor").onclick = function() {
 			new ElementModalProjectOptions();
 		};
-		menu.add(Lang.Menu.OpenProject, "ui-icon-projectopen", Lang.Menu.OpenProjectHint).onclick = function() {
+		menu.add(Lang.Plugins.Projects.OpenProject, "ui-icon-projectopen", Lang.Plugins.Projects.OpenProjectHint).onclick = function() {
 			fnGetProject();
 			fnToggleProjectViewer(true);
 		};
-		menu.add(Lang.Menu.SaveProject, "ui-icon-projectsave", Lang.Menu.SaveProjectHint).onclick = function() {
+		menu.add(Lang.Plugins.Projects.SaveProject, "ui-icon-projectsave", Lang.Plugins.Projects.SaveProjectHint).onclick = function() {
 			ProjectFile.columns = Config.editor.Columns;
 			//window.api.saveProjectFile({project: ProjectFile});
 			window.api.plugin({
@@ -464,20 +466,20 @@
 			});
 			console.log(ProjectFile);
 		};
-		menu.add(Lang.Menu.ProjectFileAdd, "", "Add the active file to project").onclick = function() {
+		menu.add(Lang.Plugins.Projects.ProjectFileAdd, "", "Add the active file to project").onclick = function() {
 			var edit = window.editor.getActiveTabEditor();
 			if (edit && edit.datum) {
 				self.addFile(edit.datum.path);
 			}
 			//self.addFile();
 		};
-		menu.add(Lang.Menu.ProjectFileRemove, "", "Remove the active file from project").onclick = function() {
+		menu.add(Lang.Plugins.Projects.ProjectFileRemove, "", "Remove the active file from project").onclick = function() {
 			var edit = window.editor.getActiveTabEditor();
 			if (edit && edit.datum)
 				self.removeFile(edit.datum.path);
 		};
 		menu.add();
-		menu.add(Lang.Menu.ToggleProjectView, "ui-icon-project", "").onclick = fnToggleProjectViewer;
+		menu.add(Lang.Plugins.Projects.ToggleProjectView, "ui-icon-project", "").onclick = fnToggleProjectViewer;
 		/*var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
 		projectFileInput.value = ".scribble";
 		projectFileInput.onkeyup = function(event) {
@@ -681,7 +683,7 @@
 		var self = this;
 		var details = data.details;
 		if (data.details.datum.path)
-			context.add(Lang.Menu.ProjectFileAdd, "" , "").onclick = function() {
+			context.add(Lang.Plugins.Projects.ProjectFileAdd, "" , "").onclick = function() {
 				self.addFile(data.details.datum.path);
 			};
 	};
