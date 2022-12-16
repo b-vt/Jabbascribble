@@ -224,6 +224,9 @@ body {
 	background-color: #383933;
 	color: #a6a3b9;
 }
+.ui-column-spacing {
+	height: 20px;
+}
 .ui-column-folders {
 	background-color: rgb(85, 85, 80);
 	width: 230px;

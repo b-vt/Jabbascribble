@@ -258,7 +258,7 @@
 				//window.api.getProjectFile();
 		};
 		this.fnGetProject = fnGetProject;
-		function fnRebuildFileExplorerList() {
+		function fnRebuildFileExplorerList(mfiles) {
 			console.log("rebuilding file list");
 			fileExplorerList.remove();
 			fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
@@ -355,7 +355,7 @@
 					parsed(path, parentNode.children[name], separator+1, depth+1, index);
 			}
 			var root = new node("");
-			var files = ArrayAlphabeticalSort(ProjectFile.files);
+			var files = ArrayAlphabeticalSort(mfiles||ProjectFile.files);
 			for(var i = 0; i < files.length; i++) {
 				parsed(files[i], root, 0, 0, i);
 			}
@@ -409,6 +409,9 @@
 			}
 		};
 		var project = UI.make("td", "ui-column-folders", null, null, true);
+		/*project.style.borderTop = "1px solid #383933";
+		project.style.borderLeft = "1px solid #383933";
+		project.style.borderBottom = "2px solid #383933";*/
 		window.editor.columns.container.parentElement.children[0].prepend(project); // force the view tree thing to appear on the left side
 		project.setAttribute("data-show", "0");
 		var projectTable = new UI.make("table", "ui-column-folders full-height full-width", project);
@@ -422,7 +425,24 @@
 		var projectTableBodyRowContent = new UI.make("td", "", projectTableBodyRow);
 		var projectTableFootRowContent = new UI.make("td", "", projectTableFootRow);
 
-		var projectTableHeadRowContentDiv = new UI.make("div", "full-width", projectTableHeadRowContent);
+		var projectTableHeadRowContentDiv = new UI.make("div", "", projectTableHeadRowContent);
+		var projectTableFootRowContentDiv = new UI.make("div", "", projectTableFootRowContent);
+		projectTableFootRowContentDiv.style.padding = "0px 12px 0px 0px";
+		var filesSearch = new UI.make("input", "full-width ui-input", projectTableFootRowContentDiv);
+		filesSearch.onkeyup = function(event) {
+			var tmpFiles = [];
+			for(var i = 0; i < ProjectFile.files.length; i++) {
+				var file = ProjectFile.files[i];
+				var exp = new RegExp(`(${this.value})`, "g");
+				if (file.match(exp)) {
+					tmpFiles.push(file);
+				}
+			};
+			if (this.value.length > 0)
+				fnRebuildFileExplorerList(tmpFiles);
+			else
+				fnRebuildFileExplorerList();
+		};
 		
 		var menu = window.editor.menu.project;
 		menu.add("Run Commands").onclick = fnRunCommands;

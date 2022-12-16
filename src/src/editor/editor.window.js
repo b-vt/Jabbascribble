@@ -1,7 +1,8 @@
 /* todo: idk, things i guess
 	the idea behind this class was that window elements will be created here 
 
-	unfortunately there is some spaghetti related to columns and the editor class column */
+	unfortunately there is some spaghetti related to columns and the editor class column
+	unfortunately it all turned to spaghetti when i wasn't looking */
 
 /* generates window elements, callback hell and general laziness, etc */
 function EditorWindow(opts) {
@@ -54,7 +55,6 @@ function EditorWindow(opts) {
 			});
 		}
 	};
-	
 	function fnClearPopups() {
 		for(var popup in window.popups) {
 			if (window.popups[popup] && (typeof window.popups[popup].destroy === "function"))
@@ -62,7 +62,6 @@ function EditorWindow(opts) {
 		}
 	}
 	function fnCreateEditorColumns(count) {
-		console.log(count, "?!?!");
 		var columns = self.columns.get();
 		while (columns.length > 0) {
 			var column = columns.pop();
@@ -97,7 +96,6 @@ function EditorWindow(opts) {
 			cm.setOption("lineWrapping", Config.editor.LineWrapping);
 		}
 	};
-	
 	function fnTabContextMenus(context, details) {
 		var edit = GetActiveTabEditor();
 		if (edit) {
@@ -152,12 +150,7 @@ function EditorWindow(opts) {
 		if (activeEditor !== null && activeEditor.tabs.getActive() !== null) {
 			var tab = activeEditor.tabs.getActive();
 			tab.datum.mode = this.selectedOptions[0].id;
-			//console.log(this.selectedOptions);
 			var mode = tab.datum.mode;
-			console.log("mode is: ", mode);
-			/*if (mode == "java"){// || mode == "php") {
-				mode = "text/x-c++src";
-			}*/
 			tab.datum.codemirror.setOption("mode", {name: mode});//tab.datum.mode});
 		}
 	};
@@ -469,8 +462,6 @@ function EditorWindow(opts) {
 			spacer.remove();
 			this.remove();
 		};
-		/*p.style.x = "-10px";
-		p.style.y = "-50px";*/
 		input.onkeyup = function(event) {
 			var dto = new InputEventDto(event);
 			if (dto.key == InputEventDto.prototype.KEY_RETURN) {
@@ -478,13 +469,6 @@ function EditorWindow(opts) {
 				p.destroy();
 			}
 			ScrollActiveTab(parseInt(this.value));
-			/*var edit = GetActiveTabEditor();
-			if (edit) {
-				var cm = edit.datum.codemirror;
-				var v = parseInt(this.value);
-				if (isNaN(v)) v = 0;
-				cm.scrollIntoView({line: Clamp(v - 1, 0, cm.lineCount() - 1), ch: 0}, 10);
-			}*/
 		};
 		input.focus();
 		input.select();
@@ -501,8 +485,6 @@ function EditorWindow(opts) {
 	});
 	window.addEventListener('mouseup', function(event) {
 		var e = new InputEventDto(event);
-		//console.log(event.target)
-		//find.reset();
 		if (!event.target.isPopup)
 			fnClearPopups();
 	});
