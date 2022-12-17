@@ -261,7 +261,7 @@
 		function fnRebuildFileExplorerList(mfiles) {
 			console.log("rebuilding file list");
 			fileExplorerList.remove();
-			fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
+			fileExplorerList = new UI.make("div", "ui-treeview full-height", projectTableBodyRowContent);
 			function node(name, depth) {
 				this.name = name;
 				this.depth = depth || 0;

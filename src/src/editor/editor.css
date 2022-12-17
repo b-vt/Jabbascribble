@@ -229,7 +229,8 @@ body {
 }
 .ui-column-folders {
 	background-color: rgb(85, 85, 80);
-	width: 230px;
+	width: 150px;
+	min-width: 1px;
 	/*border-right: 1px solid rgb(150, 150, 150);*/
 }
 .top-level-most {
@@ -685,6 +686,10 @@ details > .ui-context-menu {
 }
 .ui-treeview {
 	overflow: scroll;
+	resize: both;
+	max-width: 500px;
+	min-width: 150px;
+	width: 250px;
 }
 .ui-treeview-item {
 	border: 1px solid rgba(0, 0, 0, 0);
@@ -692,6 +697,8 @@ details > .ui-context-menu {
 	padding-bottom: 0;
 	margin-top: 0;
 	margin-bottom: 0;
+	width: auto;
+	white-space: nowrap;
 }
 .ui-treeview-item[data-selected="1"] {
 	background-color: rgb(185, 185, 180);
