@@ -220,7 +220,7 @@ body {
 .ui-row-footer > div > select {
 	user-select: none;
 	outline: 0;
-	padding: 1px 1px 1px 1px;
+	padding: 0px 1px 1px 1px;
 	background-color: #383933;
 	color: #a6a3b9;
 }
@@ -646,6 +646,9 @@ details > .ui-context-menu {
     border-width: 1px;
     border-style: solid;
     border-color: -internal-light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+}
+.ui-input-spacing {
+	margin: 0px 5px 0px -3px;
 }
 .ui-checkbox {
 	width: 10px;

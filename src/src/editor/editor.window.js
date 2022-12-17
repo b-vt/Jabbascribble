@@ -283,7 +283,7 @@ function EditorWindow(opts) {
 	var footerContents = UI.make("div", "", this.rowFooter, "");
 	this.footerContents = footerContents;
 	
-	var searchInput = UI.make("input", "ui-input", footerContents);
+	var searchInput = UI.make("input", "ui-input ui-input-spacing", footerContents);
 	searchInput.placeholder = Lang.EditSearchPlaceholder;
 	searchInput.title = Lang.EditSearchHint;
 	searchInput.onkeyup = function(event) {
@@ -304,8 +304,8 @@ function EditorWindow(opts) {
 				find.search(from, this.value, false, wcase);
 		}
 	};
-	new UI.make("span", "", footerContents, " ");
-	var searchReplace = UI.make("input", "ui-input", footerContents);
+	//new UI.make("span", "", footerContents, " ");
+	var searchReplace = UI.make("input", "ui-input ui-input-spacing", footerContents);
 	searchReplace.placeholder = Lang.EditSearchReplacePlaceholder;
 	searchReplace.title = Lang.EditSearchReplaceHint;
 	searchReplace.onkeyup = function(event) {
@@ -452,14 +452,14 @@ function EditorWindow(opts) {
 		window.popups["gotoprompt"] = p;
 		var fc = footerContents.children[0];
 		footerContents.insertBefore(p, fc);
-		var spacer = footerContents.insertBefore(UI.make("span", "", p, " ", true), fc);
-		var input = UI.make("input", "ui-input ui-input-number", p);
+		//var spacer = footerContents.insertBefore(UI.make("span", "", p, " ", true), fc);
+		var input = UI.make("input", "ui-input ui-input-number ui-input-spacing", p);
 
 		p.isPopup = true;
 		input.isPopup = true;
 
 		p.destroy = function() {
-			spacer.remove();
+			//spacer.remove();
 			this.remove();
 		};
 		input.onkeyup = function(event) {
