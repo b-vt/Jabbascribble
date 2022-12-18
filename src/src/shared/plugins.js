@@ -88,16 +88,13 @@ Plugins.prototype.doTask = function(item, event) {
 };
 
 Plugins.prototype.destroy = function() {
-	//console.log("cleanup?", this.activePlugins);
-	//for(var i = 0; i < this.activePlugins.length; i++) {
-	console.log("what the fuck man: ", this.pluginNames.length, this.pluginNames);
-	//this.activePlugins.forEach(function(name){
 	for(var i = 0; i < this.pluginNames.length; i++) {
-		//console.log(this.activePlugins[i]);
 		var name = this.pluginNames[i];
 		console.log("destroying: ", name);
 		this.activePlugins[name].destroy();
 	};
+	this.pluginNames = [];
+	this.activePlugins = [];
 };
 
 if (typeof module!=="undefined")

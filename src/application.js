@@ -88,7 +88,24 @@ var {Plugins} = require("./src/shared/plugins.js");
 			}).add("-y", function(arg) {
 				Config.window.Y  = parseInt(arg);
 			});*/
-			var app = new ApplicationClass().init();
+			var app = new ApplicationClass();
+			app.init();
+			process.on("SIGINT", function(data) {
+				console.log(`------- process wee (${process.pid}) received SIGINT -------\n`, 
+								data,
+								"\n----------------------------");
+				app.plugins.destroy();
+				process.kill(process.pid, "SIGINT");
+				process.exit();
+			});
+			process.on("SIGTERM", function(data) {
+				console.log(`------- process wee (${process.pid}) received SIGTERM -------\n`, 
+								data,
+								"\n----------------------------");
+				app.plugins.destroy();
+				process.kill(process.pid, "SIGINT");
+				process.exit();
+			});
 		}
 		catch(e) {
 			console.error(e);
@@ -104,6 +121,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 		electron.ipcMain.on('main-close', function(event, data) {
 			console.log("received close", data);
+			self.plugins.destroy();
 			process.kill(process.pid, "SIGINT");
 			process.exit();
 			//electron.quit();
@@ -291,6 +309,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		});
 		appWindow.on("close", function(event, data) { // todo: dont remember if this comes before or after the window has closed
 			console.log("bye");
+			self.plugins.destroy();
 			process.kill(process.pid, "SIGINT");
 			//console.log("?");
 			process.exit();
