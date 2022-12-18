@@ -309,7 +309,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		});
 		appWindow.on("close", function(event, data) { // todo: dont remember if this comes before or after the window has closed
 			console.log("bye");
-			self.plugins.destroy();
+			instance.plugins.destroy();
 			process.kill(process.pid, "SIGINT");
 			//console.log("?");
 			process.exit();
