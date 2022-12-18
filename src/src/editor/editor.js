@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", function() {
 		//InjectCSS(".CodeMirror", "font-size", Config.editor.FontSize, "px");
 		UI = new WindowBuilder("table");
 		var win = new EditorWindow();
+		
+		console.log("sending ready event");
+		//window.api.ready();
+		window.addEventListener('app-ready', function(event) {
+			window.api.ready();
+		});
 	};
-
 });

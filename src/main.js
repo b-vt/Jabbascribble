@@ -7,8 +7,13 @@
 	
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
 	electron.app.commandLine.appendSwitch('enable-gpu-rasterization');
-	electron.app.commandLine.appendSwitch('force_high_performance_gpu"');
-
+	electron.app.commandLine.appendSwitch('force_high_performance_gpu');
+	/*require("v8").setFlagsFromString("--expose-gc");
+	require("v8").setFlagsFromString("--max_old_space_size=0");
+	global.gc = require("vm").runInNewContext("gc");*/
+	/*electron.app.commandLine.appendSwitch('max_old_space_size', "0");
+	electron.app.commandLine.appendSwitch('expose_gc');*/
+	//--max_old_space_size=0 --expose-gc
 	var runDefault = true;
 
 	function defaultScript() {
@@ -68,15 +73,17 @@
 	}
 	electron.app.whenReady().then((e) => {
 		process.on("SIGINT", function(data) {
-			console.log(`------- process (${process.pid}) received SIGINT -------\n`, 
+			console.log(`------- process s (${process.pid}) received SIGINT -------\n`, 
 							data,
 							"\n----------------------------");
+			process.kill(process.pid, "SIGINT");
 			process.exit();
 		});
 		process.on("SIGTERM", function(data) {
 			console.log(`------- process (${process.pid}) received SIGTERM -------\n`, 
 							data,
 							"\n----------------------------");
+			process.kill(process.pid, "SIGINT");
 			process.exit();
 		});
 		console.log(process.argv);

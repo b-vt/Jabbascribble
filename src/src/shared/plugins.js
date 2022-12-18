@@ -7,6 +7,7 @@ var {Plugin} = require("../../src/shared/plugin.js");
 function Plugins(appClass, window) {
 	var self = this;
 	this.activePlugins = [];
+	this.pluginNames = [];
 	for(var i = 0; i < Config.plugins.length; i++) {
 		try {
 			((_i, _window) => {
@@ -21,6 +22,8 @@ function Plugins(appClass, window) {
 					//console.log(main, MyPlugin);
 					var plugin = new MyPlugin(appClass, conf, _window).start();
 					self.activePlugins[plugin.pluginName] = plugin;
+					self.pluginNames.push(plugin.pluginName);
+					//console.log("added new active plugin", plugin.pluginName, self.activePlugins[plugin.pluginName]);
 				});
 			})(i, window);
 		}
@@ -85,9 +88,16 @@ Plugins.prototype.doTask = function(item, event) {
 };
 
 Plugins.prototype.destroy = function() {
-	for(var i = 0; i < this.activePlugins.length; i++) {
-		this.activePlugins[i].destroy();
-	}
+	//console.log("cleanup?", this.activePlugins);
+	//for(var i = 0; i < this.activePlugins.length; i++) {
+	console.log("what the fuck man: ", this.pluginNames.length, this.pluginNames);
+	//this.activePlugins.forEach(function(name){
+	for(var i = 0; i < this.pluginNames.length; i++) {
+		//console.log(this.activePlugins[i]);
+		var name = this.pluginNames[i];
+		console.log("destroying: ", name);
+		this.activePlugins[name].destroy();
+	};
 };
 
 if (typeof module!=="undefined")

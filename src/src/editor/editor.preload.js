@@ -22,7 +22,8 @@ electron.contextBridge.exposeInMainWorld('api', {
 	toggleConsole:			ApiToggleConsole,//() 			=> ApiToggleConsole(),
 	openFileLocation: 		ApiOpenFileLocation,//(data) 		=> ApiOpenFileLocation(data),
 	gc: 					ApiGC,//()			=> ApiGC(),
-	quit:					ApiQuit
+	quit:					ApiQuit,
+	ready:					ApiReady
 });
 
 
@@ -42,6 +43,7 @@ function ApiInit() {
 		console.log("preload: received main-init with uuid: ", data.uuid);
 		API_Blob.uuid = data.uuid;
 		API_Blob.ready = 1;
+		window.dispatchEvent(new CustomEvent("app-ready", {}));
 	});
 	electron.ipcRenderer.on('main-open', function(event, data) {
 		console.log("preload: received main-open: ", data);
@@ -63,6 +65,11 @@ function ApiInit() {
 			window.dispatchEvent(new CustomEvent("app-pluginload", {detail: data}));
 		}, 1000);
 	});
+};
+function ApiReady() {
+	if (!API_Blob.ready) return;
+	console.log("sent a thing");
+	IPCSend("renderer-ready", {});
 };
 function ApiQuit() {
 	if (!API_Blob.ready) return;

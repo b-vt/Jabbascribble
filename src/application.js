@@ -14,15 +14,16 @@ var {Plugins} = require("./src/shared/plugins.js");
 	var APP_VERSION_PATCH = 0x11292022; // the date of modification
 	var DEBUG = false;
 	
+	var tryOpen = [];
+	
 	/*electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
 	electron.app.commandLine.appendSwitch('enable-gpu-rasterization');
 	electron.app.commandLine.appendSwitch('force_high_performance_gpu"');*/
-	console.log("dirname2: ", __dirname);
+
 	electron.app.whenReady().then((e) => { // entry point
 		try {
 			//process.argv[i] == "filename.txt" 
 			//process.argv[i] == "-debug"
-			var tryOpen = [];
 			if (process.argv.length > 1) {
 				for(var i = 1; i < process.argv.length; i++) {
 					var arg = process.argv[i];
@@ -52,7 +53,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 						tryOpen.push(arg);
 					}
 				};
-				if (tryOpen.length > 0) {
+				/*if (tryOpen.length > 0) {
 					setTimeout(() => {
 						tryOpen.forEach(function(item) {
 							var filename = path.normalize(item);//path.join(process.cwd(), item));
@@ -65,7 +66,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 							});
 						});
 					}, 1000);
-				};
+				};*/
 			};
 			/*new Common.Configure().add("-d -debug", function(v) {
 				Config.Debug = true;
@@ -99,10 +100,13 @@ var {Plugins} = require("./src/shared/plugins.js");
 		this.openFile = OpenFile; // todo
 		this.saveFile = SaveFile; // todo
 		//this.plugins = new Plugins(this);
+		this.plugins = null;
 
 		electron.ipcMain.on('main-close', function(event, data) {
 			console.log("received close", data);
 			process.kill(process.pid, "SIGINT");
+			process.exit();
+			//electron.quit();
 		});
 		// 
 		/*electron.ipcMain.on('renderer-inheritjavascript', function(event, data) {
@@ -115,12 +119,30 @@ var {Plugins} = require("./src/shared/plugins.js");
 			})();
 
 		});*/
+		electron.ipcMain.on("renderer-ready", function(event, data) {
+			// init things
+			var web = electron.BrowserWindow.fromId(data.uuid);
+			//console.log("am i here", web);
+			self.plugins = new Plugins(self, web);
+			if (tryOpen.length > 0) {
+				tryOpen.forEach(function(item) {
+					var filename = path.normalize(item);//path.join(process.cwd(), item));
+					console.log("opening with file: %s", filename);
+					OpenFile(filename, undefined, 1, function(file, content, windowId) {
+						if (web) web.webContents.send('main-open', { path: file, value: content });
+					}, function(msg) {
+						console.trace(msg);
+					});
+				});
+			};
+		});
 		// plugin event from renderer to all plugins
 		electron.ipcMain.on('renderer-plugin', function(event, data) {
 
 			(() => {
 				console.log("received plugin event");
 				var web = electron.BrowserWindow.fromId(data.uuid);
+				//console.log("web is", web);
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");
 				if (self.plugins == null) return;
 				self.plugins.pushPluginEvent(data);			
@@ -133,7 +155,11 @@ var {Plugins} = require("./src/shared/plugins.js");
 			console.log("received open console: ", data);
 			var web = electron.BrowserWindow.fromId(data.uuid);
 			if (data.uuid == undefined || web == null) return console.trace("- renderer-quit request by unknown window -");
-			web.close();
+			//web.close();
+			self.plugins.destroy();
+			process.kill(process.pid, "SIGINT");
+			process.exit();
+			//electron.quit();
 		});
 		// open shell to file location
 		electron.ipcMain.on('renderer-openlocation', function(event, data) {
@@ -152,8 +178,10 @@ var {Plugins} = require("./src/shared/plugins.js");
 		// force gc from renderer
 		electron.ipcMain.on('renderer-gc', function(event, data) {
 			console.log("received gc: ", data);
-			if (typeof global.gc == "function" )
+			if (typeof global.gc == "function" ) {
+				console.log("maybe baby");
 				global.gc();
+			}
 		});
 		
 		// save files
@@ -207,10 +235,9 @@ var {Plugins} = require("./src/shared/plugins.js");
 		appWindow.show();
 		
 		if (Config.Debug) appWindow.webContents.openDevTools();
-			
 
 		// plugins are last in case one needs to interact with the window maybe?
-		this.plugins = new Plugins(this, appWindow);
+		//this.plugins = new Plugins(this, appWindow);
 		//for(var i = 0; i < this.plugins.activePlugins.length; i++) {
 			//var plugin = this.plugins.activePlugins[i];
 			//appWindow.webContents.
@@ -265,6 +292,9 @@ var {Plugins} = require("./src/shared/plugins.js");
 		appWindow.on("close", function(event, data) { // todo: dont remember if this comes before or after the window has closed
 			console.log("bye");
 			process.kill(process.pid, "SIGINT");
+			//console.log("?");
+			process.exit();
+			//electron.quit();
 		});
 		return appWindow;
 	}
