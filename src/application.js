@@ -10,8 +10,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 (() => {
 	
 	var APP_VERSION_MAJOR = 0;
-	var APP_VERSION_MINOR = 1;
-	var APP_VERSION_PATCH = 0x11292022; // the date of modification
+	var APP_VERSION_MINOR = 2;
+	var APP_VERSION_PATCH = 0x12192022; // the date of modification
 	var DEBUG = false;
 	
 	var tryOpen = [];
