@@ -8,14 +8,11 @@
 	electron.app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
 	electron.app.commandLine.appendSwitch('enable-gpu-rasterization');
 	electron.app.commandLine.appendSwitch('force_high_performance_gpu');
-	/*require("v8").setFlagsFromString("--expose-gc");
+	require("v8").setFlagsFromString("--expose-gc");
 	require("v8").setFlagsFromString("--max_old_space_size=0");
-	global.gc = require("vm").runInNewContext("gc");*/
-	/*electron.app.commandLine.appendSwitch('max_old_space_size', "0");
-	electron.app.commandLine.appendSwitch('expose_gc');*/
-	//--max_old_space_size=0 --expose-gc
+	global.gc = require("vm").runInNewContext("gc");
+	
 	var runDefault = true;
-
 	function defaultScript() {
 		console.log(" launching default script ");
 		console.log("cwd:", process.cwd());

@@ -94,7 +94,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 				console.log(`------- process wee (${process.pid}) received SIGINT -------\n`, 
 								data,
 								"\n----------------------------");
-				app.plugins.destroy();
+				if (app.plugins)
+					app.plugins.destroy();
 				process.kill(process.pid, "SIGINT");
 				process.exit();
 			});
@@ -102,7 +103,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 				console.log(`------- process wee (${process.pid}) received SIGTERM -------\n`, 
 								data,
 								"\n----------------------------");
-				app.plugins.destroy();
+				if (app.plugins)
+					app.plugins.destroy();
 				process.kill(process.pid, "SIGINT");
 				process.exit();
 			});
@@ -121,7 +123,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 
 		electron.ipcMain.on('main-close', function(event, data) {
 			console.log("received close", data);
-			self.plugins.destroy();
+			if (self.plugins)
+				self.plugins.destroy();
 			process.kill(process.pid, "SIGINT");
 			process.exit();
 			//electron.quit();
@@ -174,7 +177,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 			var web = electron.BrowserWindow.fromId(data.uuid);
 			if (data.uuid == undefined || web == null) return console.trace("- renderer-quit request by unknown window -");
 			//web.close();
-			self.plugins.destroy();
+			if (self.plugins)
+				self.plugins.destroy();
 			process.kill(process.pid, "SIGINT");
 			process.exit();
 			//electron.quit();
@@ -309,7 +313,8 @@ var {Plugins} = require("./src/shared/plugins.js");
 		});
 		appWindow.on("close", function(event, data) { // todo: dont remember if this comes before or after the window has closed
 			console.log("bye");
-			instance.plugins.destroy();
+			if (instance.plugins)
+				instance.plugins.destroy();
 			process.kill(process.pid, "SIGINT");
 			//console.log("?");
 			process.exit();
