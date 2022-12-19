@@ -16,7 +16,6 @@ The following 'features' are provided:
 - A copy of every file is saved in the tmp folder in case of oopsies
 
 Todo:
-- Turns out not indicating an unfocused file or tab has been modified is really, really inconvenient but not yet inconvenient enough to implement
 - Webserver support
 - Automatic javascript prototype syntax inheritance from file
 - Temp file does not support multiple files of the same filename
