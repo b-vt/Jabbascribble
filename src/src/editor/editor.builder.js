@@ -76,11 +76,62 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 		var datum = new ElementTabEditorData(name, this.tabs.getNextUUID());
 		datum.codemirror = CodeMirrorFactory(pane, name, value);
 		datum.codemirror.on('change', function(event, data) { // add a * until the document is saved
+			
 			if (datum.modifier.length == 0) {
 				datum.modifier = "*";
 				tab.tab.firstChild.nodeValue = [ datum.modifier, datum.name ].join("");
 			}
+			
+			console.log(self, self.column.columns);
+			var activeColumn = self.column.columns.active();
+			var activeTab = activeColumn.editor.tabs.getActive();
+			console.log("active column", activeColumn);
+			
+			// first, check if this tab is active in the active column
+			if (activeTab.id == tab.id) {
+				console.log("this is an active tab in the active column");
+				for(var x = 0; x < self.column.columns.columns.length; x++) { // look at all columns
+					var testColumn = self.column.columns.columns[x];
+					for(var i = 0; i < testColumn.editor.tabs.tabs.length; i++) { // test each tab in each column
+						var testTab = testColumn.editor.tabs.tabs[i];
+						if (testTab.datum.path == tab.datum.path && testTab.id != tab.id) { // if the tab that is being checked shares the same path
+							testTab.datum.codemirror.doc.setValue(tab.datum.codemirror.doc.getValue());// then modify the value
+							testTab.datum.codemirror.refresh();
+						};
+					}
+				}
+			};
+			
 		});
+	/*		if (tab.id == activeTab.id) { // s
+				for(var x = 0; x < self.column.columns.columns.length; x++) {
+					var testColumn = self.column.columns.columns[x];
+					for(var i = 0; i < testColumn.editor.tabs.tabs.length; i++) { // update the other tabs I guess idk
+						var testTab = testColumn.editor.tabs.tabs[i];
+						if (testTab.datum.path == tab.datum.path) {  // found a tab that shares the same file path as the edited tab
+							testTab.datum.codemirror.doc.setValue(tab.datum.codemirror.doc.getValue());
+							testTab.datum.codemirror.refresh();	
+						};
+
+*/
+						/*if (testTab.id === tab.id || testColumn.id != self.column.columns.active().id) {
+							continue;
+						}
+						else if (testTab.datum.path == tab.datum.path) {
+							if (self.tabs.activeTab.id != testTab.id) {
+								testTab.datum.codemirror.doc.setValue(tab.datum.codemirror.doc.getValue());
+								testTab.datum.codemirror.refresh();
+							}
+							//testTab.datum.codemirror.doc.setValue(tab.datum.codemirror.doc.getValue());
+						}*/
+					//};
+					/*if (datum.modifier.length == 0) {
+						datum.modifier = "*";
+						tab.tab.firstChild.nodeValue = [ datum.modifier, datum.name ].join("");
+					}*/
+				//}
+			//}
+		//});
 
 		var tab = this.tabs.add(name, datum);
 
