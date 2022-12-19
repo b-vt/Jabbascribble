@@ -94,7 +94,7 @@ ElementEditorColumn.prototype.addTab = function(name, value, fnOnContextMenu) {
 					var testColumn = self.column.columns.columns[x];
 					for(var i = 0; i < testColumn.editor.tabs.tabs.length; i++) { // test each tab in each column
 						var testTab = testColumn.editor.tabs.tabs[i];
-						if (testTab.datum.path == tab.datum.path && testTab.id != tab.id) { // if the tab that is being checked shares the same path
+						if (testTab.datum.path == tab.datum.path && testTab.id != tab.id && tab.datum.codemirror.doc.getValue().length > 0) { // if the tab that is being checked shares the same path
 							testTab.datum.codemirror.doc.setValue(tab.datum.codemirror.doc.getValue());// then modify the value
 							testTab.datum.codemirror.refresh();
 						};
