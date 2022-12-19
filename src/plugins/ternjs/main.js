@@ -212,9 +212,9 @@ TernPluginMain.prototype.start = function(inc) {
 };
 TernPluginMain.prototype.destroy = function() {
 	console.log("-- TernPluginMain cleanup! --");
-	if (this.server.exit)
+	if (this.server && this.server.exit)
 		this.server.exit('SIGINT');
-	else
+	else if (this.server)
 		this.server.kill();
 	this.server = null;
 	return;
