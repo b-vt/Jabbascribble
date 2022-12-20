@@ -14,6 +14,7 @@ commandline flags:
 - -v -version, print version
 - -x -y (integer), takes set window position on start
 - -e -electron (filename|localhost/url/path|127.0.0.1/url/path), reuse binary as instance of electron for development, urls must start with http:// etc, otherwise they will be opened in the browser. This is a bug but it's sort of useful so maybe it's actually a feature
+- -e -electron (filename|localhost/url/path|127.0.0.1/url/path) (-d -debug), automtically opens devtools console when electron is used to render web project
 	
 extra:
 - run command `eletron -e filename` to use instance of electron

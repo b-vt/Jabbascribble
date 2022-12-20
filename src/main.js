@@ -13,6 +13,7 @@
 	global.gc = require("vm").runInNewContext("gc");
 	
 	var runDefault = true;
+	var debug = false; // if true then open chrome console when loadElectron uses localhost redirect
 	function defaultScript() {
 		console.log(" launching default script ");
 		console.log("cwd:", process.cwd());
@@ -28,6 +29,8 @@
 			var menu = electron.Menu.buildFromTemplate([{label: "Options", submenu: [{role: "close"}, {role: "forceReload"}, {role: "toggleDevTools"}]}]);
 			electron.Menu.setApplicationMenu(menu);
 			window.loadURL(file);
+			if (debug)
+				window.webContents.openDevTools();
 			window.on("close", function(a, b, c) {
 
 			});
@@ -55,6 +58,8 @@
 						window.on("close", function(a, b, c) {
 
 						});
+						
+						
 
 					})();
 					break;
@@ -85,16 +90,31 @@
 		});
 		console.log(process.argv);
 		if (process.argv.length > 1) {
+			var launchScript = null;
 			for(var i = 1; i < process.argv.length; i++) {
 				var arg = process.argv[i];
 				if (arg == "-e" || arg == "-electron" && process.argv[i+1]) {
-					console.log("spawning new instance of electron with some file");
-					console.log("new instance main script: ", process.argv[i+1]);
 					runDefault = false;
-					loadElectron(process.argv[i+1]);
-					return;
-				};
+					launchScript = process.argv[i+1];
+					//console.log("spawning new instance of electron with some file");
+					//console.log("new instance main script: ", process.argv[i+1]);
+					//runDefault = false;
+					//loadElectron(process.argv[i+1]);
+					//return;
+				}
+				else if (arg == "-d" || arg == "-debug") {
+					debug = true;
+				}
 			}
+			
+			if (launchScript) {
+				console.log("spawning new instance of electron with some file");
+				console.log("new instance main script: ", launchScript);
+				loadElectron(launchScript);
+				return;
+			}
+			
+			
 		}
 		if (runDefault) {
 			defaultScript();
