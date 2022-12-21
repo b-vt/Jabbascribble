@@ -42,6 +42,14 @@ var {Plugins} = require("./src/shared/plugins.js");
 						Config.window.Y = parseInt(argSet);
 						i++;
 					}
+					else if ((arg == "-w" || arg == "-width") && argSet) {
+						Config.window.Width = parseInt(argSet);
+						i++;
+					}
+					else if ((arg == "-h" || arg == "-height") && argSet) {
+						Config.window.Height = parseInt(argSet);
+						i++;
+					}
 					// fix to prevent electron instances from opening editor files on startup
 					else if (arg == "-e" || arg == "-electron") {
 						i++;

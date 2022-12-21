@@ -12,10 +12,12 @@ commandline flags:
 - filename1 filename2, opens files in editor
 - -d -debug, enables debugging tools like chrome devtools
 - -v -version, print version
-- -x -y (integer), takes set window position on start
-- -e -electron (filename|localhost/url/path|127.0.0.1/url/path), reuse binary as instance of electron for development, urls must start with http:// etc, otherwise they will be opened in the browser. This is a bug but it's sort of useful so maybe it's actually a feature
-- -e -electron (filename|localhost/url/path|127.0.0.1/url/path) (-d -debug), automtically opens devtools console when electron is used to render web project
-	
+- -x -y (integer), set window position on start
+- -w -width -h -height (integer), sets window dimensions
+- -e -electron (filename|localhost/url/path|127.0.0.1/url/path) (-d -debug, -w -width -h -height), reuse binary as 
+instance of electron for development, urls must start with http:// etc, otherwise they will be opened in the 
+browser. This is a bug but it's sort of useful so maybe it's actually a feature. -d/-debug will open devtools, -w/-h will set dimensions
+
 extra:
 - run command `eletron -e filename` to use instance of electron
 - using {$HOME} in ccls plugin config bin path will be replaced with path to home, eg '{$HOME}/ccls' will become '/home/username/ccls'
