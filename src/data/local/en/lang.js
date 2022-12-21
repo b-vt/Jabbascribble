@@ -49,6 +49,7 @@ var Lang = {
 			// projects
 			Project: "Project",
 			ToggleProjectView: "Toggle Project View",
+			ToggleProjectViewHint: "Show or hide a list of files associated with the current project",
 			SaveProject: "Save Project File",
 			SaveProjectHint: "Save the current project state to a file",
 			OpenProject: "Open Project File",
@@ -57,7 +58,8 @@ var Lang = {
 			ProjectFileRemove: "Remove file from project",
 			ProjectFileSearch: "File or path...",
 			ProjectFileSearchHint: "Search for files or directories",
-			
+			ToggleConsole: "Toggle Console",
+			ToggleConsoleHint: "Show or hide the console"
 		}
 	}
 };

@@ -65,6 +65,7 @@ ProjectPluginMain.prototype.runCommands = function(cmds) {
 		var args = Common.StringToArgs(runCmds[i]);
 		console.log("My args:", args);
 		var nowait = false;
+		if (args.length == 0) return nextCommand(runCmds, i+1);
 		if (args[args.length - 1].match(/&/g) != null) //(args.join(" ").match(/(&)/g) != null)
 			nowait = true;
 		var cmd = args[0];

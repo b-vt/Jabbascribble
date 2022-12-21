@@ -975,6 +975,12 @@ details > .ui-context-menu {
 	border-left: 1px solid #909090;
 }
 
+.ui-output-input {
+	border: none;
+	outline: none;
+	background-color: rgba(0,0,0,0);
+}
+
 .popup-goto {
 	width: 100px;
 	height: 50px;	

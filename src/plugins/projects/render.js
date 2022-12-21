@@ -17,7 +17,6 @@
 	};
 	
 	function fnRunCommands() {
-		//if (ProjectFile.projectFile.length > 0)
 		window.api.plugin({
 			pluginName: "projectview", event: "render", request: {
 				type: "spawn",
@@ -25,6 +24,7 @@
 			}
 		});
 	};
+
 	function ProjectsRender() {
 		function ElementModalTabPane(context, text) {
 			var self = this;
@@ -479,19 +479,9 @@
 				self.removeFile(edit.datum.path);
 		};
 		menu.add();
-		menu.add(Lang.Plugins.Projects.ToggleProjectView, "ui-icon-project", "").onclick = fnToggleProjectViewer;
-		/*var projectFileInput = UI.make("input", "ui-input ui-input-project", projectTableHeadRowContentDiv);
-		projectFileInput.value = ".scribble";
-		projectFileInput.onkeyup = function(event) {
-			var e = new InputEventDto(event);
-			if (e.key == InputEventDto.prototype.KEY_RETURN) {
-				fnGetProject(projectFileInput.value);
-			}
-		}
-		var projectFileInputSearch = UI.make("button", "ui-input-project-button", projectTableHeadRowContentDiv, "load");
-		projectFileInputSearch.onclick = function(event) {
-			fnGetProject(projectFileInput.value);
-		}*/
+		menu.add(Lang.Plugins.Projects.ToggleProjectView, "ui-icon-project", Lang.Plugins.Projects.ToggleProjectViewHint).onclick = fnToggleProjectViewer;
+		menu.add(Lang.Plugins.Projects.ToggleConsole, "ui-icon-project", Lang.Plugins.Projects.ToggleConsoleHint).onclick = fnToggleConsole;;
+
 		var fileExplorerList = new UI.make("div", "ui-treeview full-width full-height", projectTableBodyRowContent);
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_H], fnToggleProjectViewer);// ctrl h
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_R], fnRunCommands);
@@ -503,23 +493,136 @@
 		var output = null;
 		var outputDestroyBtn = null;
 		
-		function fnAddOutput(style, msg) {
-			if (output != null)
-				return new UI.make("div", style, output, msg);
+		function fnRemoveInput() {
+			output.children[output.children.length - 1].remove();// the input element
 		};
+		function fnAddInput() {
+			var input = new UI.make("input", "ui-output-input full-width color-lime", output, "");
+			input.placeholder = ">";
+			
+			input.onkeydown = function(event) {
+				var dto = new InputEventDto(event);
+				if (dto.key == InputEventDto.prototype.KEY_ENTER) {
+					if (this.value.length > 1) {
+						window.api.plugin({
+							pluginName: "projectview", event: "render", request: {
+								type: "spawn",
+								projectFile: {runCommands: this.value.split("&&")}
+							}
+						});
+					}
+					else {
+						fnAddOutput("color-lime", `> ${this.value}`);
+					}
+				}
+			};
+			input.focus();
+		};
+		function fnAddOutput(style, msg) {
+			//if (output != null)
+				//return new UI.make("div", style, output, msg);
+			if (output != null) {
+				fnRemoveInput();
+				var line = new UI.make("div", style, output, msg);
+				fnAddInput();
+				return line;
+			};
+		};
+		var toggled = false;
+		function fnToggleConsole() {
+			toggled = !toggled;
+			if (output != null) {
+				if (toggled) {
+					output.parentElement.children[1].setAttribute("data-show", "1"); // button container
+					output.setAttribute("data-show", "1");
+				}
+				else {
+					output.parentElement.children[1].setAttribute("data-show", "0"); // button container
+					output.setAttribute("data-show", "0");
+				}
+			}
+			else {
+				fnCreateOutput();
+			};
+			fnForceOutputRepaint(output);
+		}
+		function fnForceOutputRepaint(output) {
+			// force a repaint...
+			//window.resizeTo(window.outerWidth, window.outerHeight);
+			window.resizeTo(window.outerWidth, window.outerHeight-1);
+			window.resizeTo(window.outerWidth, window.outerHeight+1);
+			// and scroll to the bottom of the output
 
+		}
+		function fnCreateOutput(fromClear) {
+			var p = window.editor.footerContents.parentElement;
+			if (output == null) {
+				var outputResize = new UI.make("div", "ui-output-resizer full-width", p);
+				outputResize.onmousedown = function(e) {
+					var dto = new InputEventDto(e);
+					var init = {y: dto.y, height: output.clientHeight};
+					window.onmousemove = function(evt) {
+						var dto = new InputEventDto(evt);
+						output.style.height = `${(init.y - dto.y) + init.height + 10}px`;
+						fnForceOutputRepaint();
+					};
+					window.onmouseup = function(evt) {
+						window.onmousemove = null;
+						window.onmouseup = null;
+						console.log("cleaned up the thing");
+					};
+				};
+				output = new UI.make("div", "bordered ui-output relative full-width", p);
+				output.style.height = `100px`;
+				var btnContainer = new UI.make("div", "", outputResize);
+				var outputClearBtn = new ElementIconButton(btnContainer, "ui-icon-bin-empty ", "Clear contents of output window");
+				var outputDestroyBtn = new ElementIconButton(btnContainer, "ui-icon-reddelete ", "Close this output window");
+				var outputStopBtn = new ElementIconButton(btnContainer, "ui-icon-cancel ", "Stop any spawned process");
+				outputDestroyBtn.onclick =function() {
+					output.remove();
+					outputResize.remove();
+					output = null;
+					//setTimeout(function () {
+					window.api.plugin({
+						pluginName: self.pluginName, event: "render", request: {
+							type: "spawn-kill"
+						}
+					});
+					setTimeout(fnForceOutputRepaint, 100);
+				};
+				outputStopBtn.onclick = function() {
+					window.api.plugin({
+						pluginName: self.pluginName, event: "render", request: {
+							type: "spawn-kill"
+						}
+					});
+				};
+				outputClearBtn.onclick = function() {
+					output.remove();
+					outputResize.remove();
+					output = null;
+					fnCreateOutput(true);
+					fnAddOutput("color-lime", "output cleared");//new UI.make("div", "", output, "cleared");
+				}
+				toggled = true;
+				//fnAddOutput("", `stderr 00:12:50 ccls           initialize.cc:298 I initializationOptions: {"compilationDatabaseCommand":"","compilationDatabaseDirectory":"","cache":{"directory":".ccls-cache","format":"binary","hierarchicalPath":false,"retainInMemory":2},"capabilities":{"documentOnTypeFormattingProvider":{"firstTriggerCharacter":"}","moreTriggerCharacter":[]},"foldingRangeProvider":true,"workspace":{"workspaceFolders":{"supported":true,"changeNotifications":true}}},"clang":{"excludeArgs":[],"extraArgs":[],"pathMappings":[],"resourceDir":""},"client":{"diagnosticsRelatedInformation":true,"hierarchicalDocumentSymbolSupport":true,"linkSupport":true,"snippetSupport":true},"codeLens":{"localVariables":true},"completion":{"caseSensitivity":2,"detailedLabel":true,"dropOldRequests":true,"duplicateOptional":true,"filterAndSort":true,"include":{"blacklist":[],"maxPathSize":30,"suffixWhitelist":[".h",".hpp",".hh",".inc"],"whitelist":[]},"maxNum":100,"placeholder":true},"diagnostics":{"blacklist":[],"onChange":1000,"onOpen":0,"onSave":0,"spellChecking":true,"whitelist":[]},"highlight":{"largeFileSize":2097152,"lsRanges":false,"blacklist":[],"whitelist":[]},"index":{"blacklist":[],"comments":2,"initialNoLinkage":false,"initialBlacklist":[],"initialWhitelist":[],"maxInitializerLines":5,"multiVersion":0,"multiVersionBlacklist":[],"multiVersionWhitelist":[],"name":{"suppressUnwrittenScope":false},"onChange":false,"parametersInDeclarations":true,"threads":0,"trackDependency":2,"whitelist":[]},"request":{"timeout":5000},"session":{"maxNum":10},"workspaceSymbol":{"caseSensitivity":1,"maxNum":1000,"sort":true},"xref":{"maxNum":2000}}`);
+				fnAddInput();
+				return true;
+			};
+			return false;
+		};
 		window.addEventListener('app-plugin-projectview-output', function(data) {
 			var d = data.detail;
-			var p = window.editor.footerContents.parentElement;
-			function fnForceOutputRepaint(output) {
+			//var p = window.editor.footerContents.parentElement;
+			/*function fnForceOutputRepaint(output) {
 				// force a repaint...
 				//window.resizeTo(window.outerWidth, window.outerHeight);
 				window.resizeTo(window.outerWidth, window.outerHeight-1);
 				window.resizeTo(window.outerWidth, window.outerHeight+1);
 				// and scroll to the bottom of the output
 				
-			}
-			function fnCreateOutput(fromClear) {
+			}*/
+			/*function fnCreateOutput(fromClear) {
 				if (output == null) {
 					var outputResize = new UI.make("div", "ui-output-resizer full-width", p);
 					outputResize.onmousedown = function(e) {
@@ -568,12 +671,12 @@
 						fnCreateOutput(true);
 						fnAddOutput("color-lime", "output cleared");//new UI.make("div", "", output, "cleared");
 					}
-					
+					toggled = true;
 					//fnAddOutput("", `stderr 00:12:50 ccls           initialize.cc:298 I initializationOptions: {"compilationDatabaseCommand":"","compilationDatabaseDirectory":"","cache":{"directory":".ccls-cache","format":"binary","hierarchicalPath":false,"retainInMemory":2},"capabilities":{"documentOnTypeFormattingProvider":{"firstTriggerCharacter":"}","moreTriggerCharacter":[]},"foldingRangeProvider":true,"workspace":{"workspaceFolders":{"supported":true,"changeNotifications":true}}},"clang":{"excludeArgs":[],"extraArgs":[],"pathMappings":[],"resourceDir":""},"client":{"diagnosticsRelatedInformation":true,"hierarchicalDocumentSymbolSupport":true,"linkSupport":true,"snippetSupport":true},"codeLens":{"localVariables":true},"completion":{"caseSensitivity":2,"detailedLabel":true,"dropOldRequests":true,"duplicateOptional":true,"filterAndSort":true,"include":{"blacklist":[],"maxPathSize":30,"suffixWhitelist":[".h",".hpp",".hh",".inc"],"whitelist":[]},"maxNum":100,"placeholder":true},"diagnostics":{"blacklist":[],"onChange":1000,"onOpen":0,"onSave":0,"spellChecking":true,"whitelist":[]},"highlight":{"largeFileSize":2097152,"lsRanges":false,"blacklist":[],"whitelist":[]},"index":{"blacklist":[],"comments":2,"initialNoLinkage":false,"initialBlacklist":[],"initialWhitelist":[],"maxInitializerLines":5,"multiVersion":0,"multiVersionBlacklist":[],"multiVersionWhitelist":[],"name":{"suppressUnwrittenScope":false},"onChange":false,"parametersInDeclarations":true,"threads":0,"trackDependency":2,"whitelist":[]},"request":{"timeout":5000},"session":{"maxNum":10},"workspaceSymbol":{"caseSensitivity":1,"maxNum":1000,"sort":true},"xref":{"maxNum":2000}}`);
 					return true;
 				};
 				return false;
-			};
+			};*/
 
 			fnCreateOutput();
 
