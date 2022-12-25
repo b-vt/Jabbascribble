@@ -22,3 +22,6 @@ extra:
 - run command `eletron -e filename` to use instance of electron
 - using {$HOME} in ccls plugin config bin path will be replaced with path to home, eg '{$HOME}/ccls' will become '/home/username/ccls'
 - run command will resolve ~ to homedir only when used with cd
+
+nuances:
+- On windows, for some unknown reason commandline argument order is important while using the -electron flag. -e/-electron must be last argument or the application will exit with 4294967295. eg, ```electron -debug -w 1200 -h 900 -e http://localhost:8080```. On linux, order is not an issue.
