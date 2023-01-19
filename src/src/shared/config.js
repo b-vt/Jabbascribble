@@ -31,14 +31,14 @@ var Config = {
 			config: {
 				bin: "/bin/bin/tern"
 			}
-		}/*,
+		},
 		{
 			main: "ccls/main.js",
 			renderer: "ccls/render.js",
 			config: {
 				bin: "{$HOME}/src/ccls/build/ccls"
 			}
-		}*/
+		}
 		
 	]
 };

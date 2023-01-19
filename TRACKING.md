@@ -3,6 +3,7 @@ Bugs & Incomplete features:
 - Autocomplete has a tendency to add extra characters, also it's not easy to use.
 - Javascript inheritence shortcut does not work.
 - cleanup console.log spam
+- projects/main.js:116 has fatal error when closing the editor after it has been open for a while
 
 
 Things I want:

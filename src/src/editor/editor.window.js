@@ -236,6 +236,9 @@ function EditorWindow(opts) {
 		else if (tmpGetColumn !== undefined && tmpGetColumn !== null && tmpGetColumn.editor.resizer == null) {
 			tmpGetColumn.editor.appendResizer();
 		}
+		// fix the bjorked size of project list view when a column is resized and then number of columns are changed to 1
+		//console.log("i am", tmpGetColumn);
+		tmpGetColumn.container.style.width = "unset";
 	};	
 	this.fnResizeEditorColumns = resizeEditorColumns;
 	

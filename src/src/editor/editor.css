@@ -2,7 +2,8 @@
 .CodeMirror {
 	background: #272822 !important;
 	/*color: #f8f8f2 !important;*/
-	color: #8ddaff !important;
+	/*color: #8ddaff !important;*/
+	color: #ffca00 !important;
 	position: absolute !important;
 	width: unset !important;
 	/*height: unset !important;*/
@@ -987,4 +988,7 @@ details > .ui-context-menu {
 }
 .pointer-link {
 	cursor: pointer;
+}
+.test1 {
+	width: 100px !important;
 }
