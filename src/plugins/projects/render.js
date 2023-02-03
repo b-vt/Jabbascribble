@@ -265,7 +265,7 @@
 			function node(name, depth) {
 				this.name = name;
 				this.depth = depth || 0;
-				this.children = [];
+				this.children = new Map();
 			}
 			// oddwarg magic. 
 			function parsed(path, parentNode, offset, depth, index) {
@@ -274,12 +274,14 @@
 				var name = path.substring(offset);
 				if (separator != -1)
 					name = path.substring(offset, separator);
+				console.log(parentNode);
 				var current = parentNode.children[name];
 				if (current == undefined || current == null) {
-					parentNode.children[name] = new node(name, depth);
+					parentNode.children.set(name, new node(name, depth));
+					//[name] = new node(name, depth);
 					var ignoreDepth = ProjectFile.ignoreDepth || 0;
 					if (depth > ignoreDepth) { // hide some directories from view
-						var fileName = [new Array(parentNode.children[name].depth-ignoreDepth).join('\xa0'), name].join('');
+						var fileName = [new Array(parentNode.children.get(name).depth-ignoreDepth).join('\xa0'), name].join('');
 						var fnSplits = fileName.split(/[.]/g);
 						var ext = fnSplits[fnSplits.length - 1];
 						console.log(ext);
@@ -352,7 +354,7 @@
 					}
 				}
 				if (separator != -1)
-					parsed(path, parentNode.children[name], separator+1, depth+1, index);
+					parsed(path, parentNode.children.get(name), separator+1, depth+1, index);
 			}
 			var root = new node("");
 			var files = ArrayAlphabeticalSort(mfiles||ProjectFile.files);
