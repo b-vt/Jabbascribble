@@ -275,7 +275,7 @@
 				if (separator != -1)
 					name = path.substring(offset, separator);
 				console.log(parentNode);
-				var current = parentNode.children[name];
+				var current = parentNode.children.get(name);
 				if (current == undefined || current == null) {
 					parentNode.children.set(name, new node(name, depth));
 					//[name] = new node(name, depth);
