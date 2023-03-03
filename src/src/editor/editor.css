@@ -640,7 +640,7 @@ details > .ui-context-menu {
 .ui-input {
 	background-color: #383933;
 	color: #f0f0f0;
-	
+	height: 16px;
 	padding: 1px 5px 1px 5px;
 	/*margin: 0px 3px 0px 0px;*/
 	outline: none;
@@ -909,7 +909,7 @@ details > .ui-context-menu {
 }
 .ui-input-number {
 	width: 16px;
-	/*height: 14px;*/
+	height: 14px;
 }
 .ui-input-number2 {
 	width: 30px;
