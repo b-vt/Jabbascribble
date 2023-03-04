@@ -404,8 +404,9 @@ function EditorWindow(opts) {
 	};
 	fnCreateEditorColumns(Config.editor.Columns);
 
-
+	
 	new WindowPrefs(this);
+	console.trace();
 
 
 	// these are global hotkeys i guess idk

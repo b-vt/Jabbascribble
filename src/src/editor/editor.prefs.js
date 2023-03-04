@@ -55,7 +55,7 @@ WindowPrefs.prototype.openPrefsEditor = function() {
 			var tbody1_1 = UI.make("tbody", "", table1_1);
 			var tr1_1 = UI.make("tr", "", tbody1_1);
 			var td1_1 = UI.make("td", "", tr1_1);
-			var td2_1 = UI.make("td", "full-width", tr1_1);
+			var td2_1 = UI.make("td", "full-width full-height", tr1_1);
 			var tr2_1 = UI.make("tr", "ui-modal-footer", tbody1_1);
 			var td3_1 = UI.make("td", "", tr2_1);
 			td3_1.setAttribute("colspan", "3");
