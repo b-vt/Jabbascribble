@@ -1,4 +1,5 @@
 // todo: this is a copy paste from editor.window.js and is just plain uggo
+// todo2: output boxes input line doesn't work as intended on windows
 (() => {
 	
 	
@@ -498,6 +499,9 @@
 		function fnRemoveInput() {
 			output.children[output.children.length - 1].remove();// the input element
 		};
+		
+		var outputCompletes = [];
+		var outputCompletesIterator = 0;
 		function fnAddInput() {
 			var input = new UI.make("input", "ui-output-input full-width color-lime", output, "");
 			input.placeholder = ">";
@@ -516,7 +520,29 @@
 					else {
 						fnAddOutput("color-lime", `> ${this.value}`);
 					}
-				}
+					outputCompletes[outputCompletes.length] = this.value;
+					outputCompletesIterator = outputCompletes.length;
+					return;
+				};
+				if (dto.key == InputEventDto.prototype.KEY_UP) {
+					//outputCompletesIterator = (outputCompletesIterator - 1 + outputCompletes.length) % outputCompletes.length;
+					outputCompletesIterator = outputCompletesIterator > 0 ? outputCompletesIterator - 1 : 0;
+					this.value = outputCompletes[outputCompletesIterator];
+					//completes[index++]
+					//this.value = completes[index++];
+					//this.value = "b";
+					return;
+				};
+				if (dto.key == InputEventDto.prototype.KEY_DOWN) {
+					outputCompletesIterator = outputCompletesIterator >= outputCompletes.length - 1 ? outputCompletes.length - 1 : outputCompletesIterator + 1;
+					//outputCompletesIterator = (outputCompletesIterator + 1) % outputCompletes.length;
+					this.value = outputCompletes[outputCompletesIterator];
+					console.log(outputCompletes[outputCompletesIterator], outputCompletesIterator);
+					//completes[index--]
+					//this.value = "z";
+					return;
+				};
+				
 			};
 			input.focus();
 		};
