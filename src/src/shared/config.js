@@ -33,12 +33,30 @@ var Config = {
 			}
 		},
 		{
+			main: "lsp/lsp.main.js",
+			renderer: "lsp/lsp.render.js",
+			config: {
+				servers: [
+					{
+						name: "ccls", 
+						bin: `{$HOME}/src/ccls/build/ccls`,
+						config: {
+							languages: ["c", "cpp", "objective-c"]
+						}
+					}
+				]
+			}
+		}
+			/*
+		{
 			main: "ccls/main.js",
 			renderer: "ccls/render.js",
 			config: {
 				bin: "{$HOME}/src/ccls/build/ccls"
 			}
-		}
+		},*/
+			//"--port", this.port, "--no-port-file", "--ignore-stdin", "--verbose"
+			//`--port ${this.port} --no-port-file --ignore-stdin --verbose`
 		
 	]
 };

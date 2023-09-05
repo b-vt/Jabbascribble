@@ -13,7 +13,6 @@ function Hotkeys(element) {
 		self.onKeyDown(input);
 		self.keymap = input.keymap;
 		for(var i = 0; i < self.list.length; i++) {
-			console.log("am i here");
 			var hotkey = self.list[i];
 			if (hotkey.check(input, event)) {
 				//self.canConsume = false;

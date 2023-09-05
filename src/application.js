@@ -99,7 +99,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 			var app = new ApplicationClass();
 			app.init();
 			process.on("SIGINT", function(data) {
-				console.log(`------- process wee (${process.pid}) received SIGINT -------\n`, 
+				console.log(`------- application.js: process (${process.pid}) received SIGINT -------\n`, 
 								data,
 								"\n----------------------------");
 				if (app.plugins)
@@ -108,7 +108,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 				process.exit();
 			});
 			process.on("SIGTERM", function(data) {
-				console.log(`------- process wee (${process.pid}) received SIGTERM -------\n`, 
+				console.log(`------- application.js: process (${process.pid}) received SIGTERM -------\n`, 
 								data,
 								"\n----------------------------");
 				if (app.plugins)
@@ -169,7 +169,7 @@ var {Plugins} = require("./src/shared/plugins.js");
 		electron.ipcMain.on('renderer-plugin', function(event, data) {
 
 			(() => {
-				console.log("received plugin event");
+				//console.log("received plugin event");
 				var web = electron.BrowserWindow.fromId(data.uuid);
 				//console.log("web is", web);
 				if (data.uuid == undefined || web == null) return console.trace("- renderer-plugin request by unknown window -");

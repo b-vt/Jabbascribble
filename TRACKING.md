@@ -4,7 +4,7 @@ Bugs & Incomplete features:
 - Javascript inheritence shortcut does not work.
 - cleanup console.log spam
 - projects/main.js:116 has fatal error when closing the editor after it has been open for a while
-
+- project files use an absolute path instead of relative to projects working directory
 
 Things I want:
 - Project view folder collapse, and better indication of depth.

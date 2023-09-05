@@ -219,12 +219,16 @@ body {
 .ui-row-footer > div {
 	padding: 1px 1px 1px 5px;
 }
-.ui-row-footer > div > select {
+.ui-dropdownlist, .ui-row-footer > div > select {
 	user-select: none;
 	outline: 0;
 	padding: 0px 1px 1px 1px;
 	background-color: #383933;
 	color: #a6a3b9;
+}
+.ui-dropdownlist {
+	top: -3px;
+	left: 5px;
 }
 .ui-column-spacing {
 	height: 20px;

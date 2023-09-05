@@ -71,14 +71,14 @@
 	}
 	electron.app.whenReady().then((e) => {
 		process.on("SIGINT", function(data) {
-			console.log(`------- process s (${process.pid}) received SIGINT -------\n`, 
+			console.log(`------- main.js: process (${process.pid}) received SIGINT -------\n`, 
 							data,
 							"\n----------------------------");
 			process.kill(process.pid, "SIGINT");
 			process.exit();
 		});
 		process.on("SIGTERM", function(data) {
-			console.log(`------- process (${process.pid}) received SIGTERM -------\n`, 
+			console.log(`------- main.js: process (${process.pid}) received SIGTERM -------\n`, 
 							data,
 							"\n----------------------------");
 			process.kill(process.pid, "SIGINT");

@@ -19,6 +19,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 	this.deltaZ = 0;
 	this.target = null; // element that the event happened in?
 	//console.log(event);
+	this.type = event.type;
 
 	switch(event.type) {
 
@@ -31,6 +32,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 			break;
 		}
 		// mouse stuff
+		case "dblclick":
 		case "mouseover":
 		case "mousedown":
 		case "mouseup":
@@ -64,7 +66,7 @@ function InputEventDto(event, keymap, noDefaultPropagation) {
 
 		// todo: controller stuff?
 		default: {
-			console.trace("missing event type in events.js");
+			console.trace("missing event type in events.js", event);
 			break;
 		}
 	}

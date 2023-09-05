@@ -63,28 +63,30 @@ Plugins.prototype.doTask = function(item, event) {
 	eventName = event.event.toLowerCase();
 	var reply = null;
 	if (eventName == "render") {
-		reply = item.onRendererEvent(event);
+		//reply = item.onRendererEvent(event);
+		return item.onRendererEvent(event);
 	}
 	if (eventName == "main") {
-		reply = item.onMainEvent(event);
+		//reply = item.onMainEvent(event);
+		return item.onMainEvent(event);
 	}
 	if (eventName == "save") {
-		reply = item.onSaveEvent(event);
+		//reply = item.onSaveEvent(event);
+		return item.onSaveEvent(event);
 	}
 	if (eventName == "open") {
-		reply = item.onOpenEvent(event);
+		//reply = item.onOpenEvent(event);
+		return item.onOpenEvent(event);
 	}
 	if (eventName == "start") {
-		reply = item.onStartEvent(event);
+		//reply = item.onStartEvent(event);
+		return item.onStartEvent(event);
 	}
 	if (eventName == "stop") {
-		reply = item.onStopEvent(event);
+		//reply = item.onStopEvent(event);
+		return item.onStopEvent(event);
 	}
-	if (reply) {
-		// todo
-		console.warn("heck");
-	}
-	return reply;
+	return console.warn('unhandled event: %s\n', eventName, event);
 };
 
 Plugins.prototype.destroy = function() {

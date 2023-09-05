@@ -67,7 +67,7 @@
 			var hasListItem = false;
 			for(var i = 0; i < completions.length; i++) {
 				((_item, _i) => {
-					console.log("i spy: ", _item);
+					//console.log("i spy: ", _item);
 					/*if (_item.depth == 0) {
 						offset+=1;
 						return;
@@ -334,20 +334,86 @@
 			}
 
 		});
+		// todo: ugly copy paste gross
+		function fnGetNavigations() {
+			var editor =  window.editor.columns.active().editor;
+			var active = editor.tabs.getActive();
+			if (active) {
+				var datum = editor.tabs.getActive().datum;
+				if (datum && datum.mode == "text/x-c++src" ) {
+					var cursor = datum.codemirror.getCursor();
+					var text = datum.codemirror.getValue();
+					var prj = window.editor.plugins["projectview"];
+
+					var lineCount = datum.codemirror.lineCount();
+					var lineContent = datum.codemirror.getLine(lineCount-1);
+					var selects = null;
+					//if (datum.codemirror.
+					var req = {
+						method: "codenav",
+						projectDir: prj.projectFile.projectDirectory,
+						uri: datum.path, 
+						ch: cursor.ch,
+						line: cursor.line,
+						text: text,
+						/*ch: 1,
+						line: 7,
+						ech: 4, 
+						eline: 7, */
+						/*text: text,
+						files: files*/
+					};
+					// todo: there is no way to set this
+					if (prj.projectFile.projectLanguage && prj.projectFile.projectLanguage.length > 0)
+						req.projectLanguage = prj.projectFile.projectLanguage;
+					window.api.plugin({
+						pluginName: self.pluginName, event: "render", request: req
+					});
+				};
+			};
+		};
+		window.editor.plugins[self.pluginName].fnGetNavigations = fnGetNavigations;
+		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_D], function() {
+			console.warn("there");
+			window.editor.plugins[self.pluginName].fnGetNavigations();
+		});
 		window.editor.hotkeys.add(InputEventDto.prototype.CTRL, [InputEventDto.prototype.KEY_SPACE], function() {
-			console.log("?!?!?");
+			console.warn("here");
 			if (autoRequest && window.popups[self.pluginName])
 					window.popups[self.pluginName].select.focus();
 			else  {
 				console.log("ccls hot key");
 				window.editor.plugins[self.pluginName].fnGetCompletions();
+			};
+		});
+		
+		
+		window.addEventListener('app-plugin-ccls_client-debug', function(event) {
+			if (window.popups[self.pluginName] && (typeof window.popups[self.pluginName].destroy == "function")) 
+				window.popups[self.pluginName].destroy();
+			try {
+				var response = JSON.parse(event.detail.data);
+				console.warn("ccls_client-debug event: ", event.detail, response);
+				var editor =  window.editor.columns.active().editor;
+				var active = editor.tabs.getActive();
+				if (active) {
+					var datum = editor.tabs.getActive().datum;
+					if (datum) {
+						var cm = datum.codemirror;
+						if (!cm.hasFocus() || !response.result.method === "textDocument/completion") return;
+						
+					}
+				}
+			}
+			catch (e) {
+				console.log(e);
 			}
 		});
 		
 	};
 	/*TernRender.prototype.onContextMenu = function(context, item) {
 		context.add("blah", "", "").onclick = function() {
-			console.log("el poopo");
+			console.log("");
 		};
 	};*/
 		

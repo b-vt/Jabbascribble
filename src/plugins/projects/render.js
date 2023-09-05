@@ -556,6 +556,7 @@
 				return line;
 			};
 		};
+		this.log = fnAddOutput;
 		var toggled = false;
 		function fnToggleConsole() {
 			toggled = !toggled;

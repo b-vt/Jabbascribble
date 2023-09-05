@@ -55,7 +55,8 @@ function ApiInit() {
 	});
 	electron.ipcRenderer.on('main-plugin', function(event, data) {
 		console.log("preload: received main-plugin: ", data);
-		var eventName = `app-plugin-${data.pluginName}-${data.type}`;
+		var type = data.type ? `-${data.type}` : "";
+		var eventName = `app-plugin-${data.pluginName}${type}`;
 		console.log(eventName);
 		window.dispatchEvent(new CustomEvent(eventName, {detail: data}));
 	});

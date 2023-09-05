@@ -62,18 +62,34 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 			// send request to renderer?
 			var dstr = trimResponse(data.toString('utf8', 0, data.length + 1));
 			try {
-				console.log(dstr);
+				console.log("SCREE", dstr);
 				var dobj = JSON.parse(dstr);
-				if (dobj.result && dobj.result.items && dobj.result.items.length > 0) {
+				console.log(dobj);
+				if (dobj.result) {// && dobj.result.items && dobj.result.items.length > 0) {
+					console.log("SCRAW");
+					var type = "completions";
+					console.log("my method:", dobj.id);
+					switch(dobj.id) {
+						case 1: {
+							type = "completions";
+							break;
+						}
+						case -1:
+						default: {
+							type = "debug";
+							break;
+						}
+					};
 					self.window.webContents.send("main-plugin", { 
 						pluginName: self.pluginName, 
-						type: "completions", 
+						type: type,//"completions", 
 						data: dstr//data.toString('utf8', 0, data.length + 1)//data 
 					});
 				}
 			//}
 			}
 			catch (e) {
+				console.warn("stdout on data json parse error");
 				console.warn(e, dstr);
 			}
 		});
@@ -84,14 +100,42 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 	function fnCCLSMakeRequest(req) {
 		try {
 			var request = {jsonrpc: "2.0", method: "", params: {}};
+			var uri = req.uri || "";
 			switch (req.method) {
-				case "completes": {
-					request.method = "textDocument/completion";
-					request.id = `${(self.sendID++)}`;
+				case "codenav" :{
+					request.method = "textDocument/documentSymbol";
+					request.id = -1;
 					request.params = {
 						textDocument: {
-							uri: `file:///${req.uri}`,
-							text: req.text
+							uri: `file:///${uri}`
+						}/*,
+						context: {
+							includeDeclaration: true
+						}*/
+					};
+					break;
+				};
+				case "highlights": {
+					request.method = "textDocument/documentHighlight";
+					request.id = -1;
+					request.params = {
+						textDocument: {
+							uri: `file:///${uri}`
+						},
+						position: {
+							line: req.line,
+							character: req.ch
+						}
+					};
+					break;
+				};
+				case "completes": {
+					request.method = "textDocument/completion";
+					request.id = 1; //self.sendID;//++;//`${(self.sendID++)}`;
+					request.params = {
+						textDocument: {
+							uri: `file:///${uri}`/*,
+							text: req.text*/
 						},
 						position: {
 							line: req.line,
@@ -106,28 +150,29 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 						processID: process.pid,
 						locale: Config.Lang,
 						rootUri: `file:///${req.projectDir}`,
+						//rootPath: `file:///${req.projectDir}`,
 						initializationOptions: {},
 						capabilities: {},
 						trace: "off",
-						workspaceFolders: [],
+						//workspaceFolders: null,//[],//`file:///${req.projectDir}`],
 						clientInfo: {
 							name: self.pluginName,
 							version: self.pluginVersion
 						}
 
 					};
-					request.id = `${(self.sendID++)}`;
+					request.id = self.sendID++;//`${(self.sendID++)}`;
 					break;
 				}
 				case "open": {
 					request.method = "textDocument/didOpen";
 					request.params.textDocument = {};
-					request.params.textDocument.uri = `file:///${req.uri}`;
+					request.params.textDocument.uri = `file:///${uri}`;//req.uri || ''}`;
 					request.params.textDocument.version = 1;
 					/*if (self.openFiles[req.uri]) {
 						request.params.textDocument.version = self.openFiles[req.uri].version;
 					}*/
-					var langID = path.extname(req.uri);
+					var langID = path.extname(uri);//req.uri || "");
 					// get language ID from project file
 					if (req.projectLanguage && req.projectLanguage.length > 0)
 						langID = req.projectLanguage;
@@ -153,6 +198,7 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 			return m;
 		}
 		catch (e) {
+			console.warn("failure request:", request);
 			console.warn("JSON stringify failed:", e);
 			return "\n";
 		}
@@ -171,7 +217,7 @@ CCLSPluginMain.prototype.onRendererEvent = function(event) {
 		}, 500);
 	}
 	else {
-		event.request.method = "completes";
+		//event.request.method = "completes";
 		self.server.stdin.write(fnCCLSMakeRequest(event.request));
 	}
 	
