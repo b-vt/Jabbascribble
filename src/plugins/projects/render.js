@@ -544,7 +544,7 @@
 				};
 				
 			};
-			input.focus();
+			//input.focus();
 		};
 		function fnAddOutput(style, msg) {
 			//if (output != null)
